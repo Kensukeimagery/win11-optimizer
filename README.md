@@ -1,5 +1,17 @@
 # win11-optimizer
 
+## Download / ดาวน์โหลด
+
+### [Download the latest ZIP (click here) / ดาวน์โหลดไฟล์ ZIP ล่าสุด (กดที่นี่)](https://github.com/Kensukeimagery/win11-optimizer/releases/latest/download/win11-optimizer.zip)
+
+1. Click the link above. The ZIP downloads by itself, no GitHub account needed. / กดลิงก์ด้านบน ไฟล์ ZIP จะโหลดทันที ไม่ต้องมีบัญชี GitHub
+2. Right-click the ZIP > **Extract All**, then open the extracted folder. Do not run files from inside the ZIP. / คลิกขวาที่ ZIP > **Extract All** แล้วเปิดโฟลเดอร์ที่แตกออกมา อย่ารันไฟล์จากในไฟล์ ZIP
+3. Read the manual in `docs/` first (English or Thai), then follow the quick start below. / อ่านคู่มือในโฟลเดอร์ `docs/` ก่อน (มีทั้งไทยและอังกฤษ) แล้วทำตามขั้นตอนเริ่มใช้งานด้านล่าง
+
+Link not working? Use the green **Code** button on this page > **Download ZIP**. / ถ้าลิงก์ใช้ไม่ได้ ให้กดปุ่มสีเขียว **Code** ในหน้านี้ > **Download ZIP**
+
+---
+
 [ภาษาไทย](#ภาษาไทย) | [English](#english)
 
 ---
@@ -11,7 +23,7 @@ A small, transparent set of batch/registry scripts to tune Windows 11 for gaming
 > **Use at your own risk.** These scripts edit the registry and power settings. Use them only on your own PC. Create a restore point first (the script offers to). Some antivirus tools may flag `.bat` files that edit the registry; read the files before running.
 
 ### Quick start
-1. Download the repository (Code > Download ZIP, or a Release) and **keep all folders next to the scripts**.
+1. Download the ZIP (see the link at the top), extract it, and **keep all folders next to the scripts**.
 2. Right-click `1_Start_Here - PC_Optimizer_Master (Run as Administrator).bat` > **Run as administrator**.
 3. Press `5` (restore point + everything). Answer the Y/N questions for the optional tweaks.
 4. Restart Windows.
@@ -52,7 +64,7 @@ MIT, see `LICENSE`.
 > **ใช้ด้วยความเสี่ยงของตัวเอง** สคริปต์แก้ registry และ power settings ใช้กับเครื่องของตัวเองเท่านั้น สร้างจุดคืนค่าก่อนเสมอ (สคริปต์ถามให้) แอนตี้ไวรัสบางตัวอาจเตือนไฟล์ .bat ที่แก้ registry ควรเปิดอ่านก่อนรัน
 
 ### เริ่มใช้งาน
-1. ดาวน์โหลด repo (Code > Download ZIP หรือจากหน้า Releases) และ**เก็บทุกโฟลเดอร์ไว้ข้างสคริปต์**
+1. ดาวน์โหลดไฟล์ ZIP (ลิงก์อยู่ด้านบนสุด) แตกไฟล์ และ**เก็บทุกโฟลเดอร์ไว้ข้างสคริปต์**
 2. คลิกขวา `1_Start_Here - PC_Optimizer_Master (Run as Administrator).bat` > **Run as administrator**
 3. กด `5` (จุดคืนค่า + ทุกอย่าง) แล้วตอบ Y/N ข้อ Optional
 4. รีสตาร์ทเครื่อง
