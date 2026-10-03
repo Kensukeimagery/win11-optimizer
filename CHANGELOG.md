@@ -1,6 +1,7 @@
 ﻿# Changelog
 
 ## v4.3
+- Check Status now prints a 'please wait, no key press needed' message while PowerShell starts and while it checks, so the window no longer looks frozen.
 - Added **Check Status** (`3_Check_Status` or menu `C`): compares the live PC with every .reg file plus power plan, CPU/USB/PCIe power values, Prefetcher, TCP per adapter and services. Re-applies only what is missing or changed, backs up first, re-checks and writes `CheckReport_*.txt`.
 - Remembers tweaks you chose to skip (shown as SKIPPED).
 - Restore point creation now times out after 10 minutes instead of hanging at 99%.
@@ -27,4 +28,5 @@
 
 ## v1 - v3
 - Original scripts, then a single Master menu, crash fixes, an improved `repair-tools` set and the first manual.
+
 

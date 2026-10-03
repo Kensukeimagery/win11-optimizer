@@ -10,6 +10,10 @@ if errorlevel 1 goto NOADMIN
 if not exist "%~dp0tools\Check_Status.ps1" goto NOTOOL
 if not exist "%~dp0reg" goto NOTOOL
 
+echo.
+echo   PC Optimizer - Check Status
+echo   Starting PowerShell, please wait a few seconds. No key press is needed.
+echo.
 powershell -NoProfile -ExecutionPolicy Bypass -File "%~dp0tools\Check_Status.ps1" -Root "%~dp0."
 echo.
 pause

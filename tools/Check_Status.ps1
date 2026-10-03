@@ -340,6 +340,8 @@ function Start-CheckStatus {
     Write-Log ('   ' + (Get-Date -Format 'yyyy-MM-dd HH:mm') + '   Windows build ' + [Environment]::OSVersion.Version.ToString()) 'Cyan'
     Write-Log '==================================================================' 'Cyan'
     Write-Log ''
+    Write-Log '   Checking your PC, please wait a few seconds. No key press is needed...' 'DarkGray'
+    Write-Log ''
     Invoke-Checks $regRoot $backupDir
     Show-Items
 
