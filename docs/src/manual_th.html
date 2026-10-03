@@ -1,10 +1,10 @@
 <!doctype html>
-<html lang="th"><head><meta charset="utf-8"><title>คู่มือ Windows 11 Optimizer v4.4</title>
+<html lang="th"><head><meta charset="utf-8"><title>คู่มือ Windows 11 Optimizer v4.5</title>
 <link rel="stylesheet" href="style.css"></head><body>
 
 <!-- PAGE 1 -->
 <div class="page">
-<div class="banner cover"><div class="sub">คู่มือการใช้งาน v4.4</div><h1>Windows 11 Optimizer</h1><div class="sub">รวมทุกอย่างไว้ในเมนูเดียว พร้อมระบบสำรองและย้อนกลับรายข้อ</div></div>
+<div class="banner cover"><div class="sub">คู่มือการใช้งาน v4.5</div><h1>Windows 11 Optimizer</h1><div class="sub">รวมทุกอย่างไว้ในเมนูเดียว พร้อมระบบสำรองและย้อนกลับรายข้อ</div></div>
 
 <div class="box red"><h3>อ่านก่อนใช้</h3>
 <ul>
@@ -24,9 +24,9 @@
 <tr><td>1_Start_Here - PC_Optimizer_Master (Run as Administrator).bat</td><td>เมนูหลัก เริ่มที่ไฟล์นี้ ทุกอย่างเข้าถึงได้จากเมนู</td></tr>
 <tr><td>2_Revert_Everything - System_Restore (Run as Administrator).bat</td><td>ย้อนทั้งเครื่องด้วย System Restore (ใช้เมื่อมีปัญหาหนัก)</td></tr>
 <tr><td>3_Check_Status (Run as Administrator).bat</td><td>ตรวจว่าการตั้งค่ายังอยู่ครบไหม เช่นหลังอัปเดต Windows</td></tr>
-<tr><td>4_Network_Test.bat</td><td>ทดสอบ ping, jitter และ packet loss แบบอ่านอย่างเดียว ไม่ต้องใช้สิทธิ์ผู้ดูแลระบบ</td></tr>
+<tr><td>4_Network_Test.bat</td><td>ทดสอบ ping, jitter, packet loss และความเร็ว DNS ไม่แก้อะไรถ้าคุณไม่เลือกเปลี่ยน DNS ตอนท้าย ไม่ต้องใช้สิทธิ์ผู้ดูแลระบบเพื่อรัน</td></tr>
 <tr><td>5_System_Report.bat</td><td>รายงานแบบอ่านอย่างเดียว: อะไรกิน CPU/RAM, โปรแกรมที่เริ่มพร้อม Windows, พื้นที่ดิสก์, อายุไดรเวอร์การ์ดจอ ไม่ต้องใช้สิทธิ์ผู้ดูแลระบบ</td></tr>
-<tr><td>tools/</td><td>ไฟล์ PowerShell ช่วยทำงานของเมนู ตัวตรวจสถานะ และเครื่องมือสองตัวข้างบน ห้ามลบ</td></tr>
+<tr><td>tools/</td><td>ไฟล์ PowerShell ช่วยทำงานของเมนู ตัวตรวจสถานะ เครื่องมือสองตัวข้างบน และการเปลี่ยน DNS ห้ามลบ</td></tr>
 <tr><td>reg/1_Recommended</td><td>ไฟล์ 01-08 ปลอดภัยสำหรับเครื่องส่วนใหญ่</td></tr>
 <tr><td>reg/2_Optional</td><td>ไฟล์ 09-13 และ 15 สคริปต์ถามทีละข้อ (ข้อ 16 เป็นค่า power ดูในหมวดเสริม)</td></tr>
 <tr><td>reg/3_Power</td><td>ไฟล์ 14 ปลดล็อกตัวเลือก CPU ที่ซ่อนอยู่ใน Power Options</td></tr>
@@ -62,7 +62,7 @@
 <tr><td>8</td><td>Check disk type</td><td>ดูว่าเป็น SSD หรือ HDD ไม่แก้อะไร</td></tr>
 <tr><td>9</td><td>Power Options</td><td>เปิดหน้าต่าง Power Options ไว้ตรวจค่า</td></tr>
 <tr><td>C</td><td>Check status</td><td>เหมือน 3_Check_Status</td></tr>
-<tr><td>N</td><td>Network test</td><td>เหมือน 4_Network_Test ไม่แก้อะไร</td></tr>
+<tr><td>N</td><td>Network test</td><td>เหมือน 4_Network_Test ไม่แก้อะไร ยกเว้นคุณเลือกเปลี่ยน DNS ตอนท้าย</td></tr>
 <tr><td>R</td><td>System report</td><td>เหมือน 5_System_Report ไม่แก้อะไร</td></tr>
 <tr><td>0</td><td>Exit</td><td>ออก และแสดงตำแหน่งไฟล์ log</td></tr>
 </table>
@@ -98,7 +98,7 @@
 <tr><td>SKIPPED</td><td>ข้อที่คุณเลือกข้ามหรือย้อนกลับไว้</td><td>ไม่ถาม ไม่แก้</td></tr>
 <tr><td>UNKNOWN</td><td>อ่านค่าไม่ได้ หรือเครื่องไม่มีตัวเลือกนี้</td><td>ให้ข้อมูลเท่านั้น</td></tr>
 </table>
-<p class="small"><b>สิ่งที่ตรวจ:</b> ไฟล์ .reg ทั้ง 14 ไฟล์ (อ่านจากไฟล์ตัวเดียวกับที่ใช้ลง), Power Plan (Ultimate Performance หรือ High Performance ถ้าไม่มี Ultimate), ค่า power 4 ตัว, Prefetcher (SSD ต้องเป็น 0, HDD ต้องเป็น 3), TcpAckFrequency และ TCPNoDelay ของทุก adapter, services DiagTrack และ dmwappushservice และข้อเสริม 15 กับ 16 (ข้อ 16: boost mode 2 และ preference 0 ตอนเสียบปลั๊ก)<br>
+<p class="small"><b>สิ่งที่ตรวจ:</b> ไฟล์ .reg ทั้ง 14 ไฟล์ (อ่านจากไฟล์ตัวเดียวกับที่ใช้ลง), Power Plan (Ultimate Performance หรือ High Performance ถ้าไม่มี Ultimate), ค่า power 4 ตัว, Prefetcher (SSD ต้องเป็น 0, HDD ต้องเป็น 3), TcpAckFrequency และ TCPNoDelay ของทุก adapter, services DiagTrack และ dmwappushservice และข้อเสริม 15, 16 และ 17 (เมื่อเคยใช้) (ข้อ 16: boost mode 2 และ preference 0 ตอนเสียบปลั๊ก)<br>
 <b>ข้อจำกัด:</b> ตัวตรวจบอกได้ว่าค่ายังอยู่ แต่ไม่ได้ว่ายังมีผลจริง (ข้อ 08 อาจขึ้น OK แม้การ์ดจอไม่รองรับ GPU Scheduling) ค่าใต้ GameConfigStore (01, 09) ถูก Windows และ Xbox Game Bar เขียนทับเองได้ ขึ้น CHANGED บ่อยจึงไม่แปลกว่ามีอะไรผิด และถ้าเพิ่งติดตั้ง VPN หรือการ์ด Wi-Fi ใหม่ หัวข้อ Network จะขึ้น CHANGED จนกว่าจะตั้งค่า adapter นั้น</p>
 </div>
 
@@ -171,7 +171,13 @@
 <div class="card"><div class="t"><span class="n">4</span>4_Network_Test.bat</div><ul>
 <li>ส่ง ping ตัวละ 30 ครั้งไปที่เราเตอร์ 1.1.1.1 8.8.8.8 และเซิร์ฟเวอร์เกมถ้าคุณพิมพ์ใส่ (เป็นแพ็กเก็ต ping ธรรมดา) แสดง ping เฉลี่ย jitter และ packet loss ให้เกรด Good / Fair / Poor แต่ละบรรทัด และบอกว่าปัญหาน่าจะอยู่ตรงไหน</li>
 <li><b>Jitter</b> คือความแกว่งของค่าหน่วง ซึ่งเป็นสิ่งที่รู้สึกเป็นอาการกระชาก (rubber-banding) และสำคัญกว่า ping เฉลี่ยที่สูงขึ้นนิดหน่อย</li>
-<li>ผลบันทึกเป็น <span class="mono">NetworkTest_วันเวลา.txt</span> ข้างสคริปต์</li></ul></div>
+<li>ผลบันทึกเป็น <span class="mono">NetworkTest_วันเวลา.txt</span> ข้างสคริปต์</li>
+<li><b>ความเร็ว DNS:</b> จากนั้นวัดเวลาการค้นหาจริง 8 เว็บยอดนิยมบน DNS ปัจจุบันของคุณ และ Cloudflare (1.1.1.1), Google (8.8.8.8), Quad9 (9.9.9.9) แล้วบอกว่าตัวที่เร็วสุดเร็วกว่าเท่าไร ต่อด้วยถามว่าจะเปลี่ยน DNS ไหม คุณเลือกเลขเอง หรือกด Enter เพื่อไม่เปลี่ยนอะไร</li></ul></div>
+<div class="card opt"><div class="t"><span class="n">17</span>DNS servers (ข้อเสริม คุณเลือกเอง)</div><ul>
+<li>ตั้ง DNS IPv4 ของการ์ดเน็ต Ethernet และ Wi-Fi ที่ใช้งานอยู่เป็นผู้ให้บริการที่คุณเลือก การ์ด VPN และการ์ดเสมือนไม่ถูกแตะ Windows จะขอสิทธิ์ผู้ดูแลระบบตอนคุณยืนยัน</li>
+<li>สคริปต์เก็บค่า DNS เดิมไว้ก่อน (รวมถึงแบบ "obtain automatically") ย้อนกลับ: รันเทสต์อีกครั้งแล้วเลือก U หรือใช้เมนู 7 แล้ว 17</li>
+<li>Check Status แสดงข้อนี้หลังคุณเคยใช้ และตั้งซ้ำให้ถ้า Windows update หรือ VPN เปลี่ยนค่าไป</li></ul>
+<div class="h">มีผลมากแค่ไหน? DNS ใช้ครั้งเดียวตอนต่อเข้าเว็บหรือเซิร์ฟเวอร์เกม <b>ไม่ได้</b>เปลี่ยน ping หรือ FPS ในเกม DNS ที่เร็วกว่าอาจทำให้เปิดเว็บและ launcher เร็วขึ้นเล็กน้อย และ DNS ที่เสียอาจทำให้เว็บโหลดไม่ขึ้น ถ้า DNS ปัจจุบันของคุณช้ากว่าตัวที่ดีที่สุดไม่ถึง 5 ms ไม่ต้องเปลี่ยน ผู้ให้บริการ DNS ที่เลือกจะเห็นชื่อเว็บที่คุณเข้า</div></div>
 <table><tr><th style="width:36%">สิ่งที่เห็น</th><th>สาเหตุที่เป็นไปได้มากสุด</th><th style="width:30%">ลองทำ</th></tr>
 <tr><td>บรรทัด Router เป็น Fair หรือ Poor</td><td>สัญญาณ Wi-Fi สายเสีย หรืออุปกรณ์อื่นใช้เน็ตอยู่</td><td>ใช้สาย LAN เข้าใกล้เราเตอร์ หยุดดาวน์โหลดและสตรีมในเครื่องอื่น</td></tr>
 <tr><td>Router ดี แต่บรรทัด Internet เป็น Poor</td><td>ผู้ให้บริการอินเทอร์เน็ตหรือสายสัญญาณ</td><td>รีสตาร์ทเราเตอร์ ถ้ายังเป็นให้ติดต่อผู้ให้บริการ</td></tr>
@@ -187,7 +193,7 @@
 <li>เปิด NVIDIA Reflex (หรือ Low Latency Mode) ถ้าเกมมีให้</li>
 <li>ใช้สาย LAN Jitter ของ Wi-Fi เป็นสาเหตุ ping แย่ที่พบบ่อยที่สุด</li>
 <li>อัปเดตไดรเวอร์การ์ดจอ ระบายความร้อนให้ดี และปิดโปรแกรมหนักก่อนเล่น</li>
-<li>registry tweak ในโปรเจกต์นี้ไม่มีตัวไหนลด ping ได้ชัดเจน ทั้งหมดเป็นผลเล็กเฉพาะสถานการณ์</li></ul></div>
+<li>registry tweak ในโปรเจกต์นี้ไม่มีตัวไหนลด ping ได้ชัดเจน และการเปลี่ยน DNS ก็ไม่ลด ทั้งหมดเป็นผลเล็กเฉพาะสถานการณ์</li></ul></div>
 
 <div class="banner"><h1>โฟลเดอร์ repair-tools</h1><p>เครื่องมือซ่อมเฉพาะจุด ไม่ต้องรันทุกครั้ง คลิกขวา Run as administrator</p></div>
 <div class="card rep"><div class="t"><span class="n">A</span>Deep_Clean_Junk_Files.bat</div><ul><li>ล้างไฟล์ขยะด้วย Disk Cleanup ทุกหมวด + Temp รายงานพื้นที่ว่างก่อน-หลัง และเตือนถ้าเหลือน้อยกว่า 15%</li></ul><div class="h">ใช้เมื่อ: พื้นที่ดิสก์เหลือน้อย หรือทุก 1-2 เดือน</div></div>
@@ -246,6 +252,6 @@
 <li>11 Keyboard Response Flags และ 12 ปัญหา RAM รั่วของ Ndu: มาจากรายงานผู้ใช้ ไม่ใช่เอกสาร Microsoft</li>
 <li>ค่าเริ่มต้นใน reg_undo ของรายการเหล่านี้ อ้างอิงจากค่ามาตรฐานของ Windows ที่พบทั่วไป ถ้าต้องการค่าเดิมที่แม่นยำให้ใช้ไฟล์ในโฟลเดอร์ Backup</li></ul>
 ผลลัพธ์ต่างกันไปตามเครื่อง และ Microsoft อาจเปลี่ยนพฤติกรรมของค่าเหล่านี้ใน Windows รุ่นถัดไปได้ ทุกรายการย้อนกลับได้ผ่านเมนู 7 หรือโฟลเดอร์ Backup</div>
-<div class="foot">win11-optimizer v4.4 - github.com/Kensukeimagery/win11-optimizer - MIT License</div>
+<div class="foot">win11-optimizer v4.5 - github.com/Kensukeimagery/win11-optimizer - MIT License</div>
 </div>
 </body></html>

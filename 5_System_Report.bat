@@ -1,5 +1,5 @@
 @echo off
-title PC Optimizer - System Report v4.4
+title PC Optimizer - System Report v4.5
 color 0B
 
 :: Read-only. Shows what uses your CPU and RAM, what starts with Windows, disk space

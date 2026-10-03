@@ -1,10 +1,10 @@
 @echo off
 setlocal EnableExtensions
-title PC Optimizer - Master Control v4.4
+title PC Optimizer - Master Control v4.5
 color 0B
 
 :: =====================================================================
-::  PC OPTIMIZER - MASTER CONTROL v4.4
+::  PC OPTIMIZER - MASTER CONTROL v4.5
 ::  Safety rules used in this file - they avoid the crashes seen in v3:
 ::   - no brackets inside ECHO text that sits inside IF or FOR blocks
 ::   - flat GOTO labels instead of nested IF / ELSE blocks
@@ -22,7 +22,7 @@ set "TS=manual"
 for /f "usebackq delims=" %%t in (`powershell -NoProfile -Command "Get-Date -Format yyyyMMdd_HHmmss"`) do set "TS=%%t"
 set "LOGFILE=%SCRIPT_DIR%OptimizerLog_%TS%.txt"
 set "BACKUPDIR=%SCRIPT_DIR%Backup\%TS%"
-echo PC Optimizer v4.4 Log - %date% %time% > "%LOGFILE%"
+echo PC Optimizer v4.5 Log - %date% %time% > "%LOGFILE%"
 
 if not exist "%REGROOT%" goto NOREG
 if not exist "%UNDOROOT%" echo [WARN] reg_undo folder not found - option 7 will not work.
@@ -44,7 +44,7 @@ exit /b
 :MENU
 cls
 echo ===================================================================
-echo    PC OPTIMIZER - MASTER CONTROL v4.4
+echo    PC OPTIMIZER - MASTER CONTROL v4.5
 echo    Log: OptimizerLog_%TS%.txt
 echo ===================================================================
 echo.
@@ -60,7 +60,7 @@ echo   [7] Revert ONE tweak back to the Windows default
 echo   [8] Check disk type SSD or HDD - info only
 echo   [9] Open the Power Options window
 echo   [C] Check status - find settings that Windows Update changed back
-echo   [N] Network test - ping, jitter and packet loss, changes nothing
+echo   [N] Network test - ping, jitter, packet loss and DNS speed, you choose
 echo   [R] System report - CPU and RAM users, startup list, changes nothing
 echo   [0] Exit
 echo.
@@ -460,6 +460,7 @@ echo    5  Telemetry off               12  Ndu memory fix
 echo    6  System responsiveness       13  Memory Integrity off
 echo    7  Delivery Optimization off   14  CPU power options unlock
 echo   15  Timer resolution            16  CPU boost aggressive
+echo   17  DNS servers - back to the DNS you had before
 echo.
 echo    T  Network per-adapter tweak
 echo    P  Reset ALL power plans to Windows defaults
@@ -475,6 +476,7 @@ if /i "%RV%"=="P" goto REVERTPOWER
 set "RN=0%RV%"
 set "RN=%RN:~-2%"
 if "%RN%"=="16" goto REVERTBOOST
+if "%RN%"=="17" goto REVERTDNS
 set "FOUNDREG="
 for /r "%UNDOROOT%" %%f in (UNDO_%RN%_*.reg) do call :UNDOONE "%%f"
 if not defined FOUNDREG echo    [WARN] No undo file matches that choice.
@@ -493,6 +495,12 @@ call :SETCHOICE %FN:~5,2% N
 goto :eof
 :UNDOFAIL
 echo      [ERROR] Revert failed - see the log file.
+goto :eof
+
+:REVERTDNS
+if not exist "%TOOLDIR%\Set_Dns.ps1" echo    [WARN] tools\Set_Dns.ps1 was not found.
+if exist "%TOOLDIR%\Set_Dns.ps1" powershell -NoProfile -ExecutionPolicy Bypass -File "%TOOLDIR%\Set_Dns.ps1" -Action Undo -Root "%SCRIPT_DIR%."
+pause
 goto :eof
 
 :REVERTBOOST

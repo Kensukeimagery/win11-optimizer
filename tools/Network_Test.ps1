@@ -1,11 +1,12 @@
-# PC Optimizer v4.4 - Network test (read-only: changes nothing on your PC)
+# PC Optimizer v4.5 - Network test (read-only: changes nothing on your PC)
 # Pings your router, 1.1.1.1, 8.8.8.8 and an optional game server, then shows average ping,
 # jitter and packet loss, and says where a problem most likely is.
 param(
     [string]$Root = '',
     [string]$Target = '',
     [int]$Count = 30,
-    [switch]$NoPrompt
+    [switch]$NoPrompt,
+    [switch]$SkipDns
 )
 
 $ErrorActionPreference = 'Continue'
@@ -18,11 +19,12 @@ function Write-Log([string]$Text, [string]$Color = 'Gray') {
 
 function Get-GatewayInfo {
     # Default gateway of the connection with the lowest metric, and its connection type.
-    $info = @{ Gateway = ''; Type = 'unknown'; Name = '' }
+    $info = @{ Gateway = ''; Type = 'unknown'; Name = ''; Index = 0 }
     try {
         $route = Get-NetRoute -DestinationPrefix '0.0.0.0/0' -ErrorAction Stop | Where-Object { $_.NextHop -ne '0.0.0.0' } | Sort-Object { $_.RouteMetric + $_.InterfaceMetric } | Select-Object -First 1
         if ($null -ne $route) {
             $info.Gateway = [string]$route.NextHop
+            $info.Index = [int]$route.InterfaceIndex
             $ad = Get-NetAdapter -InterfaceIndex $route.InterfaceIndex -ErrorAction SilentlyContinue
             if ($null -ne $ad) {
                 $info.Name = [string]$ad.Name
@@ -85,12 +87,68 @@ function Show-Row($Label, $R, [string]$Grade) {
     Write-Log $line (Get-GradeColor $Grade)
 }
 
+function Test-DnsServer([string]$Server, [string]$Name) {
+    # Sends one real DNS lookup (A record) straight to $Server and returns the time in ms, or $null if it failed.
+    $udp = New-Object System.Net.Sockets.UdpClient
+    try {
+        $udp.Client.ReceiveTimeout = 1500
+        $udp.Connect($Server, 53)
+        $id = Get-Random -Minimum 1 -Maximum 65535
+        $bytes = New-Object System.Collections.Generic.List[byte]
+        $bytes.Add([byte]($id -shr 8)); $bytes.Add([byte]($id -band 255))
+        $bytes.AddRange([byte[]](1, 0, 0, 1, 0, 0, 0, 0, 0, 0))
+        foreach ($label in $Name.Split('.')) {
+            $lb = [Text.Encoding]::ASCII.GetBytes($label)
+            $bytes.Add([byte]$lb.Length); $bytes.AddRange($lb)
+        }
+        $bytes.Add(0); $bytes.AddRange([byte[]](0, 1, 0, 1))
+        $arr = $bytes.ToArray()
+        $sw = [Diagnostics.Stopwatch]::StartNew()
+        [void]$udp.Send($arr, $arr.Length)
+        $ep = New-Object System.Net.IPEndPoint([System.Net.IPAddress]::Any, 0)
+        $resp = $udp.Receive([ref]$ep)
+        $sw.Stop()
+        if ($resp.Length -lt 12) { return $null }
+        if ((([int]$resp[0] -shl 8) -bor [int]$resp[1]) -ne $id) { return $null }
+        $answers = ([int]$resp[6] -shl 8) -bor [int]$resp[7]
+        if (([int]$resp[3] -band 15) -ne 0 -or $answers -lt 1) { return $null }
+        return [math]::Round($sw.Elapsed.TotalMilliseconds, 1)
+    } catch { return $null } finally { $udp.Close() }
+}
+
+function Measure-Dns([string]$Server) {
+    $domains = @('google.com', 'youtube.com', 'steampowered.com', 'epicgames.com', 'riotgames.com', 'discord.com', 'microsoft.com', 'amazon.com')
+    $times = New-Object System.Collections.Generic.List[double]
+    $fail = 0
+    $total = 0
+    for ($round = 0; $round -lt 3; $round++) {
+        foreach ($d in $domains) {
+            $total++
+            $ms = Test-DnsServer $Server $d
+            if ($null -eq $ms) { $fail++ } else { $times.Add([double]$ms) }
+        }
+        if ($round -eq 0 -and $times.Count -eq 0) { break }   # first round all failed: the server does not answer
+    }
+    $res = @{ Server = $Server; Median = $null; Fail = $fail; Total = $total }
+    if ($times.Count -gt 0) {
+        $sorted = @($times | Sort-Object)
+        $mid = [int][math]::Floor($sorted.Count / 2)
+        if ($sorted.Count % 2 -eq 1) { $res.Median = [math]::Round($sorted[$mid], 1) } else { $res.Median = [math]::Round(($sorted[$mid - 1] + $sorted[$mid]) / 2, 1) }
+    }
+    return $res
+}
+
+function Test-IsAdmin {
+    $p = New-Object Security.Principal.WindowsPrincipal([Security.Principal.WindowsIdentity]::GetCurrent())
+    return $p.IsInRole([Security.Principal.WindowsBuiltInRole]::Administrator)
+}
+
 # ---------------------------------------------------------------- main
 if ($Count -lt 5) { $Count = 5 }
 if ($Count -gt 200) { $Count = 200 }
 
 Write-Log '==================================================================' 'Cyan'
-Write-Log '   PC OPTIMIZER v4.4 - NETWORK TEST (nothing is changed)' 'Cyan'
+Write-Log '   PC OPTIMIZER v4.5 - NETWORK TEST (nothing is changed)' 'Cyan'
 Write-Log ('   ' + (Get-Date -Format 'yyyy-MM-dd HH:mm')) 'Cyan'
 Write-Log '==================================================================' 'Cyan'
 Write-Log ''
@@ -165,6 +223,128 @@ if ($null -ne $game) {
 }
 Write-Log ''
 Write-Log '   PC tweaks cannot lower ping by much. A cable, a good router and a nearby server matter far more.' 'DarkGray'
+
+# ---------------------------------------------------------------- DNS
+if (-not $SkipDns) {
+    Write-Log ''
+    Write-Log '   DNS speed (how fast names like steampowered.com are turned into addresses)' 'White'
+    Write-Log '   Testing 8 popular sites, 3 times each, on each DNS server. About 10-30 seconds. No key press is needed...' 'DarkGray'
+    $current = @()
+    if ($gw.Index -gt 0) { try { $current = @((Get-DnsClientServerAddress -InterfaceIndex $gw.Index -AddressFamily IPv4 -ErrorAction Stop).ServerAddresses) } catch { } }
+    $presets = @(
+        @{ Label = 'Cloudflare 1.1.1.1'; Server = '1.1.1.1'; Key = '1'; Pair = @('1.1.1.1', '1.0.0.1') },
+        @{ Label = 'Google 8.8.8.8'; Server = '8.8.8.8'; Key = '2'; Pair = @('8.8.8.8', '8.8.4.4') },
+        @{ Label = 'Quad9 9.9.9.9'; Server = '9.9.9.9'; Key = '3'; Pair = @('9.9.9.9', '149.112.112.112') }
+    )
+    $dnsRes = New-Object System.Collections.Generic.List[object]
+    $curServer = ''
+    if ($current.Count -gt 0) {
+        $curServer = [string]$current[0]
+        $curLabel = 'Your current DNS (' + $curServer + ')'
+        foreach ($p in $presets) { if ($p.Server -eq $curServer) { $curLabel = 'Your current DNS (' + $curServer + ', ' + $p.Label.Split(' ')[0] + ')' } }
+        $dnsRes.Add(@{ Label = $curLabel; Server = $curServer; IsCurrent = $true; Preset = $null; M = (Measure-Dns $curServer) })
+    }
+    foreach ($p in $presets) {
+        if ($p.Server -eq $curServer) { continue }
+        $dnsRes.Add(@{ Label = $p.Label; Server = $p.Server; IsCurrent = $false; Preset = $p; M = (Measure-Dns $p.Server) })
+    }
+    Write-Log ''
+    $best = $null
+    foreach ($x in $dnsRes) {
+        $med = 'no answer'
+        if ($null -ne $x.M.Median) { $med = [string]$x.M.Median + ' ms' }
+        $failTxt = ''
+        if ($x.M.Fail -gt 0) { $failTxt = '(' + $x.M.Fail + ' of ' + $x.M.Total + ' lookups failed)' }
+        $color = 'Gray'
+        if ($null -eq $x.M.Median) { $color = 'DarkYellow' }
+        Write-Log ('  ' + $x.Label.PadRight(44) + ('typical ' + $med).PadRight(22) + $failTxt) $color
+        if ($null -ne $x.M.Median -and ($null -eq $best -or $x.M.Median -lt $best.M.Median)) { $best = $x }
+    }
+    $curRes = $dnsRes | Where-Object { $_.IsCurrent } | Select-Object -First 1
+    Write-Log ''
+    Write-Log '   What changing DNS would mean' 'White'
+    if ($null -ne $best -and $null -ne $curRes -and $null -ne $curRes.M.Median) {
+        $gain = [math]::Round($curRes.M.Median - $best.M.Median, 1)
+        if ($best.IsCurrent -or $gain -lt 5) {
+            Write-Log '   - Your current DNS is already about as fast as the others. Changing it would make no noticeable difference.' 'Green'
+        } elseif ($gain -lt 30) {
+            Write-Log ('   - ' + $best.Label + ' answers about ' + $gain + ' ms faster. Small: web pages and launchers may start a touch quicker. You will hardly notice it.') 'Yellow'
+        } else {
+            Write-Log ('   - ' + $best.Label + ' answers about ' + $gain + ' ms faster. This is noticeable when opening sites and launchers.') 'Yellow'
+        }
+        if ($curRes.M.Fail -gt 0) { Write-Log '   - Some lookups failed on your current DNS. That alone can make sites or game servers fail to load now and then, so switching may help.' 'Yellow' }
+    } elseif ($null -ne $curRes) {
+        Write-Log '   - Your current DNS did not answer the test lookups. Switching may fix sites that do not load, but check your router and connection first.' 'Yellow'
+    } else {
+        Write-Log '   - Your current DNS could not be read, so it cannot be compared.' 'DarkYellow'
+    }
+    Write-Log '   - DNS is used once, when you connect to a site or a game server. It does NOT change your in-game ping or FPS.' 'Gray'
+    Write-Log '   - Privacy: the DNS provider you pick sees the names of the sites you visit. Today your current provider sees them. Choose whom you trust.' 'Gray'
+
+    if (-not $NoPrompt) {
+        Write-Log ''
+        $saved = ''
+        try { $saved = [string](Get-ItemProperty -Path 'HKCU:\Software\PCOptimizer' -Name 'DnsBackup' -ErrorAction Stop).DnsBackup } catch { }
+        $allowed = New-Object System.Collections.Generic.List[string]
+        Write-Host '   Change DNS now? Nothing changes unless you pick a number.' -ForegroundColor White
+        foreach ($p in $presets) {
+            $row = $dnsRes | Where-Object { $_.Server -eq $p.Server } | Select-Object -First 1
+            $note = ''
+            if ($null -ne $row -and $null -ne $best -and $row.Server -eq $best.Server) { $note = '  (fastest here)' }
+            if ($null -ne $row -and $null -eq $row.M.Median) { $note = '  (did not answer in the test)' }
+            if ($p.Server -eq $curServer) { $note += '  (this is what you use now)' }
+            Write-Host ('   ' + $p.Key + ' = ' + $p.Label.Split(' ')[0] + ' (' + ($p.Pair -join ', ') + ')' + $note)
+            $allowed.Add($p.Key)
+        }
+        $allowed.Add('N')
+        if ($saved -ne '') { Write-Host '   U = put back the DNS I had before my last change'; $allowed.Add('U') }
+        Write-Host '   N = keep my current DNS (default)'
+        $ans = ''
+        while ($true) {
+            $ans = ([string](Read-Host '   Your choice (Enter = N)')).Trim().ToUpper()
+            if ($ans -eq '') { $ans = 'N' }
+            if ($allowed -contains $ans) { break }
+            Write-Host ('   Please type one of: ' + ($allowed -join ', ')) -ForegroundColor DarkYellow
+        }
+        if ($ans -eq 'N') {
+            Write-Log '   DNS left as it is.' 'DarkGray'
+        } else {
+            $helper = Join-Path $PSScriptRoot 'Set_Dns.ps1'
+            if (-not (Test-Path -LiteralPath $helper)) {
+                Write-Log '   [ERROR] tools\Set_Dns.ps1 was not found, so nothing was changed.' 'Red'
+            } else {
+                $action = 'Undo'
+                $serverArg = ''
+                if ($ans -ne 'U') {
+                    $action = 'Apply'
+                    $pick = $presets | Where-Object { $_.Key -eq $ans } | Select-Object -First 1
+                    $serverArg = $pick.Pair -join ','
+                }
+                $resultFile = Join-Path $env:TEMP ('PCOptimizer_dns_' + [guid]::NewGuid().ToString('N') + '.txt')
+                $argList = @('-NoProfile', '-ExecutionPolicy', 'Bypass', '-File', ('"' + $helper + '"'), '-Action', $action, '-ResultFile', ('"' + $resultFile + '"'))
+                if ($serverArg -ne '') { $argList += @('-Servers', $serverArg) }
+                if ($Root -ne '') { $argList += @('-Root', ('"' + (Resolve-Path -LiteralPath $Root).Path + '"')) }
+                try {
+                    if (Test-IsAdmin) {
+                        Start-Process -FilePath 'powershell.exe' -ArgumentList $argList -Wait -NoNewWindow
+                    } else {
+                        Write-Host '   Windows will now ask for administrator permission to change DNS. Choose No to cancel.' -ForegroundColor White
+                        Start-Process -FilePath 'powershell.exe' -ArgumentList $argList -Verb RunAs -Wait -WindowStyle Hidden
+                    }
+                    if (Test-Path -LiteralPath $resultFile) {
+                        foreach ($rl in (Get-Content -LiteralPath $resultFile)) { Write-Log $rl 'Gray' }
+                        [IO.File]::Delete($resultFile)
+                    } else {
+                        Write-Log '   No result was reported. DNS was probably not changed.' 'Yellow'
+                    }
+                    Write-Log '   Undo any time: run this test again and choose U, or use menu 7 then 17 in 1_Start_Here.' 'DarkGray'
+                } catch {
+                    Write-Log '   Administrator permission was not given, so DNS was not changed.' 'Yellow'
+                }
+            }
+        }
+    }
+}
 
 if ($Root -ne '') {
     try {

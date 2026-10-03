@@ -1,5 +1,8 @@
 # Changelog
 
+## v4.5
+- Network Test now also measures DNS speed (your DNS vs Cloudflare, Google, Quad9) and explains how much a change would matter, then asks whether to switch. Optional **17** sets the DNS of active Ethernet/Wi-Fi adapters, saves the old settings first and undoes via the test (U) or menu 7 then 17. Check Status watches it once used. DNS does not change in-game ping.
+
 ## v4.4
 - New optional tweak **15** Timer resolution (GlobalTimerResolutionRequests, with undo). Community-sourced; the manual says so.
 - New optional power setting **16** CPU boost aggressive + energy preference 0 (plugged in). Your earlier values are saved first and restored by menu 7 then 16. Check Status checks it too.

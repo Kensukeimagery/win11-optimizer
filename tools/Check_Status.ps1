@@ -1,4 +1,4 @@
-# PC Optimizer v4.4 - Check Status
+# PC Optimizer v4.5 - Check Status
 # Compares the current PC settings with what the optimizer applies,
 # then offers to re-apply only the items that are missing or changed.
 param([string]$Root = '')
@@ -221,6 +221,30 @@ function Invoke-Checks([string]$RegRoot, [string]$BackupDir) {
         Add-Item 'BOOST' '16' 'CPU boost aggressive' $bstatus $bdetail 'ask' 'boost' $null
     }
 
+    # --- optional 17: DNS servers (only listed once you have used it)
+    $dnsChoice = Get-Choice '17'
+    if ($dnsChoice -eq 'N') {
+        Add-Item 'DNS' '17' 'DNS servers' 'SKIPPED' 'you put your old DNS back' 'ask' $null $null
+    } elseif ($dnsChoice -eq 'Y') {
+        $applied = ''
+        try { $applied = [string](Get-ItemProperty -Path $StateKey -Name 'DnsApplied' -ErrorAction Stop).DnsApplied } catch { }
+        $wantServers = @($applied -split ',' | Where-Object { $_ -ne '' })
+        $badNames = New-Object System.Collections.Generic.List[string]
+        try {
+            foreach ($ad in @(Get-NetAdapter -Physical -ErrorAction Stop | Where-Object { $_.Status -eq 'Up' })) {
+                $now = @((Get-DnsClientServerAddress -InterfaceIndex $ad.ifIndex -AddressFamily IPv4 -ErrorAction Stop).ServerAddresses)
+                if (($now -join ',') -ne ($wantServers -join ',')) { $badNames.Add($ad.Name + ' uses ' + ($now -join ', ')) }
+            }
+        } catch { $badNames.Clear(); $wantServers = @() }
+        if ($wantServers.Count -eq 0) {
+            Add-Item 'DNS' '17' 'DNS servers' 'UNKNOWN' 'could not read the DNS settings' 'ask' $null $null
+        } elseif ($badNames.Count -eq 0) {
+            Add-Item 'DNS' '17' ('DNS servers ' + ($wantServers -join ', ')) 'OK' '' 'ask' $null $null
+        } else {
+            Add-Item 'DNS' '17' ('DNS servers ' + ($wantServers -join ', ')) 'CHANGED' ($badNames[0]) 'ask' 'dns' $wantServers
+        }
+    }
+
     # --- prefetcher, by disk type
     $media = ''
     try { $media = [string](Get-PhysicalDisk -ErrorAction Stop | Sort-Object DeviceId | Select-Object -First 1).MediaType } catch { }
@@ -327,6 +351,13 @@ function Invoke-Fix($Item, [string]$BackupDir) {
                     $ok = ($LASTEXITCODE -eq 0)
                 }
             }
+            'dns' {
+                $helper = Join-Path $PSScriptRoot 'Set_Dns.ps1'
+                if (Test-Path -LiteralPath $helper) {
+                    & powershell.exe -NoProfile -ExecutionPolicy Bypass -File $helper -Action Apply -Servers ($Item.FixData -join ',') -Root $script:RootDir *> $null
+                    $ok = ($LASTEXITCODE -eq 0)
+                }
+            }
             'svc'  { & sc.exe config $Item.FixData start= disabled *> $null; $ok = ($LASTEXITCODE -eq 0) }
         }
     } catch { $ok = $false }
@@ -359,7 +390,7 @@ function Start-CheckStatus {
     $reportFile = Join-Path $script:RootDir ('CheckReport_' + $stamp + '.txt')
 
     Write-Log '==================================================================' 'Cyan'
-    Write-Log '   PC OPTIMIZER v4.4 - CHECK STATUS' 'Cyan'
+    Write-Log '   PC OPTIMIZER v4.5 - CHECK STATUS' 'Cyan'
     Write-Log ('   ' + (Get-Date -Format 'yyyy-MM-dd HH:mm') + '   Windows build ' + [Environment]::OSVersion.Version.ToString()) 'Cyan'
     Write-Log '==================================================================' 'Cyan'
     Write-Log ''

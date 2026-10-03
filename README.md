@@ -38,7 +38,7 @@ A small, transparent set of batch/registry scripts to tune Windows 11 for gaming
 These tweaks give small, situational gains. GPU driver updates, in-game settings, XMP/EXPO and cooling matter far more. Items without official Microsoft documentation are marked as community-sourced in the manual's References page.
 
 ### Requirements
-Windows 11, administrator rights. Built for desktops; expect more heat and battery drain on laptops. Manuals: [English](docs/Manual_EN_v4.4.pdf) and [Thai](docs/Manual_TH_v4.4.pdf). The scripts print English.
+Windows 11, administrator rights. Built for desktops; expect more heat and battery drain on laptops. Manuals: [English](docs/Manual_EN_v4.5.pdf) and [Thai](docs/Manual_TH_v4.5.pdf). The scripts print English.
 
 ### License
 MIT, see `LICENSE`.
@@ -58,7 +58,7 @@ MIT, see `LICENSE`.
 4. รีสตาร์ทเครื่อง
 5. หลังอัปเดต Windows ใหญ่ๆ ให้รัน `3_Check_Status` เพื่อดูว่าค่าไหนถูกรีเซ็ต
 
-รายละเอียดแต่ละไฟล์ ลำดับการรัน และการตั้งค่า Windows เพิ่มเติมอยู่ในคู่มือ PDF: [ภาษาไทย](docs/Manual_TH_v4.4.pdf) | [English](docs/Manual_EN_v4.4.pdf)
+รายละเอียดแต่ละไฟล์ ลำดับการรัน และการตั้งค่า Windows เพิ่มเติมอยู่ในคู่มือ PDF: [ภาษาไทย](docs/Manual_TH_v4.5.pdf) | [English](docs/Manual_EN_v4.5.pdf)
 
 ### ความคาดหวังที่เป็นจริง
 tweak เหล่านี้ให้ผลเล็กน้อยเฉพาะสถานการณ์ ไดรเวอร์การ์ดจอ การตั้งค่าในเกม XMP/EXPO และการระบายความร้อนสำคัญกว่ามาก รายการที่ไม่มีเอกสารทางการของ Microsoft ระบุไว้ในหน้าแหล่งอ้างอิงของคู่มือ

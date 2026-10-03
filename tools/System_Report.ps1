@@ -1,4 +1,4 @@
-# PC Optimizer v4.4 - System report (read-only: changes nothing on your PC)
+# PC Optimizer v4.5 - System report (read-only: changes nothing on your PC)
 # Shows what is using your CPU and RAM, what starts with Windows, disk space, GPU driver age
 # and plain-language hints. The saved report hides your Windows user name.
 param([string]$Root = '')
@@ -25,7 +25,7 @@ function Get-Short([string]$Text, [int]$Max) {
 }
 
 Write-Log '==================================================================' 'Cyan'
-Write-Log '   PC OPTIMIZER v4.4 - SYSTEM REPORT (nothing is changed)' 'Cyan'
+Write-Log '   PC OPTIMIZER v4.5 - SYSTEM REPORT (nothing is changed)' 'Cyan'
 Write-Log ('   ' + (Get-Date -Format 'yyyy-MM-dd HH:mm')) 'Cyan'
 Write-Log '==================================================================' 'Cyan'
 Write-Log ''

@@ -1,10 +1,10 @@
 <!doctype html>
-<html lang="en"><head><meta charset="utf-8"><title>Windows 11 Optimizer - User Manual v4.4</title>
+<html lang="en"><head><meta charset="utf-8"><title>Windows 11 Optimizer - User Manual v4.5</title>
 <link rel="stylesheet" href="style.css"></head><body>
 
 <!-- PAGE 1 -->
 <div class="page">
-<div class="banner cover"><div class="sub">User Manual v4.4</div><h1>Windows 11 Optimizer</h1><div class="sub">One menu for every tweak, with backups and one-by-one revert</div></div>
+<div class="banner cover"><div class="sub">User Manual v4.5</div><h1>Windows 11 Optimizer</h1><div class="sub">One menu for every tweak, with backups and one-by-one revert</div></div>
 
 <div class="box red"><h3>Read this first</h3>
 <ul>
@@ -24,9 +24,9 @@
 <tr><td>1_Start_Here - PC_Optimizer_Master (Run as Administrator).bat</td><td>Main menu. Start here; everything is reachable from it.</td></tr>
 <tr><td>2_Revert_Everything - System_Restore (Run as Administrator).bat</td><td>Roll the whole PC back with System Restore (serious problems only).</td></tr>
 <tr><td>3_Check_Status (Run as Administrator).bat</td><td>Check which tweaks are still applied, for example after a Windows update.</td></tr>
-<tr><td>4_Network_Test.bat</td><td>Read-only ping, jitter and packet-loss test. No administrator rights needed.</td></tr>
+<tr><td>4_Network_Test.bat</td><td>Ping, jitter, packet-loss and DNS speed test. Changes nothing unless you choose a DNS at the end. No administrator rights needed to run it.</td></tr>
 <tr><td>5_System_Report.bat</td><td>Read-only report: what uses your CPU and RAM, what starts with Windows, disk space, GPU driver age. No administrator rights needed.</td></tr>
-<tr><td>tools/</td><td>PowerShell helpers used by the menu, the status check and the two tools above. Do not delete.</td></tr>
+<tr><td>tools/</td><td>PowerShell helpers used by the menu, the status check, the two tools above and the DNS change. Do not delete.</td></tr>
 <tr><td>reg/1_Recommended</td><td>Files 01-08: safe for most PCs.</td></tr>
 <tr><td>reg/2_Optional</td><td>Files 09-13 and 15: the script asks about each one. (16 is a power setting, see the optional tweaks.)</td></tr>
 <tr><td>reg/3_Power</td><td>File 14: unlocks hidden CPU options in Power Options.</td></tr>
@@ -62,7 +62,7 @@
 <tr><td>8</td><td>Check disk type</td><td>Reports SSD or HDD. Changes nothing.</td></tr>
 <tr><td>9</td><td>Power Options</td><td>Opens the Power Options window to inspect values.</td></tr>
 <tr><td>C</td><td>Check status</td><td>Same as 3_Check_Status.</td></tr>
-<tr><td>N</td><td>Network test</td><td>Same as 4_Network_Test. Changes nothing.</td></tr>
+<tr><td>N</td><td>Network test</td><td>Same as 4_Network_Test. Changes nothing unless you pick a DNS at the end.</td></tr>
 <tr><td>R</td><td>System report</td><td>Same as 5_System_Report. Changes nothing.</td></tr>
 <tr><td>0</td><td>Exit</td><td>Exits and shows where the log was saved.</td></tr>
 </table>
@@ -98,7 +98,7 @@
 <tr><td>SKIPPED</td><td>You skipped or reverted it.</td><td>Does not ask or change it.</td></tr>
 <tr><td>UNKNOWN</td><td>Cannot be read, or this PC does not have the option.</td><td>Information only.</td></tr>
 </table>
-<p class="small"><b>What it checks:</b> all 14 .reg files (read from the same files that are applied), the power plan (Ultimate Performance, or High Performance if Ultimate is unavailable), the four power values, Prefetcher (SSD must be 0, HDD must be 3), TcpAckFrequency and TCPNoDelay on every adapter, and the DiagTrack / dmwappushservice services. Optional 15 and 16 are checked too (16: boost mode 2 and preference 0 while plugged in).<br>
+<p class="small"><b>What it checks:</b> all 14 .reg files (read from the same files that are applied), the power plan (Ultimate Performance, or High Performance if Ultimate is unavailable), the four power values, Prefetcher (SSD must be 0, HDD must be 3), TcpAckFrequency and TCPNoDelay on every adapter, and the DiagTrack / dmwappushservice services. Optional 15, 16 and (once used) 17 are checked too (16: boost mode 2 and preference 0 while plugged in).<br>
 <b>Limits:</b> it tells you a value is still there, not that it still has an effect (item 08 can show OK on a GPU that does not support GPU scheduling). Values under GameConfigStore (01, 09) are rewritten by Windows and the Xbox Game Bar, so CHANGED there is common. Adding a new VPN or Wi-Fi adapter makes Network show CHANGED until it is configured.</p>
 </div>
 
@@ -171,7 +171,13 @@
 <div class="card"><div class="t"><span class="n">4</span>4_Network_Test.bat</div><ul>
 <li>Sends 30 pings each to your router, 1.1.1.1, 8.8.8.8 and, if you type one, a game server (these are ordinary ping packets). It shows average ping, jitter and packet loss, grades each line Good / Fair / Poor and says where the problem most likely is.</li>
 <li><b>Jitter</b> is how much the delay jumps around. It is what you feel as rubber-banding, and it matters more than a slightly higher average ping.</li>
-<li>The result is saved as <span class="mono">NetworkTest_date-time.txt</span> next to the scripts.</li></ul></div>
+<li>The result is saved as <span class="mono">NetworkTest_date-time.txt</span> next to the scripts.</li>
+<li><b>DNS speed:</b> it then times real lookups of 8 popular sites on your current DNS and on Cloudflare (1.1.1.1), Google (8.8.8.8) and Quad9 (9.9.9.9), and says how much faster the best one is. After that it asks whether to change DNS. You choose the number, or press Enter to change nothing.</li></ul></div>
+<div class="card opt"><div class="t"><span class="n">17</span>DNS servers (optional, you choose)</div><ul>
+<li>Sets the IPv4 DNS servers of your active Ethernet and Wi-Fi adapters to the provider you pick. VPN and virtual adapters are left alone. Windows asks for administrator permission when you confirm.</li>
+<li>Your earlier DNS settings are saved first (including "obtain automatically"). To undo: run the test again and choose U, or use menu 7, then 17.</li>
+<li>Check Status shows this item once you have used it, and re-applies it if a Windows update or a VPN changed it.</li></ul>
+<div class="h">How much does it matter? DNS is used once, when you connect to a site or a game server. It does <b>not</b> change in-game ping or FPS. A faster DNS can make web pages and launchers start a little quicker, and a broken DNS can make sites fail to load. If your current DNS is within about 5 ms of the best one, leave it alone. The DNS provider you choose sees the names of the sites you visit.</div></div>
 <table><tr><th style="width:36%">What you see</th><th>Most likely cause</th><th style="width:30%">What to try</th></tr>
 <tr><td>Router line is Fair or Poor</td><td>Wi-Fi signal, a bad cable, or other devices using the network.</td><td>Use a cable, move closer, pause other downloads and streams.</td></tr>
 <tr><td>Router is Good, internet lines are Poor</td><td>Your internet provider or the line.</td><td>Restart the router; if it stays, contact the provider.</td></tr>
@@ -187,7 +193,7 @@
 <li>Turn on NVIDIA Reflex (or Low Latency Mode) if your game offers it.</li>
 <li>Use a network cable. Wi-Fi jitter is the most common cause of bad ping.</li>
 <li>Keep GPU drivers current, keep the PC cool and close heavy programs before you play.</li>
-<li>None of the registry tweaks in this project lowers ping by a noticeable amount. They are small, situational gains.</li></ul></div>
+<li>None of the registry tweaks in this project lowers ping by a noticeable amount, and neither does changing DNS. They are small, situational gains.</li></ul></div>
 
 <div class="banner"><h1>Folder: repair-tools</h1><p>Targeted repair tools. Not needed on every run. Right-click &gt; Run as administrator</p></div>
 <div class="card rep"><div class="t"><span class="n">A</span>Deep_Clean_Junk_Files.bat</div><ul><li>Runs Disk Cleanup for every category, plus temp files. Reports free space before and after, and warns if less than 15% is left.</li></ul><div class="h">Use when: disk space is low, or every 1-2 months.</div></div>
@@ -246,6 +252,6 @@
 <li>11 Keyboard Response flags and 12 Ndu memory leak: from user reports, not Microsoft.</li>
 <li>The defaults in reg_undo for these are typical Windows values. If you need your exact originals, use the Backup folder.</li></ul>
 Results differ between PCs and Microsoft may change how these values behave in a later Windows release. Every item can be reverted with menu 7 or the Backup folder.</div>
-<div class="foot">win11-optimizer v4.4 - github.com/Kensukeimagery/win11-optimizer - MIT License</div>
+<div class="foot">win11-optimizer v4.5 - github.com/Kensukeimagery/win11-optimizer - MIT License</div>
 </div>
 </body></html>
