@@ -1,4 +1,10 @@
-﻿# Changelog
+# Changelog
+
+## v4.4
+- New optional tweak **15** Timer resolution (GlobalTimerResolutionRequests, with undo). Community-sourced; the manual says so.
+- New optional power setting **16** CPU boost aggressive + energy preference 0 (plugged in). Your earlier values are saved first and restored by menu 7 then 16. Check Status checks it too.
+- New read-only tools: `4_Network_Test` (ping, jitter, packet loss for your router, 1.1.1.1, 8.8.8.8 and an optional game server, with a plain-language verdict) and `5_System_Report` (CPU/RAM users, startup programs, disk space, GPU driver age, hints). Also menu N and R. They need no administrator rights and hide your Windows user name in saved reports.
+- Manuals: new Diagnostic tools page, frame-cap / Reflex / shader-cache / network-cable advice, new references. Both languages.
 
 ## v4.3
 - Check Status now prints a 'please wait, no key press needed' message while PowerShell starts and while it checks, so the window no longer looks frozen.

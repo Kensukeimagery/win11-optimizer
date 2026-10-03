@@ -1,4 +1,4 @@
-﻿@page { size: A4; margin: 11mm 13mm 12mm 13mm; }
+@page { size: A4; margin: 11mm 13mm 12mm 13mm; }
 * { box-sizing: border-box; }
 body { font-family: "Segoe UI", "Leelawadee UI", Tahoma, sans-serif; font-size: 9.4pt; line-height: 1.38; color: #1d2433; margin: 0; }
 .page { page-break-after: always; break-after: page; }
@@ -38,4 +38,6 @@ pre { font-family: Consolas, "Courier New", monospace; font-size: 8.4pt; backgro
 a { color: #1a56b8; text-decoration: none; word-break: break-all; }
 .foot { text-align: center; color: #6b7487; font-size: 8.4pt; margin-top: 10px; }
 .nobreak { break-inside: avoid; }
-
+.banner, h2 { break-after: avoid; page-break-after: avoid; }
+.banner { break-inside: avoid; page-break-inside: avoid; }
+tr { break-inside: avoid; page-break-inside: avoid; }

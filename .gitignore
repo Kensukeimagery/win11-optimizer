@@ -6,3 +6,5 @@ Backup/
 *.zip
 Thumbs.db
 desktop.ini
+NetworkTest_*
+SystemReport_*

@@ -1,10 +1,10 @@
 <!doctype html>
-<html lang="en"><head><meta charset="utf-8"><title>Windows 11 Optimizer - User Manual v4.3</title>
+<html lang="en"><head><meta charset="utf-8"><title>Windows 11 Optimizer - User Manual v4.4</title>
 <link rel="stylesheet" href="style.css"></head><body>
 
 <!-- PAGE 1 -->
 <div class="page">
-<div class="banner cover"><div class="sub">User Manual v4.3</div><h1>Windows 11 Optimizer</h1><div class="sub">One menu for every tweak, with backups and one-by-one revert</div></div>
+<div class="banner cover"><div class="sub">User Manual v4.4</div><h1>Windows 11 Optimizer</h1><div class="sub">One menu for every tweak, with backups and one-by-one revert</div></div>
 
 <div class="box red"><h3>Read this first</h3>
 <ul>
@@ -24,9 +24,11 @@
 <tr><td>1_Start_Here - PC_Optimizer_Master (Run as Administrator).bat</td><td>Main menu. Start here; everything is reachable from it.</td></tr>
 <tr><td>2_Revert_Everything - System_Restore (Run as Administrator).bat</td><td>Roll the whole PC back with System Restore (serious problems only).</td></tr>
 <tr><td>3_Check_Status (Run as Administrator).bat</td><td>Check which tweaks are still applied, for example after a Windows update.</td></tr>
-<tr><td>tools/</td><td>PowerShell helpers used by the menu and the status check. Do not delete.</td></tr>
+<tr><td>4_Network_Test.bat</td><td>Read-only ping, jitter and packet-loss test. No administrator rights needed.</td></tr>
+<tr><td>5_System_Report.bat</td><td>Read-only report: what uses your CPU and RAM, what starts with Windows, disk space, GPU driver age. No administrator rights needed.</td></tr>
+<tr><td>tools/</td><td>PowerShell helpers used by the menu, the status check and the two tools above. Do not delete.</td></tr>
 <tr><td>reg/1_Recommended</td><td>Files 01-08: safe for most PCs.</td></tr>
-<tr><td>reg/2_Optional</td><td>Files 09-13: the script asks about each one.</td></tr>
+<tr><td>reg/2_Optional</td><td>Files 09-13 and 15: the script asks about each one. (16 is a power setting, see the optional tweaks.)</td></tr>
 <tr><td>reg/3_Power</td><td>File 14: unlocks hidden CPU options in Power Options.</td></tr>
 <tr><td>reg_undo/</td><td>One undo file per tweak (Windows defaults), used by menu 7.</td></tr>
 <tr><td>repair-tools/</td><td>Four stand-alone repair tools. Unrelated to the Master menu.</td></tr>
@@ -51,7 +53,7 @@
 <h2>Menu of PC_Optimizer_Master</h2>
 <table><tr><th style="width:36px">Key</th><th style="width:25%">Name</th><th>What it does</th></tr>
 <tr><td>1</td><td>Recommended tweaks</td><td>Imports files 01-08.</td></tr>
-<tr><td>2</td><td>Optional tweaks</td><td>Asks about files 09-13 one by one. File 13 needs you to type YES.</td></tr>
+<tr><td>2</td><td>Optional tweaks</td><td>Asks about 09-13, 15 and 16 one by one. File 13 needs you to type YES.</td></tr>
 <tr><td>3</td><td>Base system setup</td><td>Power plan, services, SSD/HDD check before touching Prefetcher, TCP settings on every network adapter, cleanup of obsolete values, temp files.</td></tr>
 <tr><td>4</td><td>Power settings</td><td>Imports file 14, then sets processor minimum 100%, core parking off, USB selective suspend off, PCIe power saving off (plugged-in profile only).</td></tr>
 <tr><td>5</td><td>RUN EVERYTHING</td><td>Restore point + 1 + 2 + 3 + 4. Recommended the first time.</td></tr>
@@ -60,6 +62,8 @@
 <tr><td>8</td><td>Check disk type</td><td>Reports SSD or HDD. Changes nothing.</td></tr>
 <tr><td>9</td><td>Power Options</td><td>Opens the Power Options window to inspect values.</td></tr>
 <tr><td>C</td><td>Check status</td><td>Same as 3_Check_Status.</td></tr>
+<tr><td>N</td><td>Network test</td><td>Same as 4_Network_Test. Changes nothing.</td></tr>
+<tr><td>R</td><td>System report</td><td>Same as 5_System_Report. Changes nothing.</td></tr>
 <tr><td>0</td><td>Exit</td><td>Exits and shows where the log was saved.</td></tr>
 </table>
 </div>
@@ -94,7 +98,7 @@
 <tr><td>SKIPPED</td><td>You skipped or reverted it.</td><td>Does not ask or change it.</td></tr>
 <tr><td>UNKNOWN</td><td>Cannot be read, or this PC does not have the option.</td><td>Information only.</td></tr>
 </table>
-<p class="small"><b>What it checks:</b> all 14 .reg files (read from the same files that are applied), the power plan (Ultimate Performance, or High Performance if Ultimate is unavailable), the four power values, Prefetcher (SSD must be 0, HDD must be 3), TcpAckFrequency and TCPNoDelay on every adapter, and the DiagTrack / dmwappushservice services.<br>
+<p class="small"><b>What it checks:</b> all 14 .reg files (read from the same files that are applied), the power plan (Ultimate Performance, or High Performance if Ultimate is unavailable), the four power values, Prefetcher (SSD must be 0, HDD must be 3), TcpAckFrequency and TCPNoDelay on every adapter, and the DiagTrack / dmwappushservice services. Optional 15 and 16 are checked too (16: boost mode 2 and preference 0 while plugged in).<br>
 <b>Limits:</b> it tells you a value is still there, not that it still has an effect (item 08 can show OK on a GPU that does not support GPU scheduling). Values under GameConfigStore (01, 09) are rewritten by Windows and the Xbox Game Bar, so CHANGED there is common. Adding a new VPN or Wi-Fi adapter makes Network show CHANGED until it is configured.</p>
 </div>
 
@@ -113,20 +117,20 @@
 
 <!-- PAGE 5 -->
 <div class="page">
-<div class="banner"><h1>.reg files, group 2: Optional (09-13)</h1><p>The script asks about each one. Answer for how you actually play</p></div>
+<div class="banner"><h1>Optional tweaks (09-13, 15, 16)</h1><p>The script asks about each one. Answer for how you actually play</p></div>
 <div class="card opt"><div class="t"><span class="n">09</span>Fullscreen_Exclusive</div><ul><li>Forces true Fullscreen Exclusive instead of letting Windows convert games to borderless.</li><li>Answer Y only if fullscreen games stutter or hang on alt-tab. Some newer games work better the default way.</li></ul><div class="h">Helps: lower input lag in older games that support Fullscreen Exclusive.</div></div>
 <div class="card opt"><div class="t"><span class="n">10</span>Mouse_No_Acceleration</div><ul><li>Turns off Enhance Pointer Precision so the mouse moves 1:1.</li></ul><div class="h">Helps: consistent aim in shooters.</div></div>
 <div class="card opt"><div class="t"><span class="n">11</span>Keyboard_Fast_Repeat</div><ul><li>KeyboardDelay = 0 (shortest delay before repeat). Flags = 122 stops the Filter Keys pop-up when Shift is held for 8 seconds in a game.</li></ul><div class="h">Helps: faster key response and no interrupting pop-up.</div></div>
 <div class="card opt"><div class="t"><span class="n">12</span>Ndu_Memory_Fix</div><ul><li>Disables the Ndu service (a memory leak reported on some PCs) and sets DisablePagingExecutive = 1.</li><li>Side effects: Task Manager stops showing per-app network history. Keeping the kernel in RAM costs memory, so skip it on PCs with 8 GB or less.</li></ul><div class="h">Helps: only if your RAM use keeps creeping up. The Ndu leak comes from user reports, not Microsoft documentation.</div></div>
 <div class="card opt"><div class="t"><span class="n">13</span>Memory_Integrity_Off</div><ul><li>Turns off Memory Integrity (HVCI). You must type YES, and restart.</li><li>Microsoft confirms it can affect gaming performance on some PCs (no figure given). With it off, Windows protects less against kernel-level malware.</li><li>Skip it on a work PC or one holding important data. Undo with menu 7, then 13.</li></ul><div class="h">Helps: the only tweak here that can raise FPS noticeably, at a security cost.</div></div>
+<div class="card opt"><div class="t"><span class="n">15</span>Timer_Resolution</div><ul><li>Sets GlobalTimerResolutionRequests = 1. Since Windows 10 2004 and Windows 11, a game's timer-resolution request only applies to that game. This value lets such a request apply system-wide again.</li><li>Can steady frame pacing in some games. Microsoft notes that a higher timer resolution uses more power and can keep the CPU from saving power. Needs a restart. Undo: menu 7, then 15.</li></ul><div class="h">Helps: frame pacing in some games, effect varies. The value comes from the tweaking community; Microsoft does not document it.</div></div>
+<div class="card opt"><div class="t"><span class="n">16</span>CPU_Boost_Aggressive (power setting, no .reg file)</div><ul><li>Plugged in only: processor performance boost mode = Aggressive (2) and energy performance preference = 0 (favour performance), on the active power plan.</li><li>Your earlier values are saved first, so menu 7, then 16 restores exactly those. The Ultimate Performance plan already uses these values on most PCs, so this mainly matters on High Performance or Balanced. Expect more heat, especially on laptops.</li></ul><div class="h">Helps: 1% lows in games limited by the CPU. Skipped automatically on PCs that do not offer these settings.</div></div>
 
-<div class="banner" style="margin-top:12px"><h1>Group 3: Power (14) and automatic settings</h1><p>Menu 4 does the whole job, no manual setup</p></div>
+</div><div class="page">
+<div class="banner"><h1>Group 3: Power (14) and automatic settings</h1><p>Menu 4 does the whole job, no manual setup</p></div>
 <div class="card"><div class="t"><span class="n">14</span>Unlock_CPU_Power_Settings</div><ul><li>Makes visible the CPU options Windows hides: core parking, maximum frequency, boost mode, energy performance preference.</li><li>Merges files 11 and 12 of v3 and drops entries that are normally visible.</li></ul></div>
 <div class="card"><div class="t"><span class="n">P</span>What menu 4 then sets with powercfg</div><ul><li>Minimum processor state = 100%. Core parking minimum = 100% (cores never sleep).</li><li>USB selective suspend = off. PCIe Link State Power Management = off.</li><li>Plugged-in values only; the battery profile on a laptop is not touched.</li></ul><div class="h">Helps: CPU and GPU do not switch to power-saving states mid-game.</div></div>
-</div>
 
-<!-- PAGE 6 -->
-<div class="page">
 <div class="banner"><h1>What menu 3 (Base setup) does</h1><p>The parts that are not plain .reg files</p></div>
 <table><tr><th style="width:17%">Item</th><th>What it does</th><th style="width:36%">Note</th></tr>
 <tr><td>Power plan</td><td>Uses Ultimate Performance; High Performance if that is missing; leaves Balanced if neither exists.</td><td>The plan GUID is remembered, so repeat runs do not create duplicates (v3 did).</td></tr>
@@ -145,6 +149,10 @@
 <tr><td>Add game folders to Defender exclusions</td><td>Virus &amp; threat protection &gt; Exclusions</td><td>Faster level loading. Does not turn Defender off.</td></tr>
 <tr><td>Turn off GPU-software overlays</td><td>NVIDIA App / AMD Software &gt; Settings</td><td>Less background CPU/GPU load.</td></tr>
 <tr><td>Disable audio enhancements</td><td>Control Panel &gt; Sound &gt; Enhancements</td><td>Lower audio latency.</td></tr>
+<tr><td>Cap FPS 3-4 below the refresh rate</td><td>In-game limiter, RTSS or NVIDIA Control Panel</td><td>Steadier frame times, lower input lag.</td></tr>
+<tr><td>NVIDIA Reflex / Low Latency Mode</td><td>In-game setting, or NVIDIA Control Panel</td><td>Lower input lag when the GPU is the limit.</td></tr>
+<tr><td>Shader Cache Size = Unlimited (NVIDIA)</td><td>NVIDIA Control Panel &gt; Manage 3D settings</td><td>Fewer stutters from shaders being rebuilt.</td></tr>
+<tr><td>Use a network cable, not Wi-Fi</td><td>Router to PC</td><td>The biggest fix for ping spikes and jitter.</td></tr>
 </table>
 <table><tr><th>Situational or small effect</th><th style="width:36%">Where</th><th style="width:30%">Why</th></tr>
 <tr><td>Focus Assist while gaming</td><td>Settings &gt; System &gt; Notifications</td><td>No notifications stealing focus.</td></tr>
@@ -158,10 +166,29 @@
 <tr><td>Fixed-size page file</td><td>System Properties &gt; Advanced &gt; Virtual Memory</td><td>More stable over time.</td></tr>
 </table>
 <p class="small"><b>Make sure of:</b> GPU drivers installed from the vendor directly, XMP/EXPO enabled in the BIOS, Variable Refresh Rate on if your monitor supports it, and games set to use the "High performance" GPU on dual-GPU laptops.</p>
-</div>
 
-<!-- PAGE 7 -->
-<div class="page">
+<div class="banner"><h1>Diagnostic tools</h1><p>Read-only: they change nothing and need no administrator rights. Menu N and R run the same tools</p></div>
+<div class="card"><div class="t"><span class="n">4</span>4_Network_Test.bat</div><ul>
+<li>Sends 30 pings each to your router, 1.1.1.1, 8.8.8.8 and, if you type one, a game server (these are ordinary ping packets). It shows average ping, jitter and packet loss, grades each line Good / Fair / Poor and says where the problem most likely is.</li>
+<li><b>Jitter</b> is how much the delay jumps around. It is what you feel as rubber-banding, and it matters more than a slightly higher average ping.</li>
+<li>The result is saved as <span class="mono">NetworkTest_date-time.txt</span> next to the scripts.</li></ul></div>
+<table><tr><th style="width:36%">What you see</th><th>Most likely cause</th><th style="width:30%">What to try</th></tr>
+<tr><td>Router line is Fair or Poor</td><td>Wi-Fi signal, a bad cable, or other devices using the network.</td><td>Use a cable, move closer, pause other downloads and streams.</td></tr>
+<tr><td>Router is Good, internet lines are Poor</td><td>Your internet provider or the line.</td><td>Restart the router; if it stays, contact the provider.</td></tr>
+<tr><td>Router and internet Good, only the game server is bad</td><td>The route to that server, or the server itself.</td><td>Choose another server or region. Nothing on your PC fixes this.</td></tr>
+<tr><td>Game server shows "No reply"</td><td>Many servers block ping.</td><td>Not a problem by itself.</td></tr>
+</table>
+<div class="card"><div class="t"><span class="n">5</span>5_System_Report.bat</div><ul>
+<li>Lists Windows, CPU, RAM, graphics card and driver age, disks and free space, the power plan, the programs using the most CPU and RAM (browsers with many processes are added together), and the programs that start with Windows.</li>
+<li>Ends with plain hints: long uptime, RAM nearly full, an old GPU driver, a drive with less than 15% free, a failing disk, too many startup programs.</li>
+<li>Saved as <span class="mono">SystemReport_date-time.txt</span>. Your Windows user name is hidden in the file, but check it before you share it. Program names and paths are still listed.</li></ul></div>
+<div class="box green"><h3>What really helps steady FPS and low ping</h3>
+<ul><li>Cap the frame rate 3-4 below your monitor's refresh rate (in the game, RTSS or the NVIDIA Control Panel). It gives steadier frame times than an uncapped game that pins the GPU.</li>
+<li>Turn on NVIDIA Reflex (or Low Latency Mode) if your game offers it.</li>
+<li>Use a network cable. Wi-Fi jitter is the most common cause of bad ping.</li>
+<li>Keep GPU drivers current, keep the PC cool and close heavy programs before you play.</li>
+<li>None of the registry tweaks in this project lowers ping by a noticeable amount. They are small, situational gains.</li></ul></div>
+
 <div class="banner"><h1>Folder: repair-tools</h1><p>Targeted repair tools. Not needed on every run. Right-click &gt; Run as administrator</p></div>
 <div class="card rep"><div class="t"><span class="n">A</span>Deep_Clean_Junk_Files.bat</div><ul><li>Runs Disk Cleanup for every category, plus temp files. Reports free space before and after, and warns if less than 15% is left.</li></ul><div class="h">Use when: disk space is low, or every 1-2 months.</div></div>
 <div class="card rep"><div class="t"><span class="n">B</span>Network_Reset_Fix_Internet.bat</div><ul><li>Resets Winsock, IPv4 and IPv6, renews the IP address, flushes DNS and ARP, then pings to test.</li></ul><div class="h">Use when: the connection drops, will not connect, or is oddly slow.</div></div>
@@ -180,10 +207,8 @@
 <li>To open: right-click Start &gt; Terminal (Admin), then paste the command from the official GitHub page (Stable):</li></ul>
 <pre>irm https://christitus.com/win | iex</pre>
 <div class="small">Link: <a href="https://github.com/ChrisTitusTech/winutil">github.com/ChrisTitusTech/winutil</a></div></div>
-</div>
 
-<!-- PAGE 8 -->
-<div class="page">
+
 <div class="card"><div class="t"><span class="n">R</span>RemoveWindowsAI (zoicware)</div><ul>
 <li>Removes Copilot, Recall and other AI features, and installs packages so Windows Update does not bring them back.</li>
 <li>If you only want Copilot to stop using RAM, you do not need this: turn it off in Settings &gt; Apps &gt; Startup, or uninstall the Copilot app in Settings &gt; Apps &gt; Installed apps.</li>
@@ -207,6 +232,8 @@
 <tr><td>Menu 3: TCP per adapter</td><td>Microsoft Support KB328890 - TcpAckFrequency<br><a href="https://support.microsoft.com/kb/328890">support.microsoft.com/kb/328890</a><br><span class="small">Set per interface GUID; Microsoft advises against changing defaults without testing.</span></td></tr>
 <tr><td>Menu 4, power plans</td><td>Microsoft Learn - Powercfg command-line options<br><a href="https://learn.microsoft.com/windows-hardware/design/device-experiences/powercfg-command-line-options">learn.microsoft.com/windows-hardware/design/device-experiences/powercfg-command-line-options</a></td></tr>
 <tr><td>Menus 5, 6: restore point</td><td>Microsoft Learn - Checkpoint-Computer<br><a href="https://learn.microsoft.com/powershell/module/microsoft.powershell.management/checkpoint-computer">learn.microsoft.com/powershell/module/microsoft.powershell.management/checkpoint-computer</a><br><span class="small">Normally one restore point per day, so the script sets SystemRestorePointCreationFrequency = 0 first.</span></td></tr>
+<tr><td>15 Timer resolution</td><td>Microsoft Learn - timeBeginPeriod function<br><a href="https://learn.microsoft.com/en-us/windows/win32/api/timeapi/nf-timeapi-timebeginperiod">learn.microsoft.com/en-us/windows/win32/api/timeapi/nf-timeapi-timebeginperiod</a><br><span class="small">Describes the per-process change since Windows 10 2004 and Windows 11, and the extra power use of a higher resolution.</span></td></tr>
+<tr><td>16 CPU boost</td><td>Microsoft Learn - PERFBOOSTMODE and processor power management options<br><a href="https://learn.microsoft.com/en-us/windows-hardware/customize/power-settings/options-for-perf-state-engine-perfboostmode">learn.microsoft.com/en-us/windows-hardware/customize/power-settings/options-for-perf-state-engine-perfboostmode</a><br><a href="https://learn.microsoft.com/en-us/windows-hardware/customize/power-settings/configure-processor-power-management-options">learn.microsoft.com/en-us/windows-hardware/customize/power-settings/configure-processor-power-management-options</a><br><span class="small">Boost mode 2 = Aggressive. Energy performance preference runs 0-100 %.</span></td></tr>
 <tr><td>WinUtil</td><td>GitHub - ChrisTitusTech/winutil (README)<br><a href="https://github.com/ChrisTitusTech/winutil">github.com/ChrisTitusTech/winutil</a></td></tr>
 <tr><td>RemoveWindowsAI</td><td>GitHub - zoicware/RemoveWindowsAI (README)<br><a href="https://github.com/zoicware/RemoveWindowsAI">github.com/zoicware/RemoveWindowsAI</a></td></tr>
 <tr><td>repair-tools: SFC / DISM</td><td>Microsoft Support - Use the System File Checker tool<br><a href="https://support.microsoft.com/help/929833">support.microsoft.com/help/929833</a><br><span class="small">Run DISM before SFC, the order used here.</span></td></tr>
@@ -214,10 +241,11 @@
 <div class="box amber"><h3>Without official documentation</h3>
 <ul class="small"><li>01 GameBar/DVR and 09 Fullscreen Exclusive (GameDVR_FSE* values): shared by the tweaking community; no Microsoft page explains them.</li>
 <li>02 PowerThrottlingOff, EnergyEstimationEnabled: no public Microsoft documentation.</li>
+<li>15 GlobalTimerResolutionRequests: reported by the community. The Microsoft timeBeginPeriod page describes the behaviour change but not this value.</li>
 <li>06 Control Panel\Desktop timeouts, MinAnimate: widely known, not sourced here.</li>
 <li>11 Keyboard Response flags and 12 Ndu memory leak: from user reports, not Microsoft.</li>
 <li>The defaults in reg_undo for these are typical Windows values. If you need your exact originals, use the Backup folder.</li></ul>
 Results differ between PCs and Microsoft may change how these values behave in a later Windows release. Every item can be reverted with menu 7 or the Backup folder.</div>
-<div class="foot">win11-optimizer v4.3 - github.com/Kensukeimagery/win11-optimizer - MIT License</div>
+<div class="foot">win11-optimizer v4.4 - github.com/Kensukeimagery/win11-optimizer - MIT License</div>
 </div>
 </body></html>

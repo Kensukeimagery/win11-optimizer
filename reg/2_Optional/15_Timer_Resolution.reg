@@ -1,0 +1,10 @@
+Windows Registry Editor Version 5.00
+
+; 15 - Windows 11 timer resolution: restore the old "global" behaviour.
+; Since Windows 10 2004 and Windows 11, a timer-resolution request only applies to the
+; process that asked for it. This value lets such a request apply system-wide again,
+; which can steady frame pacing in some games. A higher resolution uses more power.
+; Community-sourced value: the Microsoft page for timeBeginPeriod does not document it.
+; Needs a restart. Undo: menu 7, then 15.
+[HKEY_LOCAL_MACHINE\SYSTEM\CurrentControlSet\Control\Session Manager\kernel]
+"GlobalTimerResolutionRequests"=dword:00000001

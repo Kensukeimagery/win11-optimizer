@@ -1,10 +1,10 @@
 @echo off
 setlocal EnableExtensions
-title PC Optimizer - Master Control v4.3
+title PC Optimizer - Master Control v4.4
 color 0B
 
 :: =====================================================================
-::  PC OPTIMIZER - MASTER CONTROL v4.3
+::  PC OPTIMIZER - MASTER CONTROL v4.4
 ::  Safety rules used in this file - they avoid the crashes seen in v3:
 ::   - no brackets inside ECHO text that sits inside IF or FOR blocks
 ::   - flat GOTO labels instead of nested IF / ELSE blocks
@@ -22,7 +22,7 @@ set "TS=manual"
 for /f "usebackq delims=" %%t in (`powershell -NoProfile -Command "Get-Date -Format yyyyMMdd_HHmmss"`) do set "TS=%%t"
 set "LOGFILE=%SCRIPT_DIR%OptimizerLog_%TS%.txt"
 set "BACKUPDIR=%SCRIPT_DIR%Backup\%TS%"
-echo PC Optimizer v4.3 Log - %date% %time% > "%LOGFILE%"
+echo PC Optimizer v4.4 Log - %date% %time% > "%LOGFILE%"
 
 if not exist "%REGROOT%" goto NOREG
 if not exist "%UNDOROOT%" echo [WARN] reg_undo folder not found - option 7 will not work.
@@ -44,12 +44,12 @@ exit /b
 :MENU
 cls
 echo ===================================================================
-echo    PC OPTIMIZER - MASTER CONTROL v4.3
+echo    PC OPTIMIZER - MASTER CONTROL v4.4
 echo    Log: OptimizerLog_%TS%.txt
 echo ===================================================================
 echo.
 echo   [1] Recommended tweaks     - reg 01-08, safe for everyone
-echo   [2] Optional tweaks        - reg 09-13, asks you one by one
+echo   [2] Optional tweaks        - 09-13, 15, 16, asks you one by one
 echo   [3] Base system setup      - power plan, services, SSD check,
 echo                                network per adapter, temp cleanup
 echo   [4] Power settings         - reg 14 + auto-set CPU, USB, PCIe
@@ -60,6 +60,8 @@ echo   [7] Revert ONE tweak back to the Windows default
 echo   [8] Check disk type SSD or HDD - info only
 echo   [9] Open the Power Options window
 echo   [C] Check status - find settings that Windows Update changed back
+echo   [N] Network test - ping, jitter and packet loss, changes nothing
+echo   [R] System report - CPU and RAM users, startup list, changes nothing
 echo   [0] Exit
 echo.
 set "CHOICE="
@@ -74,6 +76,8 @@ if "%CHOICE%"=="7" goto DO7
 if "%CHOICE%"=="8" goto DO8
 if "%CHOICE%"=="9" goto DO9
 if /i "%CHOICE%"=="C" goto DOC
+if /i "%CHOICE%"=="N" goto DONET
+if /i "%CHOICE%"=="R" goto DOREP
 if "%CHOICE%"=="0" goto END
 goto MENU
 
@@ -108,6 +112,12 @@ call :POWEROPT
 goto MENU
 :DOC
 call :CHECKSTATUS
+goto MENU
+:DONET
+call :NETTEST
+goto MENU
+:DOREP
+call :SYSREPORT
 goto MENU
 
 :: ---------------------------------------------------------------------
@@ -213,8 +223,46 @@ if /i not "%ans%"=="YES" echo   - Skipped 13
 if /i not "%ans%"=="YES" call :SETCHOICE 13 N
 
 echo.
+echo   #15 Windows 11 timer resolution. Lets a game timer request apply system-wide again.
+echo   Can steady frame pacing in some games, uses a little more power. Needs a restart.
+set "ans="
+set /p "ans=  #15 Apply? Y/N: "
+if /i "%ans%"=="Y" call :IMPORTNUM 15
+if /i not "%ans%"=="Y" echo   - Skipped 15
+if /i not "%ans%"=="Y" call :SETCHOICE 15 N
+
+echo.
+echo   #16 CPU boost: aggressive boost and energy preference 0, plugged in only.
+echo   Ultimate Performance already does this on most PCs. Runs hotter on laptops.
+set "ans="
+set /p "ans=  #16 Apply? Y/N: "
+if /i "%ans%"=="Y" call :BOOSTAPPLY
+if /i not "%ans%"=="Y" echo   - Skipped 16
+if /i not "%ans%"=="Y" call :SETCHOICE 16 N
+
+echo.
 echo [Done] Optional tweaks step finished.
 pause
+goto :eof
+
+:: ---------------------------------------------------------------------
+:BOOSTAPPLY
+echo   - Applying 16 CPU boost...
+if not exist "%TOOLDIR%\Power_Boost.ps1" goto BOOSTMISSING
+powershell -NoProfile -ExecutionPolicy Bypass -File "%TOOLDIR%\Power_Boost.ps1" -Action Apply
+if errorlevel 3 goto BOOSTNA
+if errorlevel 1 goto BOOSTFAIL
+call :SETCHOICE 16 Y
+goto :eof
+:BOOSTNA
+echo     [SKIPPED] This PC does not offer these settings.
+call :SETCHOICE 16 N
+goto :eof
+:BOOSTFAIL
+echo     [ERROR] The CPU boost settings could not be applied.
+goto :eof
+:BOOSTMISSING
+echo     [WARN] tools\Power_Boost.ps1 was not found, 16 was skipped.
 goto :eof
 
 :: ---------------------------------------------------------------------
@@ -411,6 +459,7 @@ echo    4  CPU foreground priority     11  Keyboard fast repeat
 echo    5  Telemetry off               12  Ndu memory fix
 echo    6  System responsiveness       13  Memory Integrity off
 echo    7  Delivery Optimization off   14  CPU power options unlock
+echo   15  Timer resolution            16  CPU boost aggressive
 echo.
 echo    T  Network per-adapter tweak
 echo    P  Reset ALL power plans to Windows defaults
@@ -425,6 +474,7 @@ if /i "%RV%"=="T" goto REVERTTCP
 if /i "%RV%"=="P" goto REVERTPOWER
 set "RN=0%RV%"
 set "RN=%RN:~-2%"
+if "%RN%"=="16" goto REVERTBOOST
 set "FOUNDREG="
 for /r "%UNDOROOT%" %%f in (UNDO_%RN%_*.reg) do call :UNDOONE "%%f"
 if not defined FOUNDREG echo    [WARN] No undo file matches that choice.
@@ -443,6 +493,13 @@ call :SETCHOICE %FN:~5,2% N
 goto :eof
 :UNDOFAIL
 echo      [ERROR] Revert failed - see the log file.
+goto :eof
+
+:REVERTBOOST
+if not exist "%TOOLDIR%\Power_Boost.ps1" echo    [WARN] tools\Power_Boost.ps1 was not found.
+if exist "%TOOLDIR%\Power_Boost.ps1" powershell -NoProfile -ExecutionPolicy Bypass -File "%TOOLDIR%\Power_Boost.ps1" -Action Undo
+call :SETCHOICE 16 N
+pause
 goto :eof
 
 :REVERTTCP
@@ -481,6 +538,27 @@ pause
 goto :eof
 :CSMISSING
 echo [ERROR] tools\Check_Status.ps1 was not found next to this script.
+pause
+goto :eof
+
+:: ---------------------------------------------------------------------
+:NETTEST
+if not exist "%TOOLDIR%\Network_Test.ps1" goto NTMISSING
+powershell -NoProfile -ExecutionPolicy Bypass -File "%TOOLDIR%\Network_Test.ps1" -Root "%SCRIPT_DIR%."
+pause
+goto :eof
+:NTMISSING
+echo [ERROR] tools\Network_Test.ps1 was not found next to this script.
+pause
+goto :eof
+
+:SYSREPORT
+if not exist "%TOOLDIR%\System_Report.ps1" goto SRMISSING
+powershell -NoProfile -ExecutionPolicy Bypass -File "%TOOLDIR%\System_Report.ps1" -Root "%SCRIPT_DIR%."
+pause
+goto :eof
+:SRMISSING
+echo [ERROR] tools\System_Report.ps1 was not found next to this script.
 pause
 goto :eof
 

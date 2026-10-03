@@ -1,0 +1,5 @@
+Windows Registry Editor Version 5.00
+
+; UNDO 15 - remove the value, which is how Windows ships (the value does not exist by default).
+[HKEY_LOCAL_MACHINE\SYSTEM\CurrentControlSet\Control\Session Manager\kernel]
+"GlobalTimerResolutionRequests"=-

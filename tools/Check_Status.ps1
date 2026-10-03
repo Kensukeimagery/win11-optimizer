@@ -1,4 +1,4 @@
-# PC Optimizer v4.3 - Check Status
+# PC Optimizer v4.4 - Check Status
 # Compares the current PC settings with what the optimizer applies,
 # then offers to re-apply only the items that are missing or changed.
 param([string]$Root = '')
@@ -205,6 +205,22 @@ function Invoke-Checks([string]$RegRoot, [string]$BackupDir) {
         Add-Item $k 'PWR' $p.Title 'CHANGED' ('now ' + $v + ', expected ' + $p.Want) 'auto' 'pwr' $p
     }
 
+    # --- optional 16: CPU boost aggressive + energy preference 0 (plugged in)
+    $boostChoice = Get-Choice '16'
+    $eppNow = Get-PowerIndex @('SUB_PROCESSOR', 'PERFEPP')
+    $boostNow = Get-PowerIndex @('SUB_PROCESSOR', 'PERFBOOSTMODE')
+    if ($null -eq $eppNow -or $null -eq $boostNow) {
+        Add-Item 'BOOST' '16' 'CPU boost aggressive' 'UNKNOWN' 'not available on this PC' 'ask' $null $null
+    } elseif ($eppNow -eq 0 -and $boostNow -eq 2) {
+        Add-Item 'BOOST' '16' 'CPU boost aggressive' 'OK' '' 'ask' $null $null
+    } else {
+        $bstatus = 'CHANGED'
+        $bdetail = 'boost mode ' + $boostNow + ' and preference ' + $eppNow + ', expected 2 and 0'
+        if ($boostChoice -eq 'N') { $bstatus = 'SKIPPED'; $bdetail = 'you chose not to use this' }
+        elseif ($boostChoice -eq '') { $bstatus = 'NOT CHOSEN'; $bdetail = 'optional - never applied or answered' }
+        Add-Item 'BOOST' '16' 'CPU boost aggressive' $bstatus $bdetail 'ask' 'boost' $null
+    }
+
     # --- prefetcher, by disk type
     $media = ''
     try { $media = [string](Get-PhysicalDisk -ErrorAction Stop | Sort-Object DeviceId | Select-Object -First 1).MediaType } catch { }
@@ -304,6 +320,13 @@ function Invoke-Fix($Item, [string]$BackupDir) {
                     if ($LASTEXITCODE -ne 0) { $ok = $false }
                 }
             }
+            'boost' {
+                $helper = Join-Path $PSScriptRoot 'Power_Boost.ps1'
+                if (Test-Path -LiteralPath $helper) {
+                    & powershell.exe -NoProfile -ExecutionPolicy Bypass -File $helper -Action Apply *> $null
+                    $ok = ($LASTEXITCODE -eq 0)
+                }
+            }
             'svc'  { & sc.exe config $Item.FixData start= disabled *> $null; $ok = ($LASTEXITCODE -eq 0) }
         }
     } catch { $ok = $false }
@@ -336,7 +359,7 @@ function Start-CheckStatus {
     $reportFile = Join-Path $script:RootDir ('CheckReport_' + $stamp + '.txt')
 
     Write-Log '==================================================================' 'Cyan'
-    Write-Log '   PC OPTIMIZER v4.3 - CHECK STATUS' 'Cyan'
+    Write-Log '   PC OPTIMIZER v4.4 - CHECK STATUS' 'Cyan'
     Write-Log ('   ' + (Get-Date -Format 'yyyy-MM-dd HH:mm') + '   Windows build ' + [Environment]::OSVersion.Version.ToString()) 'Cyan'
     Write-Log '==================================================================' 'Cyan'
     Write-Log ''

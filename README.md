@@ -1,4 +1,4 @@
-﻿# win11-optimizer
+# win11-optimizer
 
 [ภาษาไทย](#ภาษาไทย) | [English](#english)
 
@@ -24,19 +24,21 @@ A small, transparent set of batch/registry scripts to tune Windows 11 for gaming
 | `1_Start_Here ... .bat` | Main menu |
 | `2_Revert_Everything ... .bat` | Restore to the `Before_PC_Optimizer` restore point |
 | `3_Check_Status ... .bat` | Check which tweaks are still applied |
+| `4_Network_Test.bat` | Read-only ping, jitter and packet-loss test (no admin needed) |
+| `5_System_Report.bat` | Read-only report of CPU/RAM users, startup programs, disk space, GPU driver age (no admin needed) |
 | `reg/` | Tweaks: `1_Recommended` (01-08), `2_Optional` (09-13), `3_Power` (14) |
 | `reg_undo/` | One undo file per tweak (Windows defaults) |
 | `tools/` | PowerShell helpers used by the menu (keep this folder) |
 | `repair-tools/` | Deep clean, network reset, Bluetooth fix, DISM + SFC |
 
 ### Main menu
-`1` Recommended, `2` Optional (one by one), `3` Base setup (power plan, services, SSD/HDD check, temp cleanup), `4` Power settings, `5` Everything, `6` Restore point only, `7` Revert one tweak, `8` Disk type, `9` Power Options, `C` Check status.
+`1` Recommended, `2` Optional 09-13, 15, 16 (one by one), `3` Base setup (power plan, services, SSD/HDD check, temp cleanup), `4` Power settings, `5` Everything, `6` Restore point only, `7` Revert one tweak, `8` Disk type, `9` Power Options, `C` Check status, `N` Network test, `R` System report.
 
 ### Honest expectations
 These tweaks give small, situational gains. GPU driver updates, in-game settings, XMP/EXPO and cooling matter far more. Items without official Microsoft documentation are marked as community-sourced in the manual's References page.
 
 ### Requirements
-Windows 11, administrator rights. Built for desktops; expect more heat and battery drain on laptops. Manuals: [English](docs/Manual_EN_v4.3.pdf) and [Thai](docs/Manual_TH_v4.3.pdf). The scripts print English.
+Windows 11, administrator rights. Built for desktops; expect more heat and battery drain on laptops. Manuals: [English](docs/Manual_EN_v4.4.pdf) and [Thai](docs/Manual_TH_v4.4.pdf). The scripts print English.
 
 ### License
 MIT, see `LICENSE`.
@@ -56,7 +58,7 @@ MIT, see `LICENSE`.
 4. รีสตาร์ทเครื่อง
 5. หลังอัปเดต Windows ใหญ่ๆ ให้รัน `3_Check_Status` เพื่อดูว่าค่าไหนถูกรีเซ็ต
 
-รายละเอียดแต่ละไฟล์ ลำดับการรัน และการตั้งค่า Windows เพิ่มเติมอยู่ในคู่มือ PDF: [ภาษาไทย](docs/Manual_TH_v4.3.pdf) | [English](docs/Manual_EN_v4.3.pdf)
+รายละเอียดแต่ละไฟล์ ลำดับการรัน และการตั้งค่า Windows เพิ่มเติมอยู่ในคู่มือ PDF: [ภาษาไทย](docs/Manual_TH_v4.4.pdf) | [English](docs/Manual_EN_v4.4.pdf)
 
 ### ความคาดหวังที่เป็นจริง
 tweak เหล่านี้ให้ผลเล็กน้อยเฉพาะสถานการณ์ ไดรเวอร์การ์ดจอ การตั้งค่าในเกม XMP/EXPO และการระบายความร้อนสำคัญกว่ามาก รายการที่ไม่มีเอกสารทางการของ Microsoft ระบุไว้ในหน้าแหล่งอ้างอิงของคู่มือ

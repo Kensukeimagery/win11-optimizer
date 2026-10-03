@@ -1,4 +1,4 @@
-# PC Optimizer v4.3 - creates the "Before_PC_Optimizer" restore point with a time limit.
+# PC Optimizer v4.4 - creates the "Before_PC_Optimizer" restore point with a time limit.
 # Exit codes: 0 = created, 1 = failed, 2 = timed out.
 param([int]$TimeoutSeconds = 600)
 $ErrorActionPreference = 'Continue'
