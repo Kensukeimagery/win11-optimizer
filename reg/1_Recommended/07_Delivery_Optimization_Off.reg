@@ -1,0 +1,5 @@
+Windows Registry Editor Version 5.00
+
+; 07 - Stop Windows Update from uploading updates to other PCs using your internet.
+[HKEY_LOCAL_MACHINE\SOFTWARE\Policies\Microsoft\Windows\DeliveryOptimization]
+"DODownloadMode"=dword:00000000

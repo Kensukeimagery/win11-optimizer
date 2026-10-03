@@ -1,0 +1,8 @@
+Windows Registry Editor Version 5.00
+
+; Restore Windows defaults for tweak 12
+[HKEY_LOCAL_MACHINE\SYSTEM\CurrentControlSet\Services\Ndu]
+"Start"=dword:00000002
+
+[HKEY_LOCAL_MACHINE\SYSTEM\CurrentControlSet\Control\Session Manager\Memory Management]
+"DisablePagingExecutive"=dword:00000000

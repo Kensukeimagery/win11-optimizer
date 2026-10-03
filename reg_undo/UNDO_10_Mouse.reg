@@ -1,0 +1,7 @@
+Windows Registry Editor Version 5.00
+
+; Restore Windows defaults for tweak 10 - Enhance pointer precision back ON
+[HKEY_CURRENT_USER\Control Panel\Mouse]
+"MouseSpeed"="1"
+"MouseThreshold1"="6"
+"MouseThreshold2"="10"

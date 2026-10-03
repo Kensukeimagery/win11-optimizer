@@ -1,0 +1,5 @@
+Windows Registry Editor Version 5.00
+
+; Restore Windows defaults for tweak 08 - the GPU driver decides again
+[HKEY_LOCAL_MACHINE\SYSTEM\CurrentControlSet\Control\GraphicsDrivers]
+"HwSchMode"=-

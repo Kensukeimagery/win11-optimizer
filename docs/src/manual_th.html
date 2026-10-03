@@ -1,0 +1,223 @@
+<!doctype html>
+<html lang="th"><head><meta charset="utf-8"><title>คู่มือ Windows 11 Optimizer v4.3</title>
+<link rel="stylesheet" href="style.css"></head><body>
+
+<!-- PAGE 1 -->
+<div class="page">
+<div class="banner cover"><div class="sub">คู่มือการใช้งาน v4.3</div><h1>Windows 11 Optimizer</h1><div class="sub">รวมทุกอย่างไว้ในเมนูเดียว พร้อมระบบสำรองและย้อนกลับรายข้อ</div></div>
+
+<div class="box red"><h3>อ่านก่อนใช้</h3>
+<ul>
+<li><b>ใช้ด้วยความเสี่ยงของตัวเอง</b> สคริปต์แก้ registry และ power settings ใช้กับเครื่องที่เป็นของคุณเท่านั้น และเก็บจุดคืนค่าที่สคริปต์สร้างไว้เสมอ</li>
+<li>ออกแบบสำหรับ <b>เดสก์ท็อป Windows 11 ที่เล่นเกม</b> ถ้าใช้กับโน้ตบุ๊ก ความร้อนจะสูงขึ้นและแบตเตอรี่หมดเร็วขึ้น (CPU ขั้นต่ำ 100%, ปิด power throttling)</li>
+<li>ผลที่ได้เล็กน้อยและขึ้นกับสถานการณ์ ไดรเวอร์การ์ดจอ การตั้งค่าในเกม XMP/EXPO และการระบายความร้อนสำคัญกว่ามาก ดูหมายเหตุตามจริงของแต่ละข้อด้านล่าง</li>
+<li>แอนตี้ไวรัสบางตัวอาจเตือนไฟล์ <span class="mono">.bat</span> ที่แก้ registry ทุกไฟล์เป็นข้อความธรรมดา เปิดอ่านก่อนรันได้</li>
+</ul></div>
+
+<h2>สิ่งที่ต้องมี</h2>
+<ul><li>Windows 11 และบัญชีผู้ดูแลระบบ (คลิกขวา &gt; <i>Run as administrator</i>)</li>
+<li>เก็บทุกโฟลเดอร์ไว้ข้างสคริปต์ อย่าแยกไฟล์ <span class="mono">.bat</span> ออกจากโฟลเดอร์</li>
+<li>เปิด System Protection (System Restore) ของไดรฟ์ระบบไว้ เพื่อให้สร้างจุดคืนค่าได้</li></ul>
+
+<h2>โครงสร้างโฟลเดอร์</h2>
+<table><tr><th style="width:44%">ไฟล์ / โฟลเดอร์</th><th>ใช้ทำอะไร</th></tr>
+<tr><td>1_Start_Here - PC_Optimizer_Master (Run as Administrator).bat</td><td>เมนูหลัก เริ่มที่ไฟล์นี้ ทุกอย่างเข้าถึงได้จากเมนู</td></tr>
+<tr><td>2_Revert_Everything - System_Restore (Run as Administrator).bat</td><td>ย้อนทั้งเครื่องด้วย System Restore (ใช้เมื่อมีปัญหาหนัก)</td></tr>
+<tr><td>3_Check_Status (Run as Administrator).bat</td><td>ตรวจว่าการตั้งค่ายังอยู่ครบไหม เช่นหลังอัปเดต Windows</td></tr>
+<tr><td>tools/</td><td>ไฟล์ PowerShell ช่วยทำงานของเมนูและตัวตรวจสถานะ ห้ามลบ</td></tr>
+<tr><td>reg/1_Recommended</td><td>ไฟล์ 01-08 ปลอดภัยสำหรับเครื่องส่วนใหญ่</td></tr>
+<tr><td>reg/2_Optional</td><td>ไฟล์ 09-13 สคริปต์ถามทีละข้อ</td></tr>
+<tr><td>reg/3_Power</td><td>ไฟล์ 14 ปลดล็อกตัวเลือก CPU ที่ซ่อนอยู่ใน Power Options</td></tr>
+<tr><td>reg_undo/</td><td>ไฟล์คืนค่าเริ่มต้นของ Windows ข้อละไฟล์ (ใช้ผ่านเมนู 7)</td></tr>
+<tr><td>repair-tools/</td><td>เครื่องมือซ่อมเฉพาะจุด 4 ตัว ไม่เกี่ยวกับเมนูหลัก</td></tr>
+<tr><td>Backup/ (สร้างเองตอนรัน)</td><td>สำเนาค่าเดิมของทุกคีย์ก่อนถูกแก้ แยกโฟลเดอร์ตามวันเวลา</td></tr>
+<tr><td>OptimizerLog_*.txt, CheckReport_*.txt (สร้างเองตอนรัน)</td><td>บันทึกทุกคำสั่งที่รัน และผลการตรวจสถานะแต่ละครั้ง</td></tr>
+</table>
+</div>
+
+<!-- PAGE 2 -->
+<div class="page">
+<div class="banner"><h1>เริ่มใช้งานแบบเร็ว</h1><p>3 ขั้นตอนจบ</p></div>
+<div class="card"><div class="t"><span class="n">1</span>เปิด 1_Start_Here - PC_Optimizer_Master</div><ul><li>คลิกขวา แล้วเลือก <i>Run as administrator</i></li></ul></div>
+<div class="card"><div class="t"><span class="n">2</span>พิมพ์ 5 แล้วกด Enter</div><ul>
+<li>สคริปต์สร้างจุดคืนค่าให้ก่อน แล้วทำเมนู 1, 2, 3, 4 ต่อกันอัตโนมัติ</li>
+<li>เมนู 2 จะถามทีละข้อ ตอบตามการใช้งานของคุณ (ดูคำแนะนำของไฟล์ 09-13)</li>
+<li>ขั้นสร้างจุดคืนค่าปกติใช้ 1-5 นาที ถ้าเกิน 10 นาทีสคริปต์จะหยุดรอแล้วถามว่าจะทำต่อไหม</li></ul></div>
+<div class="card"><div class="t"><span class="n">3</span>รีสตาร์ทเครื่อง 1 ครั้ง</div><ul>
+<li>จำเป็นสำหรับ GPU Scheduling, Memory Integrity และค่าระดับระบบอื่นๆ</li>
+<li>จากนั้นทำรายการ "ตั้งค่า Windows เพิ่มเติม" ในคู่มือนี้ต่อ</li>
+<li>หลังอัปเดต Windows ครั้งใหญ่ หรือทุก 1-2 เดือน ให้รัน <b>3_Check_Status</b></li></ul></div>
+
+<h2>เมนูใน PC_Optimizer_Master</h2>
+<table><tr><th style="width:36px">ข้อ</th><th style="width:25%">ชื่อ</th><th>ทำอะไร</th></tr>
+<tr><td>1</td><td>Recommended tweaks</td><td>นำเข้าไฟล์ 01-08</td></tr>
+<tr><td>2</td><td>Optional tweaks</td><td>ถามทีละไฟล์ 09-13 ข้อ 13 ต้องพิมพ์ YES</td></tr>
+<tr><td>3</td><td>Base system setup</td><td>Power Plan, Services, เช็ค SSD/HDD ก่อนปรับ Prefetcher, ตั้งค่า TCP ทุก network adapter, ล้างค่าเก่าที่ไม่มีผล, ล้าง Temp</td></tr>
+<tr><td>4</td><td>Power settings</td><td>นำเข้าไฟล์ 14 แล้วตั้ง CPU ขั้นต่ำ 100%, ปิด core parking, ปิด USB suspend, ปิด PCIe power saving (เฉพาะตอนเสียบปลั๊ก)</td></tr>
+<tr><td>5</td><td>RUN EVERYTHING</td><td>จุดคืนค่า + 1 + 2 + 3 + 4 แนะนำสำหรับครั้งแรก</td></tr>
+<tr><td>6</td><td>Restore point only</td><td>สร้างจุดคืนค่าอย่างเดียว</td></tr>
+<tr><td>7</td><td>Revert ONE tweak</td><td>คืนค่าเริ่มต้นของ Windows ทีละข้อ: 1-14, T = network, P = power plans</td></tr>
+<tr><td>8</td><td>Check disk type</td><td>ดูว่าเป็น SSD หรือ HDD ไม่แก้อะไร</td></tr>
+<tr><td>9</td><td>Power Options</td><td>เปิดหน้าต่าง Power Options ไว้ตรวจค่า</td></tr>
+<tr><td>C</td><td>Check status</td><td>เหมือน 3_Check_Status</td></tr>
+<tr><td>0</td><td>Exit</td><td>ออก และแสดงตำแหน่งไฟล์ log</td></tr>
+</table>
+</div>
+
+<!-- PAGE 3 -->
+<div class="page">
+<div class="banner"><h1>ถ้ามีปัญหา: ย้อนกลับได้ 3 ระดับ</h1><p>เลือกระดับเล็กที่สุดที่แก้ปัญหาได้</p></div>
+<div class="card rep"><div class="t"><span class="n">A</span>ย้อนทีละข้อ - เมนู 7</div><ul>
+<li>เช่น เมาส์รู้สึกแปลกหลังใช้ไฟล์ 10 ให้พิมพ์ 7 แล้ว 10</li>
+<li>คืนเป็นค่าเริ่มต้นของ Windows จากโฟลเดอร์ <span class="mono">reg_undo</span> T = เอาค่า network ออก, P = รีเซ็ต Power Plan ทั้งหมด</li>
+<li>สคริปต์จำไว้ว่าคุณย้อนข้อนี้ ตัวตรวจสถานะจะแสดงเป็น SKIPPED และไม่ถามให้ลงซ้ำ</li></ul></div>
+<div class="card rep"><div class="t"><span class="n">B</span>คืนค่าเดิมแบบตรงตัว - โฟลเดอร์ Backup</div><ul>
+<li>ทุกครั้งที่รัน สคริปต์ export คีย์เดิมไว้ใน <span class="mono">Backup\วันเวลา</span></li>
+<li>ดับเบิลคลิกไฟล์ในนั้นเพื่อคืนค่าที่เครื่องคุณเคยมีจริง (ละเอียดกว่าค่าเริ่มต้นของ Windows)</li></ul></div>
+<div class="card rep"><div class="t"><span class="n">C</span>ย้อนทั้งเครื่อง - 2_Revert_Everything</div><ul>
+<li>ใช้ System Restore กลับไปจุด <span class="mono">Before_PC_Optimizer</span></li>
+<li>เครื่องรีสตาร์ทเอง และโปรแกรมที่ติดตั้งหลังจุดนั้นจะหายด้วย ใช้เมื่อปัญหาหนักเท่านั้น</li></ul></div>
+
+<div class="banner" style="margin-top:14px"><h1>ตรวจสอบสถานะ</h1><p>3_Check_Status หรือเมนู C ใช้หลังอัปเดต Windows หรือทุก 1-2 เดือน</p></div>
+<div class="card"><div class="t"><span class="n">1</span>รัน 3_Check_Status แบบ administrator</div><ul><li>สคริปต์ไล่ตรวจทุกรายการ แสดงสถานะทีละบรรทัดพร้อมค่าปัจจุบันเทียบกับค่าที่ควรเป็น</li></ul></div>
+<div class="card"><div class="t"><span class="n">2</span>ตอบคำถามแก้ไข</div><ul>
+<li>ข้อแนะนำ: Y = ลงซ้ำทุกข้อที่หาย, S = เลือกทีละข้อ, N = ไม่แก้</li>
+<li>ข้อเสริมถามทีละข้อเสมอ ส่วนข้อ 13 ต้องพิมพ์ YES</li>
+<li>ก่อนลงซ้ำจะสำรองค่าเดิมไว้ใน <span class="mono">Backup\วันเวลา_check</span></li></ul></div>
+<div class="card"><div class="t"><span class="n">3</span>ตรวจซ้ำอัตโนมัติ</div><ul><li>หลังแก้เสร็จสคริปต์ตรวจข้อที่แก้อีกรอบเพื่อยืนยัน บันทึกผลเป็น <span class="mono">CheckReport_วันเวลา.txt</span> แล้วรีสตาร์ท 1 ครั้ง</li></ul></div>
+
+<table><tr><th style="width:18%">สถานะ</th><th>หมายความว่า</th><th style="width:34%">สิ่งที่สคริปต์ทำ</th></tr>
+<tr><td>OK</td><td>ค่ายังอยู่ครบตามที่สคริปต์ตั้งไว้</td><td>ไม่ต้องทำอะไร</td></tr>
+<tr><td>CHANGED</td><td>มีบางค่าถูกเปลี่ยน เช่นหลังอัปเดต Windows</td><td>ลงซ้ำได้</td></tr>
+<tr><td>MISSING</td><td>ไม่พบค่าของข้อนี้เลย</td><td>ลงซ้ำได้</td></tr>
+<tr><td>NOT CHOSEN</td><td>ข้อเสริม (09-13) ที่ยังไม่เคยตอบ</td><td>ถาม: Y ลง, N ยังไม่ลง, X ไม่ต้องถามอีก</td></tr>
+<tr><td>SKIPPED</td><td>ข้อที่คุณเลือกข้ามหรือย้อนกลับไว้</td><td>ไม่ถาม ไม่แก้</td></tr>
+<tr><td>UNKNOWN</td><td>อ่านค่าไม่ได้ หรือเครื่องไม่มีตัวเลือกนี้</td><td>ให้ข้อมูลเท่านั้น</td></tr>
+</table>
+<p class="small"><b>สิ่งที่ตรวจ:</b> ไฟล์ .reg ทั้ง 14 ไฟล์ (อ่านจากไฟล์ตัวเดียวกับที่ใช้ลง), Power Plan (Ultimate Performance หรือ High Performance ถ้าไม่มี Ultimate), ค่า power 4 ตัว, Prefetcher (SSD ต้องเป็น 0, HDD ต้องเป็น 3), TcpAckFrequency และ TCPNoDelay ของทุก adapter, services DiagTrack และ dmwappushservice<br>
+<b>ข้อจำกัด:</b> ตัวตรวจบอกได้ว่าค่ายังอยู่ แต่ไม่ได้ว่ายังมีผลจริง (ข้อ 08 อาจขึ้น OK แม้การ์ดจอไม่รองรับ GPU Scheduling) ค่าใต้ GameConfigStore (01, 09) ถูก Windows และ Xbox Game Bar เขียนทับเองได้ ขึ้น CHANGED บ่อยจึงไม่แปลกว่ามีอะไรผิด และถ้าเพิ่งติดตั้ง VPN หรือการ์ด Wi-Fi ใหม่ หัวข้อ Network จะขึ้น CHANGED จนกว่าจะตั้งค่า adapter นั้น</p>
+</div>
+
+<!-- PAGE 4 -->
+<div class="page">
+<div class="banner"><h1>ไฟล์ .reg หมวด 1: Recommended (01-08)</h1><p>รันผ่านเมนู 1 ออกแบบให้ปลอดภัยสำหรับเครื่องส่วนใหญ่</p></div>
+<div class="card"><div class="t"><span class="n">01</span>GameBar_DVR_Off</div><ul><li>ปิดการอัดคลิปเบื้องหลังของ Xbox Game Bar (Game DVR) ทั้งระดับผู้ใช้และ Policy เปิด Game Mode ไว้ (v3 ปิดไปโดยไม่ตั้งใจ)</li></ul><div class="h">ช่วยอะไร: คืน CPU/GPU/ดิสก์ที่ใช้อัดหน้าจอตลอดเวลา ค่าเหล่านี้ไม่มีเอกสารทางการของ Microsoft</div></div>
+<div class="card"><div class="t"><span class="n">02</span>Power_Throttling_Off</div><ul><li>PowerThrottlingOff = 1 ไม่ลดความเร็วโปรแกรมเบื้องหลัง ปิด Energy Estimation และปิด Fast Startup ให้การ Shutdown เป็นการเริ่มระบบใหม่จริง</li></ul><div class="h">ช่วยอะไร: Discord/OBS เบื้องหลังไม่โดนลดสปีด ข้อเสีย: บูตช้าลงเล็กน้อย และกินไฟมากขึ้นในโน้ตบุ๊ก</div></div>
+<div class="card"><div class="t"><span class="n">03</span>Gaming_Priority_MMCSS</div><ul><li>NetworkThrottlingIndex = ffffffff ยกเลิกการจำกัดเน็ตของงานมัลติมีเดีย</li><li>SystemResponsiveness = 10 ซึ่งเป็นค่าต่ำสุดที่มีผลจริง Microsoft ระบุว่าค่าต่ำกว่า 10 จะถูกปัดกลับเป็น 20 (ค่าเริ่มต้น) ค่า 0 จึงไม่มีผลเลย</li><li>Tasks\Games: GPU Priority 8, Priority 6, Scheduling Category High, SFIO Priority High</li></ul><div class="h">ช่วยอะไร: จัดคิวงานให้เกมได้ CPU, GPU และดิสก์ก่อนโปรแกรมอื่น</div></div>
+<div class="card"><div class="t"><span class="n">04</span>CPU_Foreground_Priority</div><ul><li>Win32PrioritySeparation = 0x26 ให้หน้าต่างที่ใช้งานอยู่ได้ช่วงเวลา CPU ยาวและสำคัญกว่า (ค่าเริ่มต้นคือ 0x2)</li></ul><div class="h">ช่วยอะไร: เกมที่เปิดอยู่ตรงหน้าได้ CPU มากกว่าโปรแกรมเบื้องหลัง</div></div>
+<div class="card"><div class="t"><span class="n">05</span>Telemetry_Off</div><ul><li>AllowTelemetry = 0, CEIPEnable = 0 บน Windows Home/Pro จะใช้ระดับต่ำสุดที่อนุญาตแทน ค่า 0 เต็มรูปแบบมีผลเฉพาะ Enterprise</li></ul><div class="h">ช่วยอะไร: ลดการส่งข้อมูลเบื้องหลัง ผลต่อ FPS เล็กน้อย เน้นความเป็นส่วนตัว</div></div>
+<div class="card"><div class="t"><span class="n">06</span>System_Responsiveness</div><ul><li>เมนูขึ้นทันที ปิดโปรแกรมค้างเร็วขึ้น ลด animation และ Visual Effects</li><li>ปิดการบันทึกเวลาเข้าถึงไฟล์ NTFS คืนเมนูคลิกขวา Copy To / Move To</li></ul><div class="h">ช่วยอะไร: Windows ตอบสนองไวขึ้น ลดการเขียนดิสก์ที่ไม่จำเป็น</div></div>
+<div class="card"><div class="t"><span class="n">07</span>Delivery_Optimization_Off</div><ul><li>DODownloadMode = 0</li></ul><div class="h">ช่วยอะไร: Windows Update ไม่แอบอัปโหลดไฟล์ให้เครื่องอื่นระหว่างเล่นเกมออนไลน์</div></div>
+<div class="card"><div class="t"><span class="n">08</span>GPU_Scheduling_On</div><ul><li>HwSchMode = 2 เปิด Hardware-accelerated GPU Scheduling ต้องรีสตาร์ท และต้องใช้การ์ดจอ/ไดรเวอร์ที่รองรับ ถ้าไม่รองรับ Windows ไม่สนใจค่านี้</li></ul><div class="h">ช่วยอะไร: ลด latency ระหว่าง CPU กับ GPU เล็กน้อย Microsoft ระบุว่าผู้ใช้ส่วนใหญ่ไม่ควรคาดหวังการเปลี่ยนแปลงมาก</div></div>
+</div>
+
+<!-- PAGE 5 -->
+<div class="page">
+<div class="banner"><h1>ไฟล์ .reg หมวด 2: Optional (09-13)</h1><p>สคริปต์ถามทีละข้อ ตอบตามวิธีเล่นเกมจริงของคุณ</p></div>
+<div class="card opt"><div class="t"><span class="n">09</span>Fullscreen_Exclusive</div><ul><li>บังคับ True Fullscreen แทนที่ Windows จะแปลงเป็น Borderless ให้เอง</li><li>ตอบ Y เฉพาะเมื่อเกมเต็มจอกระตุกหรือค้างตอน alt-tab เกมใหม่บางเกมทำงานดีกว่าแบบเดิม</li></ul><div class="h">ช่วยอะไร: ลด input lag ในเกมเก่าที่รองรับ Fullscreen Exclusive</div></div>
+<div class="card opt"><div class="t"><span class="n">10</span>Mouse_No_Acceleration</div><ul><li>ปิด Enhance Pointer Precision ให้เมาส์เคลื่อนแบบ 1:1</li></ul><div class="h">ช่วยอะไร: เล็งแม่นสม่ำเสมอ เหมาะเกม FPS</div></div>
+<div class="card opt"><div class="t"><span class="n">11</span>Keyboard_Fast_Repeat</div><ul><li>KeyboardDelay = 0 หน่วงก่อนพิมพ์ซ้ำสั้นที่สุด Flags = 122 ปิดหน้าต่าง Filter Keys ที่เด้งเมื่อกด Shift ค้าง 8 วินาทีกลางเกม</li></ul><div class="h">ช่วยอะไร: ปุ่มตอบสนองไวขึ้น และไม่มีป๊อปอัปขัดจังหวะ</div></div>
+<div class="card opt"><div class="t"><span class="n">12</span>Ndu_Memory_Fix</div><ul><li>ปิด service Ndu ที่มีรายงานปัญหา RAM รั่วในบางเครื่อง และตั้ง DisablePagingExecutive = 1</li><li>ผลข้างเคียง: Task Manager ไม่แสดงประวัติการใช้เน็ตรายแอป และการเก็บเคอร์เนลไว้ใน RAM กินหน่วยความจำ ข้ามข้อนี้ถ้าเครื่องมี RAM 8 GB หรือน้อยกว่า</li></ul><div class="h">ช่วยอะไร: เฉพาะเมื่อ RAM ถูกกินเพิ่มเรื่อยๆ ปัญหา Ndu มาจากรายงานผู้ใช้ ไม่ใช่เอกสาร Microsoft</div></div>
+<div class="card opt"><div class="t"><span class="n">13</span>Memory_Integrity_Off</div><ul><li>ปิด Memory Integrity (HVCI) ต้องพิมพ์ YES และต้องรีสตาร์ท</li><li>Microsoft ยืนยันว่าอาจกระทบประสิทธิภาพเกมในบางเครื่อง (ไม่ระบุตัวเลข) แต่เมื่อปิด Windows ป้องกันมัลแวร์ระดับ kernel ได้น้อยลง</li><li>ถ้าเป็นเครื่องทำงานหรือมีข้อมูลสำคัญ ให้ข้าม ย้อนกลับด้วยเมนู 7 แล้ว 13</li></ul><div class="h">ช่วยอะไร: รายการเดียวในชุดที่อาจเพิ่ม FPS ได้ชัด แต่แลกกับความปลอดภัย</div></div>
+
+<div class="banner" style="margin-top:12px"><h1>หมวด 3: Power (14) และการตั้งค่าอัตโนมัติ</h1><p>เมนู 4 ทำให้ครบ ไม่ต้องตั้งมือ</p></div>
+<div class="card"><div class="t"><span class="n">14</span>Unlock_CPU_Power_Settings</div><ul><li>เปิดให้เห็นตัวเลือก CPU ที่ Windows ซ่อน: core parking, ความถี่สูงสุด, boost mode, EPP</li><li>รวมไฟล์ 11 และ 12 ของ v3 และตัดรายการที่แสดงอยู่แล้วโดยปกติออก</li></ul></div>
+<div class="card"><div class="t"><span class="n">P</span>สิ่งที่เมนู 4 ตั้งต่อด้วย powercfg</div><ul><li>Minimum processor state = 100% Core parking ขั้นต่ำ 100% (core ไม่หลับ)</li><li>USB selective suspend = ปิด PCIe Link State Power Management = ปิด</li><li>ตั้งเฉพาะตอนเสียบปลั๊ก ค่าตอนใช้แบตของโน้ตบุ๊กไม่ถูกแตะ</li></ul><div class="h">ช่วยอะไร: CPU/GPU ไม่สลับโหมดประหยัดไฟระหว่างเล่นเกม</div></div>
+</div>
+
+<!-- PAGE 6 -->
+<div class="page">
+<div class="banner"><h1>สิ่งที่เมนู 3 (Base setup) ทำ</h1><p>ส่วนที่ไม่ใช่ไฟล์ .reg ธรรมดา</p></div>
+<table><tr><th style="width:17%">หัวข้อ</th><th>ทำอะไร</th><th style="width:36%">หมายเหตุ</th></tr>
+<tr><td>Power Plan</td><td>ใช้ Ultimate Performance ถ้าไม่มีใช้ High Performance ถ้าไม่มีอีกคงไว้ที่ Balanced</td><td>จำ GUID ไว้ รันกี่ครั้งก็ไม่สร้างแผนซ้ำ (v3 สร้างเพิ่มทุกครั้ง)</td></tr>
+<tr><td>Services</td><td>Windows Search และ Print Spooler เปิด, DiagTrack และ dmwappushservice ปิด</td><td>"already running" ใน log เป็นเรื่องปกติ</td></tr>
+<tr><td>Prefetcher</td><td>ตรวจชนิดดิสก์ก่อน: SSD ปิด, HDD เปิด, ไม่รู้ชนิด ไม่แตะ</td><td>กันการปิดบน HDD ซึ่งทำให้ช้าลง</td></tr>
+<tr><td>Network</td><td>ตั้ง TcpAckFrequency และ TCPNoDelay ให้ทุก network adapter</td><td>v3 ตั้งระดับรวมซึ่ง Windows ไม่อ่าน มีผลเฉพาะเกมที่ใช้ TCP Microsoft แนะนำให้ทดสอบก่อนเปลี่ยนค่านี้</td></tr>
+<tr><td>ล้างค่าเก่า</td><td>ลบ MaxUserPort, TcpTimedWaitDelay และค่า TCP ที่ผิดตำแหน่งจาก v3</td><td>ค่าพวกนี้ไม่เกี่ยวกับการเล่นเกม</td></tr>
+<tr><td>Temp</td><td>ลบไฟล์ชั่วคราวของผู้ใช้</td><td>ไฟล์ที่ถูกใช้งานอยู่จะถูกข้ามอย่างปลอดภัย</td></tr>
+</table>
+
+<div class="banner"><h1>ตั้งค่า Windows เพิ่มเติมที่ต้องทำเอง</h1><p>ส่วนที่สคริปต์ทำแทนไม่ได้</p></div>
+<p class="small">v4 ทำให้อัตโนมัติแล้ว ไม่ต้องตั้งมือ: GPU Scheduling (08), Delivery Optimization (07), USB selective suspend และ PCIe power saving (เมนู 4), Game Bar DVR (01), Game Mode เปิด (01), Enhance Pointer Precision (10 ถ้าตอบ Y)</p>
+<table><tr><th>ผลชัด ควรทำ</th><th style="width:36%">ไปที่ไหน</th><th style="width:30%">ทำไม</th></tr>
+<tr><td>GPU Power = Maximum Performance</td><td>NVIDIA Control Panel / AMD Software</td><td>กันการ์ดจอลดความเร็วเองตอนโหลดไม่คงที่</td></tr>
+<tr><td>ปิดประหยัดไฟการ์ดเน็ต</td><td>Device Manager &gt; การ์ดเน็ต &gt; Power Management</td><td>กัน ping กระตุกเป็นพักๆ</td></tr>
+<tr><td>เพิ่มโฟลเดอร์เกมใน Defender Exclusions</td><td>Virus &amp; threat protection &gt; Exclusions</td><td>โหลดฉากเร็วขึ้น ไม่ได้ปิด Defender ทั้งระบบ</td></tr>
+<tr><td>ปิด Overlay ของโปรแกรมการ์ดจอ</td><td>NVIDIA App / AMD Software &gt; Settings</td><td>ลดภาระ CPU/GPU เบื้องหลัง</td></tr>
+<tr><td>ปิด Audio Enhancements</td><td>Control Panel &gt; Sound &gt; Enhancements</td><td>ลด latency เสียง</td></tr>
+</table>
+<table><tr><th>ผลเฉพาะสถานการณ์ หรือเล็กน้อย</th><th style="width:36%">ไปที่ไหน</th><th style="width:30%">ทำไม</th></tr>
+<tr><td>Focus Assist ตอนเล่นเกม</td><td>Settings &gt; System &gt; Notifications</td><td>กันแจ้งเตือนดึง focus</td></tr>
+<tr><td>ปิด Xbox Game Bar ทั้งหมด (ถ้าไม่ใช้ Win+G)</td><td>Settings &gt; Gaming &gt; Xbox Game Bar</td><td>ลดโปรเซสเบื้องหลัง</td></tr>
+<tr><td>Disable fullscreen optimizations รายเกม</td><td>คลิกขวา .exe &gt; Properties &gt; Compatibility</td><td>สำหรับเกมเก่าที่มีปัญหา</td></tr>
+<tr><td>ปิด Telemetry ของค่ายการ์ดจอ</td><td>services.msc</td><td>ลดงานเบื้องหลัง</td></tr>
+<tr><td>เลื่อนเวลา Automatic Maintenance</td><td>Control Panel &gt; Security and Maintenance</td><td>กันสแกนระหว่างเล่นเกม</td></tr>
+<tr><td>ปิด Transparency, HDR ถ้าไม่ใช้</td><td>Settings &gt; Personalization / Display</td><td>ลดภาระเล็กน้อย</td></tr>
+<tr><td>ยกเว้นโฟลเดอร์เกมจาก Search Indexing</td><td>Settings &gt; Privacy &amp; security &gt; Searching Windows</td><td>ลด disk I/O</td></tr>
+<tr><td>ปิด Background Apps ที่ไม่ใช้</td><td>Settings &gt; Apps &gt; Installed apps</td><td>คืน RAM เล็กน้อย</td></tr>
+<tr><td>Page File ขนาดคงที่</td><td>System Properties &gt; Advanced &gt; Virtual Memory</td><td>ระบบนิ่งขึ้นระยะยาว</td></tr>
+</table>
+<p class="small"><b>เช็คให้แน่ใจ:</b> ติดตั้งไดรเวอร์การ์ดจอจากผู้ผลิตโดยตรง, เปิด XMP/EXPO ใน BIOS, เปิด Variable Refresh Rate ถ้าจอรองรับ, ตั้งเกมให้ใช้ GPU "High performance" (โน้ตบุ๊กจอคู่)</p>
+</div>
+
+<!-- PAGE 7 -->
+<div class="page">
+<div class="banner"><h1>โฟลเดอร์ repair-tools</h1><p>เครื่องมือซ่อมเฉพาะจุด ไม่ต้องรันทุกครั้ง คลิกขวา Run as administrator</p></div>
+<div class="card rep"><div class="t"><span class="n">A</span>Deep_Clean_Junk_Files.bat</div><ul><li>ล้างไฟล์ขยะด้วย Disk Cleanup ทุกหมวด + Temp รายงานพื้นที่ว่างก่อน-หลัง และเตือนถ้าเหลือน้อยกว่า 15%</li></ul><div class="h">ใช้เมื่อ: พื้นที่ดิสก์เหลือน้อย หรือทุก 1-2 เดือน</div></div>
+<div class="card rep"><div class="t"><span class="n">B</span>Network_Reset_Fix_Internet.bat</div><ul><li>รีเซ็ต Winsock, IPv4, IPv6, ขอ IP ใหม่, ล้าง DNS/ARP แล้ว ping ทดสอบท้ายสคริปต์</li></ul><div class="h">ใช้เมื่อ: เน็ตหลุด ต่อไม่ติด หรือช้าผิดปกติ</div></div>
+<div class="card rep"><div class="t"><span class="n">C</span>Bluetooth_Fix.bat</div><ul><li>เปิด service จับคู่อุปกรณ์กลับมา และรีสตาร์ท Bluetooth Support Service</li></ul><div class="h">ใช้เมื่อ: จับคู่หรือเชื่อมต่อบลูทูธไม่ได้</div></div>
+<div class="card rep"><div class="t"><span class="n">D</span>System_File_Scan_Repair.bat</div><ul><li>DISM ก่อน แล้วตามด้วย SFC ตามลำดับที่ Microsoft แนะนำ (15-40 นาที) ResetBase เป็นตัวเลือกถาม Y/N เพราะย้อนกลับไม่ได้</li></ul><div class="h">ใช้เมื่อ: โปรแกรมพัง ค้างบ่อย หรือสงสัยไฟล์ระบบเสีย</div></div>
+
+<div class="banner" style="margin-top:12px"><h1>เครื่องมือภายนอก (ทางเลือก)</h1><p>ไม่ได้เป็นส่วนของโปรเจกต์นี้ ใช้เมื่อต้องการเท่านั้น</p></div>
+<div class="box amber"><h3>อ่านก่อนใช้</h3>ทั้งสองตัวดาวน์โหลดโค้ดล่าสุดจากอินเทอร์เน็ตมารันทุกครั้ง โค้ดที่ตรวจเมื่อ ต.ค. 2026 อาจไม่เหมือนเวอร์ชันในอนาคต ควรสร้างจุดคืนค่าก่อน (เมนู 6) และรัน 3_Check_Status หลังใช้ เพื่อดูว่าค่าไหนของชุดนี้ถูกเปลี่ยนไป</div>
+<table><tr><th>เครื่องมือ</th><th>ผลต่อ FPS</th><th>ประโยชน์จริง</th><th>ความเสี่ยง</th><th>เหมาะกับ</th></tr>
+<tr><td>WinUtil - แท็บ Install</td><td>ไม่มีผล</td><td>ลงหลายโปรแกรมพร้อมกันผ่าน winget</td><td>ต่ำ</td><td>ทุกคน</td></tr>
+<tr><td>WinUtil - แท็บ Tweaks</td><td>แทบไม่มี</td><td>ทับซ้อนกับโปรเจกต์นี้เกือบทั้งหมด</td><td>กลาง: อาจเปลี่ยนค่าที่ตั้งไว้</td><td>ไม่แนะนำหลังใช้ชุดนี้</td></tr>
+<tr><td>RemoveWindowsAI</td><td>น้อยมากถึงไม่มี</td><td>ลด Copilot และโปรเซส AI เบื้องหลัง ประหยัด RAM/ดิสก์ เน้นความเป็นส่วนตัว</td><td>สูง: บังคับลบแพ็กเกจที่ Windows ล็อก</td><td>คนที่ไม่ใช้ AI หรือคอม RAM 8GB ลงไป</td></tr>
+</table>
+<div class="card"><div class="t"><span class="n">W</span>Chris Titus Tech WinUtil</div><ul>
+<li>ใช้แท็บ Install ไม่ต้องใช้แท็บ Tweaks ถ้าเผลอใช้ ให้รัน 3_Check_Status แล้วลงค่าที่ถูกเปลี่ยนกลับ</li>
+<li>วิธีเปิด: คลิกขวาปุ่ม Start เลือก Terminal (Admin) แล้ววางคำสั่งจากหน้า GitHub ทางการ (Stable):</li></ul>
+<pre>irm https://christitus.com/win | iex</pre>
+<div class="small">ลิงก์: <a href="https://github.com/ChrisTitusTech/winutil">github.com/ChrisTitusTech/winutil</a></div></div>
+</div>
+
+<!-- PAGE 8 -->
+<div class="page">
+<div class="card"><div class="t"><span class="n">R</span>RemoveWindowsAI (zoicware)</div><ul>
+<li>ลบ Copilot, Recall และฟีเจอร์ AI อื่นๆ และติดตั้งแพ็กเกจกันไม่ให้ Windows Update ลงกลับมา</li>
+<li>ถ้าแค่ไม่อยากให้ Copilot กิน RAM ไม่ต้องใช้ตัวนี้ ปิดที่ Settings &gt; Apps &gt; Startup หรือถอนการติดตั้งแอป Copilot ใน Settings &gt; Apps &gt; Installed apps ก็พอ</li>
+<li>ต้องใช้ <b>Windows PowerShell 5.1</b> เท่านั้น (ค้นหา Windows PowerShell แล้ว Run as administrator) หน้า GitHub ระบุว่า PowerShell 7 มีปัญหา</li>
+<li>ใช้ Backup Mode เสมอ โหมดนี้สร้างจุดคืนค่าให้ และทำให้ย้อนกลับได้ครบ</li>
+<li>หน้า GitHub แจ้งว่าแอนตี้ไวรัสบางตัวอาจเตือน และแนะนำให้ปิดแอนตี้ไวรัสชั่วคราว <b>คู่มือนี้ไม่แนะนำให้ปิด</b> ถ้าถูกบล็อกให้งดใช้</li>
+<li>อ่านหน้า Documentation ก่อนรัน เพราะเวอร์ชันล่าสุดมีตัวเลือกที่เกี่ยวกับส่วน AI ของ Windows Defender</li></ul>
+<p class="small">รันแบบ Backup Mode (ลบทุกรายการ):</p>
+<pre>&amp; ([scriptblock]::Create((irm "https://raw.githubusercontent.com/zoicware/RemoveWindowsAI/main/RemoveWindowsAi.ps1"))) -nonInteractive -backupMode -AllOptions</pre>
+<p class="small">ย้อนกลับทั้งหมด:</p>
+<pre>&amp; ([scriptblock]::Create((irm "https://raw.githubusercontent.com/zoicware/RemoveWindowsAI/main/RemoveWindowsAi.ps1"))) -nonInteractive -revertMode -AllOptions</pre>
+<div class="small">แต่ละคำสั่งต้องอยู่ในบรรทัดเดียว ถ้าคัดลอกจาก PDF แล้วถูกตัดขึ้นบรรทัดใหม่ ให้ต่อเป็นบรรทัดเดียวก่อนกด Enter หรือคัดลอกจากหน้า GitHub โดยตรง ลิงก์: <a href="https://github.com/zoicware/RemoveWindowsAI">github.com/zoicware/RemoveWindowsAI</a> ใช้ลิงก์เต็มตามด้านบน ไม่ใช้ลิงก์ย่อ เพราะตรวจไม่ได้ว่าลิงก์ย่อจะพาไปที่ไหน</div></div>
+
+<div class="banner" style="margin-top:12px"><h1>แหล่งอ้างอิง</h1><p>ลิงก์กดได้ในไฟล์ PDF ตรวจสอบล่าสุดเมื่อ 30 ก.ย. 2026</p></div>
+<table class="green"><tr><th style="width:22%">ใช้กับ</th><th>แหล่งอ้างอิง / ลิงก์</th></tr>
+<tr><td>03 SystemResponsiveness, Tasks\Games</td><td>Microsoft Learn - Multimedia Class Scheduler Service<br><a href="https://learn.microsoft.com/en-us/windows/win32/procthread/multimedia-class-scheduler-service">learn.microsoft.com/en-us/windows/win32/procthread/multimedia-class-scheduler-service</a><br><span class="small">ค่าต่ำกว่า 10 จะถูกปัดเป็น 20 และค่า 100 ปิด MMCSS</span></td></tr>
+<tr><td>04 Win32PrioritySeparation</td><td>Microsoft TechNet - Win32PrioritySeparation<br><a href="https://technet.microsoft.com/library/Cc976120">technet.microsoft.com/library/Cc976120</a><br><span class="small">ค่าเริ่มต้นคือ 0x2 ตรงกับไฟล์ UNDO_04</span></td></tr>
+<tr><td>07 Delivery Optimization</td><td>Microsoft Learn - Delivery Optimization reference<br><a href="https://learn.microsoft.com/en-us/windows/deployment/do/waas-delivery-optimization-reference">learn.microsoft.com/en-us/windows/deployment/do/waas-delivery-optimization-reference</a></td></tr>
+<tr><td>08 GPU Scheduling</td><td>Microsoft DirectX Blog - Hardware Accelerated GPU Scheduling<br><a href="https://devblogs.microsoft.com/directx/hardware-accelerated-gpu-scheduling/">devblogs.microsoft.com/directx/hardware-accelerated-gpu-scheduling/</a><br><span class="small">ผู้ใช้ส่วนใหญ่ไม่ควรคาดหวังการเปลี่ยนแปลงมาก</span></td></tr>
+<tr><td>13 Memory Integrity</td><td>Microsoft Support - Options to optimize gaming performance in Windows 11<br><a href="https://support.microsoft.com/en-us/windows/options-to-optimize-gaming-performance-in-windows-11-a255f612-2949-4373-a566-ff6f3f474613">support.microsoft.com/en-us/windows/options-to-optimize-gaming-performance-in-windows-11-a255f612-2949-4373-a566-ff6f3f474613</a><br><span class="small">ยืนยันว่ามีผลในบางเครื่อง และเตือนว่าเครื่องเสี่ยงต่อภัยคุกคามมากขึ้น</span></td></tr>
+<tr><td>เมนู 3: TCP ราย adapter</td><td>Microsoft Support KB328890 - TcpAckFrequency<br><a href="https://support.microsoft.com/kb/328890">support.microsoft.com/kb/328890</a><br><span class="small">ตั้งราย Interface GUID และ Microsoft ไม่แนะนำให้เปลี่ยนค่าเริ่มต้นโดยไม่ทดสอบ</span></td></tr>
+<tr><td>เมนู 4, Power Plan</td><td>Microsoft Learn - Powercfg command-line options<br><a href="https://learn.microsoft.com/windows-hardware/design/device-experiences/powercfg-command-line-options">learn.microsoft.com/windows-hardware/design/device-experiences/powercfg-command-line-options</a></td></tr>
+<tr><td>เมนู 5, 6: จุดคืนค่า</td><td>Microsoft Learn - Checkpoint-Computer<br><a href="https://learn.microsoft.com/powershell/module/microsoft.powershell.management/checkpoint-computer">learn.microsoft.com/powershell/module/microsoft.powershell.management/checkpoint-computer</a><br><span class="small">ปกติสร้างได้วันละ 1 จุด สคริปต์จึงตั้ง SystemRestorePointCreationFrequency = 0 ก่อนสร้าง</span></td></tr>
+<tr><td>WinUtil</td><td>GitHub - ChrisTitusTech/winutil (README)<br><a href="https://github.com/ChrisTitusTech/winutil">github.com/ChrisTitusTech/winutil</a></td></tr>
+<tr><td>RemoveWindowsAI</td><td>GitHub - zoicware/RemoveWindowsAI (README)<br><a href="https://github.com/zoicware/RemoveWindowsAI">github.com/zoicware/RemoveWindowsAI</a></td></tr>
+<tr><td>repair-tools: SFC/DISM</td><td>Microsoft Support - Use the System File Checker tool<br><a href="https://support.microsoft.com/help/929833">support.microsoft.com/help/929833</a><br><span class="small">ให้รัน DISM ก่อน SFC ตามลำดับที่สคริปต์ใช้</span></td></tr>
+</table>
+<div class="box amber"><h3>รายการที่ไม่มีเอกสารทางการรองรับ</h3>
+<ul class="small"><li>01 GameBar/DVR และ 09 Fullscreen Exclusive (ค่า GameDVR_FSE*): ค่าที่ชุมชนผู้ใช้แชร์ต่อกัน ไม่มีเอกสาร Microsoft อธิบายความหมายโดยตรง</li>
+<li>02 PowerThrottlingOff, EnergyEstimationEnabled: ไม่มีเอกสาร Microsoft สำหรับผู้ใช้ทั่วไป</li>
+<li>06 ค่า timeout ใน Control Panel\Desktop, MinAnimate: เป็นที่รู้จักแพร่หลาย ไม่ได้อ้างอิงเอกสารทางการในคู่มือนี้</li>
+<li>11 Keyboard Response Flags และ 12 ปัญหา RAM รั่วของ Ndu: มาจากรายงานผู้ใช้ ไม่ใช่เอกสาร Microsoft</li>
+<li>ค่าเริ่มต้นใน reg_undo ของรายการเหล่านี้ อ้างอิงจากค่ามาตรฐานของ Windows ที่พบทั่วไป ถ้าต้องการค่าเดิมที่แม่นยำให้ใช้ไฟล์ในโฟลเดอร์ Backup</li></ul>
+ผลลัพธ์ต่างกันไปตามเครื่อง และ Microsoft อาจเปลี่ยนพฤติกรรมของค่าเหล่านี้ใน Windows รุ่นถัดไปได้ ทุกรายการย้อนกลับได้ผ่านเมนู 7 หรือโฟลเดอร์ Backup</div>
+<div class="foot">win11-optimizer v4.3 - github.com/Kensukeimagery/win11-optimizer - MIT License</div>
+</div>
+</body></html>

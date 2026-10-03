@@ -1,0 +1,12 @@
+Windows Registry Editor Version 5.00
+
+; 02 - Stop Windows from slowing down background apps, stop energy estimation,
+; and turn off Fast Startup so a shutdown is a real clean restart.
+[HKEY_LOCAL_MACHINE\SYSTEM\CurrentControlSet\Control\Power\PowerThrottling]
+"PowerThrottlingOff"=dword:00000001
+
+[HKEY_LOCAL_MACHINE\SYSTEM\CurrentControlSet\Control\Power]
+"EnergyEstimationEnabled"=dword:00000000
+
+[HKEY_LOCAL_MACHINE\SYSTEM\CurrentControlSet\Control\Session Manager\Power]
+"HiberbootEnabled"=dword:00000000

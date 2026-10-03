@@ -1,0 +1,6 @@
+Windows Registry Editor Version 5.00
+
+; 08 - Hardware-accelerated GPU Scheduling. Needs a restart and a supported GPU + driver.
+; Unsupported systems simply ignore this value.
+[HKEY_LOCAL_MACHINE\SYSTEM\CurrentControlSet\Control\GraphicsDrivers]
+"HwSchMode"=dword:00000002

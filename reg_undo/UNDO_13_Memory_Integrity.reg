@@ -1,0 +1,5 @@
+Windows Registry Editor Version 5.00
+
+; Turn Memory Integrity back ON - Windows 11 default on new installs. Needs a restart.
+[HKEY_LOCAL_MACHINE\SYSTEM\CurrentControlSet\Control\DeviceGuard\Scenarios\HypervisorEnforcedCodeIntegrity]
+"Enabled"=dword:00000001

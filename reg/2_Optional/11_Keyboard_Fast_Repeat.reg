@@ -1,0 +1,10 @@
+Windows Registry Editor Version 5.00
+
+; 11 - Shortest key-repeat delay, and stop the Filter Keys pop-up
+; that appears when Shift is held for 8 seconds in games.
+[HKEY_CURRENT_USER\Control Panel\Keyboard]
+"KeyboardDelay"="0"
+"KeyboardSpeed"="31"
+
+[HKEY_CURRENT_USER\Control Panel\Accessibility\Keyboard Response]
+"Flags"="122"

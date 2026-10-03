@@ -1,0 +1,9 @@
+Windows Registry Editor Version 5.00
+
+; 12 - Disable the Ndu service (known memory leak on some PCs) and keep
+; the kernel in RAM. Side effect: Task Manager app network history stops.
+[HKEY_LOCAL_MACHINE\SYSTEM\CurrentControlSet\Services\Ndu]
+"Start"=dword:00000004
+
+[HKEY_LOCAL_MACHINE\SYSTEM\CurrentControlSet\Control\Session Manager\Memory Management]
+"DisablePagingExecutive"=dword:00000001

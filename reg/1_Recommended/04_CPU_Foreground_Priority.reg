@@ -1,0 +1,5 @@
+Windows Registry Editor Version 5.00
+
+; 04 - Give the active window (your game) longer, higher-priority CPU time slices.
+[HKEY_LOCAL_MACHINE\SYSTEM\CurrentControlSet\Control\PriorityControl]
+"Win32PrioritySeparation"=dword:00000026

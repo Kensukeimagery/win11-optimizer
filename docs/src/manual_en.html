@@ -1,0 +1,223 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><title>Windows 11 Optimizer - User Manual v4.3</title>
+<link rel="stylesheet" href="style.css"></head><body>
+
+<!-- PAGE 1 -->
+<div class="page">
+<div class="banner cover"><div class="sub">User Manual v4.3</div><h1>Windows 11 Optimizer</h1><div class="sub">One menu for every tweak, with backups and one-by-one revert</div></div>
+
+<div class="box red"><h3>Read this first</h3>
+<ul>
+<li><b>Use at your own risk.</b> These scripts edit the Windows registry and power settings. Use them only on a PC you own. Always keep the restore point the script creates.</li>
+<li>Built for <b>Windows 11 desktops used for gaming</b>. On a laptop expect more heat and faster battery drain (processor minimum 100%, power throttling off).</li>
+<li>The gains are small and situational. GPU drivers, in-game settings, XMP/EXPO and cooling matter far more. See the honest notes on each tweak below.</li>
+<li>Some antivirus programs flag <span class="mono">.bat</span> files that edit the registry. Every file is plain text: open and read it before you run it.</li>
+</ul></div>
+
+<h2>Requirements</h2>
+<ul><li>Windows 11 and an administrator account (right-click &gt; <i>Run as administrator</i>).</li>
+<li>Keep every folder next to the scripts. Do not move a <span class="mono">.bat</span> file out of the folder.</li>
+<li>System Protection (System Restore) turned on for the system drive, so the restore point can be created.</li></ul>
+
+<h2>Folder layout</h2>
+<table><tr><th style="width:44%">File / folder</th><th>Purpose</th></tr>
+<tr><td>1_Start_Here - PC_Optimizer_Master (Run as Administrator).bat</td><td>Main menu. Start here; everything is reachable from it.</td></tr>
+<tr><td>2_Revert_Everything - System_Restore (Run as Administrator).bat</td><td>Roll the whole PC back with System Restore (serious problems only).</td></tr>
+<tr><td>3_Check_Status (Run as Administrator).bat</td><td>Check which tweaks are still applied, for example after a Windows update.</td></tr>
+<tr><td>tools/</td><td>PowerShell helpers used by the menu and the status check. Do not delete.</td></tr>
+<tr><td>reg/1_Recommended</td><td>Files 01-08: safe for most PCs.</td></tr>
+<tr><td>reg/2_Optional</td><td>Files 09-13: the script asks about each one.</td></tr>
+<tr><td>reg/3_Power</td><td>File 14: unlocks hidden CPU options in Power Options.</td></tr>
+<tr><td>reg_undo/</td><td>One undo file per tweak (Windows defaults), used by menu 7.</td></tr>
+<tr><td>repair-tools/</td><td>Four stand-alone repair tools. Unrelated to the Master menu.</td></tr>
+<tr><td>Backup/ (created when you run)</td><td>Copy of every key before it is changed, in a dated folder.</td></tr>
+<tr><td>OptimizerLog_*.txt, CheckReport_*.txt (created when you run)</td><td>Log of every command, and the result of each status check.</td></tr>
+</table>
+</div>
+
+<!-- PAGE 2 -->
+<div class="page">
+<div class="banner"><h1>Quick start</h1><p>Three steps</p></div>
+<div class="card"><div class="t"><span class="n">1</span>Open 1_Start_Here - PC_Optimizer_Master</div><ul><li>Right-click &gt; <i>Run as administrator</i>.</li></ul></div>
+<div class="card"><div class="t"><span class="n">2</span>Type 5 and press Enter</div><ul>
+<li>The script creates a restore point, then runs menus 1, 2, 3 and 4 in order.</li>
+<li>Menu 2 asks about each optional tweak. Answer for your own use (see the notes on files 09-13).</li>
+<li>A restore point normally takes 1-5 minutes. After 10 minutes the script stops waiting and asks whether to continue.</li></ul></div>
+<div class="card"><div class="t"><span class="n">3</span>Restart once</div><ul>
+<li>Needed for GPU scheduling, Memory Integrity and other system-level values.</li>
+<li>Then work through the manual Windows settings later in this guide.</li>
+<li>After a big Windows update, or every 1-2 months, run <b>3_Check_Status</b>.</li></ul></div>
+
+<h2>Menu of PC_Optimizer_Master</h2>
+<table><tr><th style="width:36px">Key</th><th style="width:25%">Name</th><th>What it does</th></tr>
+<tr><td>1</td><td>Recommended tweaks</td><td>Imports files 01-08.</td></tr>
+<tr><td>2</td><td>Optional tweaks</td><td>Asks about files 09-13 one by one. File 13 needs you to type YES.</td></tr>
+<tr><td>3</td><td>Base system setup</td><td>Power plan, services, SSD/HDD check before touching Prefetcher, TCP settings on every network adapter, cleanup of obsolete values, temp files.</td></tr>
+<tr><td>4</td><td>Power settings</td><td>Imports file 14, then sets processor minimum 100%, core parking off, USB selective suspend off, PCIe power saving off (plugged-in profile only).</td></tr>
+<tr><td>5</td><td>RUN EVERYTHING</td><td>Restore point + 1 + 2 + 3 + 4. Recommended the first time.</td></tr>
+<tr><td>6</td><td>Restore point only</td><td>Creates the restore point and nothing else.</td></tr>
+<tr><td>7</td><td>Revert ONE tweak</td><td>Back to the Windows default: 1-14, T = network values, P = power plans.</td></tr>
+<tr><td>8</td><td>Check disk type</td><td>Reports SSD or HDD. Changes nothing.</td></tr>
+<tr><td>9</td><td>Power Options</td><td>Opens the Power Options window to inspect values.</td></tr>
+<tr><td>C</td><td>Check status</td><td>Same as 3_Check_Status.</td></tr>
+<tr><td>0</td><td>Exit</td><td>Exits and shows where the log was saved.</td></tr>
+</table>
+</div>
+
+<!-- PAGE 3 -->
+<div class="page">
+<div class="banner"><h1>If something goes wrong</h1><p>Three levels of undo: pick the smallest one that fixes it</p></div>
+<div class="card rep"><div class="t"><span class="n">A</span>Revert one tweak: menu 7</div><ul>
+<li>Example: the mouse feels odd after file 10. Type 7, then 10.</li>
+<li>Restores the Windows default from <span class="mono">reg_undo</span>. T removes the network values, P resets all power plans.</li>
+<li>The script remembers the revert; the status check shows it as SKIPPED and will not offer to apply it again.</li></ul></div>
+<div class="card rep"><div class="t"><span class="n">B</span>Restore your exact previous values: Backup folder</div><ul>
+<li>Every run exports the old keys to <span class="mono">Backup\date-time</span>.</li>
+<li>Double-click a file there to restore the value your PC really had (more precise than the Windows default).</li></ul></div>
+<div class="card rep"><div class="t"><span class="n">C</span>Roll back the whole PC: 2_Revert_Everything</div><ul>
+<li>Uses System Restore to return to the <span class="mono">Before_PC_Optimizer</span> restore point.</li>
+<li>The PC restarts by itself, and programs installed after that point are removed. Serious problems only.</li></ul></div>
+
+<div class="banner" style="margin-top:14px"><h1>Status check</h1><p>3_Check_Status, or menu C. Use it after a Windows update or every 1-2 months</p></div>
+<div class="card"><div class="t"><span class="n">1</span>Run 3_Check_Status as administrator</div><ul><li>It checks every item and prints each line with the current value against the expected one.</li></ul></div>
+<div class="card"><div class="t"><span class="n">2</span>Answer the fix questions</div><ul>
+<li>Recommended items: Y = re-apply everything missing, S = choose one by one, N = change nothing.</li>
+<li>Optional items are always asked one by one; file 13 still needs YES.</li>
+<li>The old values are backed up to <span class="mono">Backup\date-time_check</span> before anything is re-applied.</li></ul></div>
+<div class="card"><div class="t"><span class="n">3</span>Automatic re-check</div><ul><li>After fixing, the script checks the fixed items again to confirm. Everything is saved to <span class="mono">CheckReport_date-time.txt</span>. Restart once.</li></ul></div>
+
+<table><tr><th style="width:18%">Status</th><th>Meaning</th><th style="width:34%">What the script does</th></tr>
+<tr><td>OK</td><td>The value is still as the script set it.</td><td>Nothing.</td></tr>
+<tr><td>CHANGED</td><td>A value was changed, for example by a Windows update.</td><td>Can re-apply it.</td></tr>
+<tr><td>MISSING</td><td>The value is not there at all.</td><td>Can re-apply it.</td></tr>
+<tr><td>NOT CHOSEN</td><td>An optional tweak (09-13) you never answered.</td><td>Asks: Y apply, N not now, X never ask again.</td></tr>
+<tr><td>SKIPPED</td><td>You skipped or reverted it.</td><td>Does not ask or change it.</td></tr>
+<tr><td>UNKNOWN</td><td>Cannot be read, or this PC does not have the option.</td><td>Information only.</td></tr>
+</table>
+<p class="small"><b>What it checks:</b> all 14 .reg files (read from the same files that are applied), the power plan (Ultimate Performance, or High Performance if Ultimate is unavailable), the four power values, Prefetcher (SSD must be 0, HDD must be 3), TcpAckFrequency and TCPNoDelay on every adapter, and the DiagTrack / dmwappushservice services.<br>
+<b>Limits:</b> it tells you a value is still there, not that it still has an effect (item 08 can show OK on a GPU that does not support GPU scheduling). Values under GameConfigStore (01, 09) are rewritten by Windows and the Xbox Game Bar, so CHANGED there is common. Adding a new VPN or Wi-Fi adapter makes Network show CHANGED until it is configured.</p>
+</div>
+
+<!-- PAGE 4 -->
+<div class="page">
+<div class="banner"><h1>.reg files, group 1: Recommended (01-08)</h1><p>Menu 1. Meant to be safe for most PCs</p></div>
+<div class="card"><div class="t"><span class="n">01</span>GameBar_DVR_Off</div><ul><li>Turns off Xbox Game Bar background recording (Game DVR), at user and policy level. Game Mode is kept on (v3 turned it off by mistake).</li></ul><div class="h">Helps: gives back CPU, GPU and disk time used for constant recording. No official Microsoft documentation for these values.</div></div>
+<div class="card"><div class="t"><span class="n">02</span>Power_Throttling_Off</div><ul><li>PowerThrottlingOff = 1 stops Windows slowing background programs. Energy estimation off. Fast Startup off, so Shutdown is a real clean restart.</li></ul><div class="h">Helps: Discord or OBS in the background are not slowed down. Cost: slightly longer boot, and more power use on laptops.</div></div>
+<div class="card"><div class="t"><span class="n">03</span>Gaming_Priority_MMCSS</div><ul><li>NetworkThrottlingIndex = ffffffff removes the network limit for multimedia tasks.</li><li>SystemResponsiveness = 10, the lowest value that takes effect. Microsoft documents that values below 10 are raised to the default of 20, so a value of 0 does nothing.</li><li>Tasks\Games: GPU Priority 8, Priority 6, Scheduling Category High, SFIO Priority High.</li></ul><div class="h">Helps: queues work so the game gets CPU, GPU and disk first.</div></div>
+<div class="card"><div class="t"><span class="n">04</span>CPU_Foreground_Priority</div><ul><li>Win32PrioritySeparation = 0x26: the active window gets longer, higher-priority CPU time slices (default is 0x2).</li></ul><div class="h">Helps: the game in front gets more CPU than background programs.</div></div>
+<div class="card"><div class="t"><span class="n">05</span>Telemetry_Off</div><ul><li>AllowTelemetry = 0, CEIPEnable = 0. On Home and Pro, Windows uses the lowest level it allows; true 0 only applies to Enterprise.</li></ul><div class="h">Helps: less background data sent. Tiny effect on FPS; mostly privacy.</div></div>
+<div class="card"><div class="t"><span class="n">06</span>System_Responsiveness</div><ul><li>Menus appear instantly, frozen apps are closed faster, lighter animations and visual effects.</li><li>NTFS last-access time stamps off; the classic Copy To / Move To right-click entries restored.</li></ul><div class="h">Helps: Windows feels quicker, fewer needless disk writes.</div></div>
+<div class="card"><div class="t"><span class="n">07</span>Delivery_Optimization_Off</div><ul><li>DODownloadMode = 0.</li></ul><div class="h">Helps: Windows Update does not upload updates to other PCs while you play online.</div></div>
+<div class="card"><div class="t"><span class="n">08</span>GPU_Scheduling_On</div><ul><li>HwSchMode = 2 turns on hardware-accelerated GPU scheduling. Needs a restart and a supported GPU and driver; unsupported systems ignore it.</li></ul><div class="h">Helps: slightly lower CPU-to-GPU latency. Microsoft says most users should not expect a big change.</div></div>
+</div>
+
+<!-- PAGE 5 -->
+<div class="page">
+<div class="banner"><h1>.reg files, group 2: Optional (09-13)</h1><p>The script asks about each one. Answer for how you actually play</p></div>
+<div class="card opt"><div class="t"><span class="n">09</span>Fullscreen_Exclusive</div><ul><li>Forces true Fullscreen Exclusive instead of letting Windows convert games to borderless.</li><li>Answer Y only if fullscreen games stutter or hang on alt-tab. Some newer games work better the default way.</li></ul><div class="h">Helps: lower input lag in older games that support Fullscreen Exclusive.</div></div>
+<div class="card opt"><div class="t"><span class="n">10</span>Mouse_No_Acceleration</div><ul><li>Turns off Enhance Pointer Precision so the mouse moves 1:1.</li></ul><div class="h">Helps: consistent aim in shooters.</div></div>
+<div class="card opt"><div class="t"><span class="n">11</span>Keyboard_Fast_Repeat</div><ul><li>KeyboardDelay = 0 (shortest delay before repeat). Flags = 122 stops the Filter Keys pop-up when Shift is held for 8 seconds in a game.</li></ul><div class="h">Helps: faster key response and no interrupting pop-up.</div></div>
+<div class="card opt"><div class="t"><span class="n">12</span>Ndu_Memory_Fix</div><ul><li>Disables the Ndu service (a memory leak reported on some PCs) and sets DisablePagingExecutive = 1.</li><li>Side effects: Task Manager stops showing per-app network history. Keeping the kernel in RAM costs memory, so skip it on PCs with 8 GB or less.</li></ul><div class="h">Helps: only if your RAM use keeps creeping up. The Ndu leak comes from user reports, not Microsoft documentation.</div></div>
+<div class="card opt"><div class="t"><span class="n">13</span>Memory_Integrity_Off</div><ul><li>Turns off Memory Integrity (HVCI). You must type YES, and restart.</li><li>Microsoft confirms it can affect gaming performance on some PCs (no figure given). With it off, Windows protects less against kernel-level malware.</li><li>Skip it on a work PC or one holding important data. Undo with menu 7, then 13.</li></ul><div class="h">Helps: the only tweak here that can raise FPS noticeably, at a security cost.</div></div>
+
+<div class="banner" style="margin-top:12px"><h1>Group 3: Power (14) and automatic settings</h1><p>Menu 4 does the whole job, no manual setup</p></div>
+<div class="card"><div class="t"><span class="n">14</span>Unlock_CPU_Power_Settings</div><ul><li>Makes visible the CPU options Windows hides: core parking, maximum frequency, boost mode, energy performance preference.</li><li>Merges files 11 and 12 of v3 and drops entries that are normally visible.</li></ul></div>
+<div class="card"><div class="t"><span class="n">P</span>What menu 4 then sets with powercfg</div><ul><li>Minimum processor state = 100%. Core parking minimum = 100% (cores never sleep).</li><li>USB selective suspend = off. PCIe Link State Power Management = off.</li><li>Plugged-in values only; the battery profile on a laptop is not touched.</li></ul><div class="h">Helps: CPU and GPU do not switch to power-saving states mid-game.</div></div>
+</div>
+
+<!-- PAGE 6 -->
+<div class="page">
+<div class="banner"><h1>What menu 3 (Base setup) does</h1><p>The parts that are not plain .reg files</p></div>
+<table><tr><th style="width:17%">Item</th><th>What it does</th><th style="width:36%">Note</th></tr>
+<tr><td>Power plan</td><td>Uses Ultimate Performance; High Performance if that is missing; leaves Balanced if neither exists.</td><td>The plan GUID is remembered, so repeat runs do not create duplicates (v3 did).</td></tr>
+<tr><td>Services</td><td>Windows Search and Print Spooler on; DiagTrack and dmwappushservice off.</td><td>"already running" in the log is normal.</td></tr>
+<tr><td>Prefetcher</td><td>Checks the disk first: SSD off, HDD on, unknown type left alone.</td><td>Stops you disabling it on an HDD, which would slow it down.</td></tr>
+<tr><td>Network</td><td>Sets TcpAckFrequency and TCPNoDelay on every network adapter.</td><td>v3 set these globally, where Windows ignores them. Only affects games using TCP. Microsoft advises testing before changing these.</td></tr>
+<tr><td>Old values</td><td>Removes MaxUserPort, TcpTimedWaitDelay and misplaced TCP values from v3.</td><td>None of them matter for gaming.</td></tr>
+<tr><td>Temp files</td><td>Deletes the user's temporary files.</td><td>Files in use are skipped safely.</td></tr>
+</table>
+
+<div class="banner"><h1>Windows settings to change by hand</h1><p>Things a script cannot do for you</p></div>
+<p class="small">Already automatic in v4, no need to do by hand: GPU scheduling (08), Delivery Optimization (07), USB selective suspend and PCIe power saving (menu 4), Game Bar DVR (01), Game Mode kept on (01), Enhance Pointer Precision (10, if you answered Y).</p>
+<table><tr><th>Clear effect: do these</th><th style="width:36%">Where</th><th style="width:30%">Why</th></tr>
+<tr><td>GPU power = Maximum Performance</td><td>NVIDIA Control Panel / AMD Software</td><td>Stops the card down-clocking under uneven load.</td></tr>
+<tr><td>Network adapter power saving off</td><td>Device Manager &gt; adapter &gt; Power Management</td><td>Avoids ping spikes.</td></tr>
+<tr><td>Add game folders to Defender exclusions</td><td>Virus &amp; threat protection &gt; Exclusions</td><td>Faster level loading. Does not turn Defender off.</td></tr>
+<tr><td>Turn off GPU-software overlays</td><td>NVIDIA App / AMD Software &gt; Settings</td><td>Less background CPU/GPU load.</td></tr>
+<tr><td>Disable audio enhancements</td><td>Control Panel &gt; Sound &gt; Enhancements</td><td>Lower audio latency.</td></tr>
+</table>
+<table><tr><th>Situational or small effect</th><th style="width:36%">Where</th><th style="width:30%">Why</th></tr>
+<tr><td>Focus Assist while gaming</td><td>Settings &gt; System &gt; Notifications</td><td>No notifications stealing focus.</td></tr>
+<tr><td>Xbox Game Bar fully off (if you do not use Win+G)</td><td>Settings &gt; Gaming &gt; Xbox Game Bar</td><td>One less background process.</td></tr>
+<tr><td>Disable fullscreen optimizations per game</td><td>Right-click .exe &gt; Properties &gt; Compatibility</td><td>For older games with problems.</td></tr>
+<tr><td>GPU vendor telemetry services off</td><td>services.msc</td><td>Less background work.</td></tr>
+<tr><td>Move Automatic Maintenance</td><td>Control Panel &gt; Security and Maintenance</td><td>No scans during games.</td></tr>
+<tr><td>Transparency and HDR off if unused</td><td>Settings &gt; Personalization / Display</td><td>Small saving.</td></tr>
+<tr><td>Exclude game folders from Search indexing</td><td>Settings &gt; Privacy &amp; security &gt; Searching Windows</td><td>Less disk I/O.</td></tr>
+<tr><td>Stop unused background apps</td><td>Settings &gt; Apps &gt; Installed apps</td><td>Frees a little RAM.</td></tr>
+<tr><td>Fixed-size page file</td><td>System Properties &gt; Advanced &gt; Virtual Memory</td><td>More stable over time.</td></tr>
+</table>
+<p class="small"><b>Make sure of:</b> GPU drivers installed from the vendor directly, XMP/EXPO enabled in the BIOS, Variable Refresh Rate on if your monitor supports it, and games set to use the "High performance" GPU on dual-GPU laptops.</p>
+</div>
+
+<!-- PAGE 7 -->
+<div class="page">
+<div class="banner"><h1>Folder: repair-tools</h1><p>Targeted repair tools. Not needed on every run. Right-click &gt; Run as administrator</p></div>
+<div class="card rep"><div class="t"><span class="n">A</span>Deep_Clean_Junk_Files.bat</div><ul><li>Runs Disk Cleanup for every category, plus temp files. Reports free space before and after, and warns if less than 15% is left.</li></ul><div class="h">Use when: disk space is low, or every 1-2 months.</div></div>
+<div class="card rep"><div class="t"><span class="n">B</span>Network_Reset_Fix_Internet.bat</div><ul><li>Resets Winsock, IPv4 and IPv6, renews the IP address, flushes DNS and ARP, then pings to test.</li></ul><div class="h">Use when: the connection drops, will not connect, or is oddly slow.</div></div>
+<div class="card rep"><div class="t"><span class="n">C</span>Bluetooth_Fix.bat</div><ul><li>Re-enables the pairing service and restarts the Bluetooth Support Service.</li></ul><div class="h">Use when: a device will not pair or connect.</div></div>
+<div class="card rep"><div class="t"><span class="n">D</span>System_File_Scan_Repair.bat</div><ul><li>DISM first, then SFC, the order Microsoft recommends (15-40 minutes). ResetBase is an optional Y/N question because it cannot be undone.</li></ul><div class="h">Use when: programs crash, freeze often, or you suspect damaged system files.</div></div>
+
+<div class="banner" style="margin-top:12px"><h1>External tools (optional)</h1><p>Not part of this repository. Use only if you want them</p></div>
+<div class="box amber"><h3>Read before use</h3>Both tools download and run the latest code from the internet each time. What was checked in October 2026 may differ from a future version. Create a restore point first (menu 6) and run 3_Check_Status afterwards to see which of this project's values changed.</div>
+<table><tr><th>Tool</th><th>FPS effect</th><th>Real benefit</th><th>Risk</th><th>For</th></tr>
+<tr><td>WinUtil: Install tab</td><td>None</td><td>Installs several programs at once through winget</td><td>Low</td><td>Everyone</td></tr>
+<tr><td>WinUtil: Tweaks tab</td><td>Almost none</td><td>Overlaps almost entirely with this project</td><td>Medium: may change values set here</td><td>Not recommended after this project</td></tr>
+<tr><td>RemoveWindowsAI</td><td>Very little to none</td><td>Removes Copilot and background AI processes; saves some RAM and disk; privacy</td><td>High: force-removes packages Windows protects</td><td>People who never use AI, or PCs with 8 GB RAM or less</td></tr>
+</table>
+<div class="card"><div class="t"><span class="n">W</span>Chris Titus Tech WinUtil</div><ul>
+<li>Use the Install tab. Skip the Tweaks tab; if you used it, run 3_Check_Status and re-apply what changed.</li>
+<li>To open: right-click Start &gt; Terminal (Admin), then paste the command from the official GitHub page (Stable):</li></ul>
+<pre>irm https://christitus.com/win | iex</pre>
+<div class="small">Link: <a href="https://github.com/ChrisTitusTech/winutil">github.com/ChrisTitusTech/winutil</a></div></div>
+</div>
+
+<!-- PAGE 8 -->
+<div class="page">
+<div class="card"><div class="t"><span class="n">R</span>RemoveWindowsAI (zoicware)</div><ul>
+<li>Removes Copilot, Recall and other AI features, and installs packages so Windows Update does not bring them back.</li>
+<li>If you only want Copilot to stop using RAM, you do not need this: turn it off in Settings &gt; Apps &gt; Startup, or uninstall the Copilot app in Settings &gt; Apps &gt; Installed apps.</li>
+<li>Needs <b>Windows PowerShell 5.1</b> (search "Windows PowerShell", run as administrator). Its GitHub page says PowerShell 7 has problems.</li>
+<li>Always use Backup Mode. It creates a restore point and is what makes a full revert possible.</li>
+<li>The GitHub page says some antivirus software may complain and suggests turning antivirus off temporarily. <b>This manual advises against that.</b> If it is blocked, do not use it.</li>
+<li>Read the Documentation page first: the latest version has options touching Windows Defender's AI components.</li></ul>
+<p class="small">Backup Mode (removes everything):</p>
+<pre>&amp; ([scriptblock]::Create((irm "https://raw.githubusercontent.com/zoicware/RemoveWindowsAI/main/RemoveWindowsAi.ps1"))) -nonInteractive -backupMode -AllOptions</pre>
+<p class="small">Revert everything:</p>
+<pre>&amp; ([scriptblock]::Create((irm "https://raw.githubusercontent.com/zoicware/RemoveWindowsAI/main/RemoveWindowsAi.ps1"))) -nonInteractive -revertMode -AllOptions</pre>
+<div class="small">Each command must be on one line. If copying from this PDF splits it, join it before pressing Enter, or copy from the GitHub page. Link: <a href="https://github.com/zoicware/RemoveWindowsAI">github.com/zoicware/RemoveWindowsAI</a>. Use the full links above, never shortened ones, because you cannot tell where a short link leads.</div></div>
+
+<div class="banner" style="margin-top:12px"><h1>References</h1><p>Links are clickable in the PDF. Last checked 30 Sep 2026</p></div>
+<table class="green"><tr><th style="width:22%">Used for</th><th>Source / link</th></tr>
+<tr><td>03 SystemResponsiveness, Tasks\Games</td><td>Microsoft Learn - Multimedia Class Scheduler Service<br><a href="https://learn.microsoft.com/en-us/windows/win32/procthread/multimedia-class-scheduler-service">learn.microsoft.com/en-us/windows/win32/procthread/multimedia-class-scheduler-service</a><br><span class="small">Values below 10 are raised to 20; a value of 100 turns MMCSS off.</span></td></tr>
+<tr><td>04 Win32PrioritySeparation</td><td>Microsoft TechNet - Win32PrioritySeparation<br><a href="https://technet.microsoft.com/library/Cc976120">technet.microsoft.com/library/Cc976120</a><br><span class="small">Default is 0x2, as in UNDO_04.</span></td></tr>
+<tr><td>07 Delivery Optimization</td><td>Microsoft Learn - Delivery Optimization reference<br><a href="https://learn.microsoft.com/en-us/windows/deployment/do/waas-delivery-optimization-reference">learn.microsoft.com/en-us/windows/deployment/do/waas-delivery-optimization-reference</a></td></tr>
+<tr><td>08 GPU scheduling</td><td>Microsoft DirectX Blog - Hardware Accelerated GPU Scheduling<br><a href="https://devblogs.microsoft.com/directx/hardware-accelerated-gpu-scheduling/">devblogs.microsoft.com/directx/hardware-accelerated-gpu-scheduling/</a><br><span class="small">Most users should not expect a big change.</span></td></tr>
+<tr><td>13 Memory Integrity</td><td>Microsoft Support - Options to optimize gaming performance in Windows 11<br><a href="https://support.microsoft.com/en-us/windows/options-to-optimize-gaming-performance-in-windows-11-a255f612-2949-4373-a566-ff6f3f474613">support.microsoft.com/en-us/windows/options-to-optimize-gaming-performance-in-windows-11-a255f612-2949-4373-a566-ff6f3f474613</a><br><span class="small">Confirms an effect on some PCs and warns of higher exposure to threats.</span></td></tr>
+<tr><td>Menu 3: TCP per adapter</td><td>Microsoft Support KB328890 - TcpAckFrequency<br><a href="https://support.microsoft.com/kb/328890">support.microsoft.com/kb/328890</a><br><span class="small">Set per interface GUID; Microsoft advises against changing defaults without testing.</span></td></tr>
+<tr><td>Menu 4, power plans</td><td>Microsoft Learn - Powercfg command-line options<br><a href="https://learn.microsoft.com/windows-hardware/design/device-experiences/powercfg-command-line-options">learn.microsoft.com/windows-hardware/design/device-experiences/powercfg-command-line-options</a></td></tr>
+<tr><td>Menus 5, 6: restore point</td><td>Microsoft Learn - Checkpoint-Computer<br><a href="https://learn.microsoft.com/powershell/module/microsoft.powershell.management/checkpoint-computer">learn.microsoft.com/powershell/module/microsoft.powershell.management/checkpoint-computer</a><br><span class="small">Normally one restore point per day, so the script sets SystemRestorePointCreationFrequency = 0 first.</span></td></tr>
+<tr><td>WinUtil</td><td>GitHub - ChrisTitusTech/winutil (README)<br><a href="https://github.com/ChrisTitusTech/winutil">github.com/ChrisTitusTech/winutil</a></td></tr>
+<tr><td>RemoveWindowsAI</td><td>GitHub - zoicware/RemoveWindowsAI (README)<br><a href="https://github.com/zoicware/RemoveWindowsAI">github.com/zoicware/RemoveWindowsAI</a></td></tr>
+<tr><td>repair-tools: SFC / DISM</td><td>Microsoft Support - Use the System File Checker tool<br><a href="https://support.microsoft.com/help/929833">support.microsoft.com/help/929833</a><br><span class="small">Run DISM before SFC, the order used here.</span></td></tr>
+</table>
+<div class="box amber"><h3>Without official documentation</h3>
+<ul class="small"><li>01 GameBar/DVR and 09 Fullscreen Exclusive (GameDVR_FSE* values): shared by the tweaking community; no Microsoft page explains them.</li>
+<li>02 PowerThrottlingOff, EnergyEstimationEnabled: no public Microsoft documentation.</li>
+<li>06 Control Panel\Desktop timeouts, MinAnimate: widely known, not sourced here.</li>
+<li>11 Keyboard Response flags and 12 Ndu memory leak: from user reports, not Microsoft.</li>
+<li>The defaults in reg_undo for these are typical Windows values. If you need your exact originals, use the Backup folder.</li></ul>
+Results differ between PCs and Microsoft may change how these values behave in a later Windows release. Every item can be reverted with menu 7 or the Backup folder.</div>
+<div class="foot">win11-optimizer v4.3 - github.com/Kensukeimagery/win11-optimizer - MIT License</div>
+</div>
+</body></html>

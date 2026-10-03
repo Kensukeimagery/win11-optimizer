@@ -1,0 +1,8 @@
+# Files the scripts generate on a real PC - never commit these
+OptimizerLog_*
+CheckReport_*
+Backup/
+*.log
+*.zip
+Thumbs.db
+desktop.ini
