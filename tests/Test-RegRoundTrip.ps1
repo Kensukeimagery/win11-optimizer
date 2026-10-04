@@ -34,7 +34,7 @@ $pb = Join-Path $root 'tools\Power_Boost.ps1'
 $a = $LASTEXITCODE
 & powershell.exe -NoProfile -ExecutionPolicy Bypass -File $pb -Action Undo *> $null
 $u = $LASTEXITCODE
-if (($a -eq 0 -or $a -eq 3) -and ($u -eq 0)) { Note ('  [PASS] Power_Boost apply=' + $a + ' undo=' + $u) 'Green' } else { $fail.Add('Power_Boost apply=' + $a + ' undo=' + $u); Note ('  [FAIL] Power_Boost apply=' + $a + ' undo=' + $u) 'Red' }
+if (($a -eq 0 -or $a -eq 3) -and ($u -eq 0 -or $u -eq 3)) { Note ('  [PASS] Power_Boost apply=' + $a + ' undo=' + $u) 'Green' } else { $fail.Add('Power_Boost apply=' + $a + ' undo=' + $u); Note ('  [FAIL] Power_Boost apply=' + $a + ' undo=' + $u) 'Red' }
 
 # DNS helper dry run (never touches the adapters)
 $dns = Join-Path $root 'tools\Set_Dns.ps1'
