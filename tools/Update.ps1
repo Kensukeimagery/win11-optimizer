@@ -162,7 +162,7 @@ if ($Action -eq 'Apply') {
             exit 0
         }
     }
-    [void](Read-Host '   Press Enter to close this window')
+    try { [void](Read-Host '   Press Enter to close this window') } catch { }
     exit 0
 }
 

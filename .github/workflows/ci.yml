@@ -16,6 +16,15 @@ jobs:
         shell: powershell
         run: powershell -NoProfile -ExecutionPolicy Bypass -File tests\Test-Repo.ps1
 
+      - name: Lint PowerShell (PSScriptAnalyzer, errors and warnings)
+        shell: powershell
+        continue-on-error: true
+        run: |
+          Install-Module PSScriptAnalyzer -Force -Scope CurrentUser -SkipPublisherCheck
+          $r = Invoke-ScriptAnalyzer -Path . -Recurse -Severity Error,Warning -ExcludeRule PSAvoidUsingWriteHost,PSUseApprovedVerbs,PSAvoidUsingEmptyCatchBlock,PSUseShouldProcessForStateChangingFunctions,PSAvoidGlobalVars,PSUseSingularNouns,PSAvoidUsingInvokeExpression,PSUseDeclaredVarsMoreThanAssignments,PSReviewUnusedParameter,PSUseBOMForUnicodeEncodedFile
+          $r | Format-Table RuleName,Severity,ScriptName,Line,Message -AutoSize -Wrap | Out-String -Width 220
+          Write-Host ('findings: ' + @($r).Count)
+
       - name: Read-only tools run without errors
         shell: powershell
         run: |
@@ -28,6 +37,10 @@ jobs:
         run: |
           powershell -NoProfile -ExecutionPolicy Bypass -File tools\Driver_Check.ps1 -SkipUpdateSearch -NoPrompt
           if ($LASTEXITCODE -ne 0) { exit 1 }
+
+      - name: Updater install step (success, overwrite, roll back)
+        shell: powershell
+        run: powershell -NoProfile -ExecutionPolicy Bypass -File tests\Test-UpdateApply.ps1
 
       - name: Apply and undo every tweak on this disposable machine
         shell: powershell

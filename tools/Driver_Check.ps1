@@ -216,7 +216,7 @@ function Install-Offers($Session, $Chosen, [string]$RootDir) {
     Write-Log ''
     Write-Log ('   Done: ' + $okCount + ' installed, ' + $failCount + ' failed.') 'White'
     if ($okCount -gt 0) { Write-Log '   Restart the PC now so the new drivers load. The tool never restarts it for you.' 'Yellow' }
-    Write-Log '   If something stops working: Device Manager > the device > Properties > Driver > Roll Back Driver, or System Restore (2_Revert_Everything), or reinstall from the saved copy in Backup\drivers_*.' 'DarkGray'
+    Write-Log '   If something stops working: Device Manager > the device > Properties > Driver > Roll Back Driver, or System Restore (Start, type Create a restore point, System Restore, pick Before_Driver_Install), or reinstall from the saved copy in Backup\drivers_* with: pnputil /add-driver "Backup\drivers_...\*.inf" /subdirs /install' 'DarkGray'
 }
 
 # ---------------------------------------------------------------- main
@@ -238,7 +238,12 @@ function Start-DriverCheck {
     Write-Log ''
     Write-Log '   A. Devices with no working driver' 'White'
     if ($problems.Count -eq 0) { Write-Log '     None. Every device has a working driver.' 'Green' }
-    foreach ($p in $problems) { Write-Log ('     - ' + $p.Name + ': ' + (Get-ProblemText $p.Code)) 'Yellow' }
+    foreach ($p in $problems) {
+        $hint = ''
+        $m = [regex]::Match($p.Id, '^(PCI\\VEN_[0-9A-F]{4}&DEV_[0-9A-F]{4}|USB\\VID_[0-9A-F]{4}&PID_[0-9A-F]{4}|ACPI\\[^\\]+|HDAUDIO\\[^\\]+|BTH[A-Z]*\\[^\\]+)')
+        if ($m.Success) { $hint = ' [' + $m.Value + ']' }
+        Write-Log ('     - ' + $p.Name + $hint + ': ' + (Get-ProblemText $p.Code)) 'Yellow'
+    }
 
     Write-Log ''
     Write-Log '   B. Graphics card' 'White'
