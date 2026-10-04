@@ -18,7 +18,6 @@ jobs:
 
       - name: Lint PowerShell (PSScriptAnalyzer, errors and warnings)
         shell: powershell
-        continue-on-error: true
         run: |
           Install-Module PSScriptAnalyzer -Force -Scope CurrentUser -SkipPublisherCheck
           $r = Invoke-ScriptAnalyzer -Path . -Recurse -Severity Error,Warning -ExcludeRule PSAvoidUsingWriteHost,PSUseApprovedVerbs,PSAvoidUsingEmptyCatchBlock,PSUseShouldProcessForStateChangingFunctions,PSAvoidGlobalVars,PSUseSingularNouns,PSAvoidUsingInvokeExpression,PSUseDeclaredVarsMoreThanAssignments,PSReviewUnusedParameter,PSUseBOMForUnicodeEncodedFile

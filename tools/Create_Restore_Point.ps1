@@ -4,10 +4,10 @@
 param([int]$TimeoutSeconds = 600, [string]$Description = 'Before_PC_Optimizer')
 $ErrorActionPreference = 'Continue'
 
-$job = Start-Job -ArgumentList $Description -ScriptBlock {
-    param($Name)
+$job = Start-Job -ArgumentList $Description, ($env:SystemDrive + '\') -ScriptBlock {
+    param($Name, $Drive)
     try {
-        Enable-ComputerRestore -Drive ($env:SystemDrive + '\') -ErrorAction SilentlyContinue
+        Enable-ComputerRestore -Drive $Drive -ErrorAction SilentlyContinue
         $rk = 'HKLM:\Software\Microsoft\Windows NT\CurrentVersion\SystemRestore'
         New-ItemProperty -Path $rk -Name 'SystemRestorePointCreationFrequency' -Value 0 -PropertyType DWord -Force -ErrorAction SilentlyContinue | Out-Null
         Checkpoint-Computer -Description $Name -RestorePointType 'MODIFY_SETTINGS' -ErrorAction Stop

@@ -2,7 +2,7 @@ Windows Registry Editor Version 5.00
 
 ; Restore Windows defaults for tweak 09
 [HKEY_CURRENT_USER\System\GameConfigStore]
-"GameDVR_FSEBehaviorMode"=dword:00000002
+"GameDVR_FSEBehaviorMode"=-
 "GameDVR_HonorUserFSEBehaviorMode"=dword:00000000
 "GameDVR_FSEBehavior"=-
 "GameDVR_DXGIHonorFSEWindowsCompatible"=dword:00000000

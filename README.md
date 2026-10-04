@@ -12,6 +12,8 @@
 
 Link not working? Use the green **Code** button on this page > **Download ZIP**. / ถ้าลิงก์ใช้ไม่ได้ ให้กดปุ่มสีเขียว **Code** ในหน้านี้ > **Download ZIP**
 
+> **Notice for users of v4.6 or older / ผู้ใช้ v4.6 หรือเก่ากว่า:** the old epair-tools\Deep_Clean_Junk_Files.bat selected the Disk Cleanup categories *Downloads* and *Recycle Bin*, which can delete files you want to keep. Please update to v4.7 or later and check your Downloads folder. / สคริปต์ล้างไฟล์ขยะรุ่นเก่าเลือกหมวด *Downloads* และ *Recycle Bin* ของ Disk Cleanup ซึ่งอาจลบไฟล์ที่คุณต้องการเก็บ กรุณาอัปเดตเป็น v4.7 ขึ้นไป และตรวจโฟลเดอร์ Downloads ของคุณ
+
 After the first download you do not need to come back here: press **U** in the main menu to update (see Updating). / หลังโหลดครั้งแรก ไม่ต้องกลับมาหน้านี้อีก กด **U** ในเมนูหลักเพื่ออัปเดต (ดูหัวข้อ Updating)
 
 ---

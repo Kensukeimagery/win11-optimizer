@@ -26,8 +26,8 @@
 <tr><td>3_Check_Status (Run as Administrator).bat</td><td>ตรวจว่าการตั้งค่ายังอยู่ครบไหม เช่นหลังอัปเดต Windows</td></tr>
 <tr><td>4_Network_Test.bat</td><td>ทดสอบ ping, jitter, packet loss และความเร็ว DNS ไม่แก้อะไรถ้าคุณไม่เลือกเปลี่ยน DNS ตอนท้าย ไม่ต้องใช้สิทธิ์ผู้ดูแลระบบเพื่อรัน</td></tr>
 <tr><td>5_System_Report.bat</td><td>รายงานแบบอ่านอย่างเดียว: อะไรกิน CPU/RAM, โปรแกรมที่เริ่มพร้อม Windows, พื้นที่ดิสก์, อายุไดรเวอร์การ์ดจอ ไม่ต้องใช้สิทธิ์ผู้ดูแลระบบ</td></tr>
-<tr><td>7_Driver_Check (Run as Administrator).bat</td><td>เบต้า หาอุปกรณ์ที่ไม่มีไดรเวอร์และแสดงไดรเวอร์ที่ Windows Update มีให้ ติดตั้งเฉพาะเมื่อคุณเลือก</td></tr>
 <tr><td>6_Check_For_Updates.bat</td><td>ตรวจหาเวอร์ชันใหม่บน GitHub และติดตั้งเฉพาะเมื่อคุณตอบตกลง ไม่ต้องใช้สิทธิ์ผู้ดูแลระบบ</td></tr>
+<tr><td>7_Driver_Check (Run as Administrator).bat</td><td>เบต้า หาอุปกรณ์ที่ไม่มีไดรเวอร์และแสดงไดรเวอร์ที่ Windows Update มีให้ ติดตั้งเฉพาะเมื่อคุณเลือก</td></tr>
 <tr><td>tools/</td><td>ไฟล์ PowerShell ช่วยทำงานของเมนู ตัวตรวจสถานะ เครื่องมือสองตัวข้างบน การเปลี่ยน DNS และตัวอัปเดต ห้ามลบ</td></tr>
 <tr><td>reg/1_Recommended</td><td>ไฟล์ 01-08 ปลอดภัยสำหรับเครื่องส่วนใหญ่</td></tr>
 <tr><td>reg/2_Optional</td><td>ไฟล์ 09-13 และ 15 สคริปต์ถามทีละข้อ (ข้อ 16 เป็นค่า power ดูในหมวดเสริม)</td></tr>
@@ -175,7 +175,7 @@
 </table>
 <p class="small"><b>เช็คให้แน่ใจ:</b> ติดตั้งไดรเวอร์การ์ดจอจากผู้ผลิตโดยตรง, เปิด XMP/EXPO ใน BIOS, เปิด Variable Refresh Rate ถ้าจอรองรับ, ตั้งเกมให้ใช้ GPU "High performance" (โน้ตบุ๊กจอคู่)</p>
 
-<div class="banner"><h1>เครื่องมือวินิจฉัย</h1><p>อ่านอย่างเดียว ไม่แก้อะไรและไม่ต้องใช้สิทธิ์ผู้ดูแลระบบ เมนู N และ R เรียกเครื่องมือตัวเดียวกัน</p></div>
+<div class="banner"><h1>เครื่องมือวินิจฉัย</h1><p>เครื่องมือเหล่านี้ดูข้อมูลเครื่องของคุณ ไม่แก้อะไรถ้าคุณไม่เลือกตอนท้าย (DNS ในเทสต์เครือข่าย ไดรเวอร์ในตัวตรวจไดรเวอร์) เมนู N, R และ D เรียกเครื่องมือตัวเดียวกัน</p></div>
 <div class="card"><div class="t"><span class="n">4</span>4_Network_Test.bat</div><ul>
 <li>ส่ง ping ตัวละ 30 ครั้งไปที่เราเตอร์ 1.1.1.1 8.8.8.8 และเซิร์ฟเวอร์เกมถ้าคุณพิมพ์ใส่ (เป็นแพ็กเก็ต ping ธรรมดา) แสดง ping เฉลี่ย jitter และ packet loss ให้เกรด Good / Fair / Poor แต่ละบรรทัด และบอกว่าปัญหาน่าจะอยู่ตรงไหน</li>
 <li><b>Jitter</b> คือความแกว่งของค่าหน่วง ซึ่งเป็นสิ่งที่รู้สึกเป็นอาการกระชาก (rubber-banding) และสำคัญกว่า ping เฉลี่ยที่สูงขึ้นนิดหน่อย</li>
@@ -212,7 +212,7 @@
 <li>registry tweak ในโปรเจกต์นี้ไม่มีตัวไหนลด ping ได้ชัดเจน และการเปลี่ยน DNS ก็ไม่ลด ทั้งหมดเป็นผลเล็กเฉพาะสถานการณ์</li></ul></div>
 
 <div class="banner"><h1>โฟลเดอร์ repair-tools</h1><p>เครื่องมือซ่อมเฉพาะจุด ไม่ต้องรันทุกครั้ง คลิกขวา Run as administrator</p></div>
-<div class="card rep"><div class="t"><span class="n">A</span>Deep_Clean_Junk_Files.bat</div><ul><li>ล้างไฟล์ขยะด้วย Disk Cleanup ทุกหมวด + Temp รายงานพื้นที่ว่างก่อน-หลัง และเตือนถ้าเหลือน้อยกว่า 15%</li></ul><div class="h">ใช้เมื่อ: พื้นที่ดิสก์เหลือน้อย หรือทุก 1-2 เดือน</div></div>
+<div class="card rep"><div class="t"><span class="n">A</span>Deep_Clean_Junk_Files.bat</div><ul><li>ล้างไฟล์ขยะด้วย Disk Cleanup เฉพาะหมวดที่ปลอดภัย + Temp โดย<b>ไม่แตะ</b>โฟลเดอร์ Downloads ของคุณเลย และถามก่อนล้างถังขยะหรือลบไฟล์ติดตั้ง Windows เก่า (เช่น Windows.old) รายงานพื้นที่ว่างก่อน-หลัง และเตือนถ้าเหลือน้อยกว่า 15%</li></ul><div class="h">ใช้เมื่อ: พื้นที่ดิสก์เหลือน้อย หรือทุก 1-2 เดือน</div></div>
 <div class="card rep"><div class="t"><span class="n">B</span>Network_Reset_Fix_Internet.bat</div><ul><li>รีเซ็ต Winsock, IPv4, IPv6, ขอ IP ใหม่, ล้าง DNS/ARP แล้ว ping ทดสอบท้ายสคริปต์</li></ul><div class="h">ใช้เมื่อ: เน็ตหลุด ต่อไม่ติด หรือช้าผิดปกติ</div></div>
 <div class="card rep"><div class="t"><span class="n">C</span>Bluetooth_Fix.bat</div><ul><li>เปิด service จับคู่อุปกรณ์กลับมา และรีสตาร์ท Bluetooth Support Service</li></ul><div class="h">ใช้เมื่อ: จับคู่หรือเชื่อมต่อบลูทูธไม่ได้</div></div>
 <div class="card rep"><div class="t"><span class="n">D</span>System_File_Scan_Repair.bat</div><ul><li>DISM ก่อน แล้วตามด้วย SFC ตามลำดับที่ Microsoft แนะนำ (15-40 นาที) ResetBase เป็นตัวเลือกถาม Y/N เพราะย้อนกลับไม่ได้</li></ul><div class="h">ใช้เมื่อ: โปรแกรมพัง ค้างบ่อย หรือสงสัยไฟล์ระบบเสีย</div></div>

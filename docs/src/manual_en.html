@@ -26,8 +26,8 @@
 <tr><td>3_Check_Status (Run as Administrator).bat</td><td>Check which tweaks are still applied, for example after a Windows update.</td></tr>
 <tr><td>4_Network_Test.bat</td><td>Ping, jitter, packet-loss and DNS speed test. Changes nothing unless you choose a DNS at the end. No administrator rights needed to run it.</td></tr>
 <tr><td>5_System_Report.bat</td><td>Read-only report: what uses your CPU and RAM, what starts with Windows, disk space, GPU driver age. No administrator rights needed.</td></tr>
-<tr><td>7_Driver_Check (Run as Administrator).bat</td><td>BETA. Finds devices with no driver and lists Windows Update driver updates. Installs only if you choose.</td></tr>
 <tr><td>6_Check_For_Updates.bat</td><td>Looks for a newer version on GitHub and installs it only if you say yes. No administrator rights needed.</td></tr>
+<tr><td>7_Driver_Check (Run as Administrator).bat</td><td>BETA. Finds devices with no driver and lists Windows Update driver updates. Installs only if you choose.</td></tr>
 <tr><td>tools/</td><td>PowerShell helpers used by the menu, the status check, the two tools above, the DNS change and the updater. Do not delete.</td></tr>
 <tr><td>reg/1_Recommended</td><td>Files 01-08: safe for most PCs.</td></tr>
 <tr><td>reg/2_Optional</td><td>Files 09-13 and 15: the script asks about each one. (16 is a power setting, see the optional tweaks.)</td></tr>
@@ -173,7 +173,7 @@
 </table>
 <p class="small"><b>Make sure of:</b> GPU drivers installed from the vendor directly, XMP/EXPO enabled in the BIOS, Variable Refresh Rate on if your monitor supports it, and games set to use the "High performance" GPU on dual-GPU laptops.</p>
 
-<div class="banner"><h1>Diagnostic tools</h1><p>Read-only: they change nothing and need no administrator rights. Menu N and R run the same tools</p></div>
+<div class="banner"><h1>Diagnostic tools</h1><p>These tools look at your PC. They change nothing unless you choose to at the end (a DNS in the network test, drivers in the driver check). Menu N, R and D run the same tools</p></div>
 <div class="card"><div class="t"><span class="n">4</span>4_Network_Test.bat</div><ul>
 <li>Sends 30 pings each to your router, 1.1.1.1, 8.8.8.8 and, if you type one, a game server (these are ordinary ping packets). It shows average ping, jitter and packet loss, grades each line Good / Fair / Poor and says where the problem most likely is.</li>
 <li><b>Jitter</b> is how much the delay jumps around. It is what you feel as rubber-banding, and it matters more than a slightly higher average ping.</li>
@@ -210,7 +210,7 @@
 <li>None of the registry tweaks in this project lowers ping by a noticeable amount, and neither does changing DNS. They are small, situational gains.</li></ul></div>
 
 <div class="banner"><h1>Folder: repair-tools</h1><p>Targeted repair tools. Not needed on every run. Right-click &gt; Run as administrator</p></div>
-<div class="card rep"><div class="t"><span class="n">A</span>Deep_Clean_Junk_Files.bat</div><ul><li>Runs Disk Cleanup for every category, plus temp files. Reports free space before and after, and warns if less than 15% is left.</li></ul><div class="h">Use when: disk space is low, or every 1-2 months.</div></div>
+<div class="card rep"><div class="t"><span class="n">A</span>Deep_Clean_Junk_Files.bat</div><ul><li>Runs Disk Cleanup on the safe categories plus temp files. It <b>never</b> touches your Downloads folder, and it asks before emptying the Recycle Bin or deleting old Windows setup files such as Windows.old. Reports free space before and after, and warns if less than 15% is left.</li></ul><div class="h">Use when: disk space is low, or every 1-2 months.</div></div>
 <div class="card rep"><div class="t"><span class="n">B</span>Network_Reset_Fix_Internet.bat</div><ul><li>Resets Winsock, IPv4 and IPv6, renews the IP address, flushes DNS and ARP, then pings to test.</li></ul><div class="h">Use when: the connection drops, will not connect, or is oddly slow.</div></div>
 <div class="card rep"><div class="t"><span class="n">C</span>Bluetooth_Fix.bat</div><ul><li>Re-enables the pairing service and restarts the Bluetooth Support Service.</li></ul><div class="h">Use when: a device will not pair or connect.</div></div>
 <div class="card rep"><div class="t"><span class="n">D</span>System_File_Scan_Repair.bat</div><ul><li>DISM first, then SFC, the order Microsoft recommends (15-40 minutes). ResetBase is an optional Y/N question because it cannot be undone.</li></ul><div class="h">Use when: programs crash, freeze often, or you suspect damaged system files.</div></div>

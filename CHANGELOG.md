@@ -1,6 +1,8 @@
 # Changelog
 
 ## v4.7
+- **Safety fix: `repair-tools\Deep_Clean_Junk_Files.bat`.** Versions up to v4.6 switched on EVERY Disk Cleanup category, including the Downloads folder and the Recycle Bin, which can delete files you want to keep. The script now never cleans Downloads, asks before emptying the Recycle Bin or deleting old Windows setup files (Windows.old), and switches the categories off again that older versions had left on. If you used an older version, update and run the new one once, and check your Downloads folder.
+- Other fixes from a full review: the power-plan lookup works on non-English Windows; the temp cleanup refuses to run if the temp folder is unknown; menu 7 can now also put back the telemetry services (S) and Prefetcher (F), and Check Status respects that; three undo files remove only the values their tweak added; `Create_Restore_Point.ps1` takes a name so the driver restore point is `Before_Driver_Install`; a lint step and an updater install test run on every push.
 - **Driver check (beta).** `7_Driver_Check` (menu **D**) scans for devices with no working driver, shows your graphics card and driver age, and lists the driver updates Windows Update offers, split into recommended and low-impact optional. You choose: install the recommended ones, everything, one by one, open the official graphics page, or nothing. Installing happens through Windows Update after a restore point and a saved copy of your current drivers (`Backup\drivers_*`), one driver at a time, with no automatic restart. Graphics, chipset, BIOS and firmware are never installed by the tool (it points you to the maker); Windows Update graphics drivers are skipped when the maker driver is already installed. Best used on a fresh Windows install.
 
 ## v4.6

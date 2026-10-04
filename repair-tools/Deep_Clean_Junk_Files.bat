@@ -1,9 +1,10 @@
 @echo off
 cls
-title Deep Disk Cleaner v2 (Auto-Configured + Space Report)
+title Deep Disk Cleaner v3 (Safe + Space Report)
 echo ==================================================
-echo          Deep Disk Cleaner (Automated) v2
-echo    Auto-select ALL cleanup options and Deep Clean
+echo          Deep Disk Cleaner v3
+echo    Cleans temporary and cache files. Your Downloads
+echo    folder is NEVER touched.
 echo ==================================================
 echo.
 
@@ -26,11 +27,18 @@ echo    Free space now: %FREEBEFORE% MB free of %TOTALMB% MB (about %FREEPCTBEFO
 
 echo.
 echo [2/5] Configuring cleanup settings...
-:: Loop to auto-check every Disk Cleanup category (saved as Profile #50)
-for /f "tokens=*" %%a in ('reg query "HKLM\SOFTWARE\Microsoft\Windows\CurrentVersion\Explorer\VolumeCaches"') do (
-    reg add "%%a" /v StateFlags0050 /t REG_DWORD /d 2 /f >nul 2>&1
-)
-echo [OK] All cleanup categories selected (Profile #50).
+echo.
+echo    Your Downloads folder is never cleaned by this tool.
+set "BINANS="
+set /p "BINANS=   Also empty the Recycle Bin? Y/N (Enter = N): "
+set "OLDANS="
+echo    Old Windows setup files include Windows.old. After deleting them you
+echo    cannot go back to the previous Windows.
+set /p "OLDANS=   Also delete old Windows setup files? Y/N (Enter = N): "
+:: Select the safe Disk Cleanup categories (saved as Profile #50). Categories that were
+:: switched on by an older version of this script are switched OFF again below.
+for /f "tokens=*" %%a in ('reg query "HKLM\SOFTWARE\Microsoft\Windows\CurrentVersion\Explorer\VolumeCaches"') do call :SETFLAG "%%a"
+echo [OK] Safe cleanup categories selected (Profile #50).
 
 echo.
 echo [3/5] Running Deep Clean (this may take a while, please wait)...
@@ -61,3 +69,14 @@ echo    CLEANUP COMPLETE!
 echo    You can close this window.
 echo ==================================================
 pause
+exit /b
+
+:SETFLAG
+set "KEYNAME=%~nx1"
+set "FLAG=2"
+if /i "%KEYNAME%"=="DownloadsFolder" set "FLAG=0"
+if /i "%KEYNAME%"=="Recycle Bin" if /i not "%BINANS%"=="Y" set "FLAG=0"
+if /i "%KEYNAME%"=="Previous Installations" if /i not "%OLDANS%"=="Y" set "FLAG=0"
+if /i "%KEYNAME%"=="Windows ESD installation files" if /i not "%OLDANS%"=="Y" set "FLAG=0"
+reg add "%~1" /v StateFlags0050 /t REG_DWORD /d %FLAG% /f >nul 2>&1
+goto :eof

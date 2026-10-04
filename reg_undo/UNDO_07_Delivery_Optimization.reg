@@ -1,4 +1,5 @@
 Windows Registry Editor Version 5.00
 
 ; Restore Windows defaults for tweak 07
-[-HKEY_LOCAL_MACHINE\SOFTWARE\Policies\Microsoft\Windows\DeliveryOptimization]
+[HKEY_LOCAL_MACHINE\SOFTWARE\Policies\Microsoft\Windows\DeliveryOptimization]
+"DODownloadMode"=-

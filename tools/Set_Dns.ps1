@@ -80,10 +80,18 @@ if ($Action -eq 'Apply') {
     $valid = @($Servers | ForEach-Object { $_ -split ',' } | ForEach-Object { $_.Trim() } | Where-Object { $_ -match '^\d{1,3}(\.\d{1,3}){3}$' })
     if ($valid.Count -eq 0) { Out-Result '   [ERROR] No valid DNS server address was given. Nothing was changed.' 'Red'; exit 1 }
 
-    # Keep the ORIGINAL settings: only save them if nothing is saved yet.
-    if ((Get-State 'DnsBackup') -eq '') {
-        $saved = @($adapters | ForEach-Object { [pscustomobject]@{ Guid = [string]$_.InterfaceGuid; Name = [string]$_.Name; Static = (Test-StaticDns ([string]$_.InterfaceGuid)); Servers = @(Get-Ipv4Dns $_.ifIndex) } })
-        $json = ConvertTo-Json -InputObject $saved -Compress
+    # Keep the ORIGINAL settings. Adapters are only added to an existing backup, never overwritten,
+    # so an adapter that appeared after the first change is also restored by Undo.
+    $existing = @()
+    $oldJson = Get-State 'DnsBackup'
+    if ($oldJson -ne '') {
+        # Windows PowerShell 5.1 returns the whole JSON array as ONE object, so keep it as it comes and wrap only a single object
+        try { $existing = ConvertFrom-Json -InputObject $oldJson; if ($existing -isnot [System.Array]) { $existing = @($existing) } } catch { $existing = @() }
+    }
+    $known = @($existing | ForEach-Object { [string]$_.Guid })
+    $added = @($adapters | Where-Object { $known -notcontains [string]$_.InterfaceGuid } | ForEach-Object { [pscustomobject]@{ Guid = [string]$_.InterfaceGuid; Name = [string]$_.Name; Static = (Test-StaticDns ([string]$_.InterfaceGuid)); Servers = @(Get-Ipv4Dns $_.ifIndex) } })
+    if ($added.Count -gt 0) {
+        $json = ConvertTo-Json -InputObject @(@($existing) + @($added)) -Compress
         if (-not $DryRun) {
             Set-State 'DnsBackup' $json
             if ($backupFile -ne '') { try { New-Item -ItemType Directory -Force -Path (Split-Path -Parent $backupFile) | Out-Null; [IO.File]::WriteAllText($backupFile, $json) } catch { } }
@@ -112,11 +120,13 @@ if ($json -eq '') {
     Out-Result '   No saved earlier DNS settings were found, so there is nothing to undo here.' 'Yellow'
     exit 0
 }
-$items = @(ConvertFrom-Json -InputObject $json)
+$items = ConvertFrom-Json -InputObject $json
+if ($items -isnot [System.Array]) { $items = @($items) }
 $allOk = $true
+$skippedAny = $false
 foreach ($it in $items) {
     $ad = $adapters | Where-Object { [string]$_.InterfaceGuid -eq [string]$it.Guid } | Select-Object -First 1
-    if ($null -eq $ad) { Out-Result ('   [SKIPPED] ' + $it.Name + ' is not connected right now.') 'DarkYellow'; continue }
+    if ($null -eq $ad) { Out-Result ('   [SKIPPED] ' + $it.Name + ' is not connected right now. Run Undo again when it is connected.') 'DarkYellow'; $skippedAny = $true; continue }
     $was = 'automatic'
     if ($it.Static) { $was = (@($it.Servers) -join ', ') }
     if ($DryRun) { Out-Result ('   [DRY RUN] ' + $ad.Name + ': would go back to ' + $was); continue }
@@ -128,6 +138,10 @@ foreach ($it in $items) {
 }
 if ($DryRun) { exit 0 }
 try { Clear-DnsClientCache } catch { }
+if ($allOk -and $skippedAny) {
+    Out-Result '   The saved settings were kept so the skipped adapter can be restored later.' 'Yellow'
+    exit 1
+}
 if ($allOk) {
     Remove-ItemProperty -Path $StateKey -Name 'DnsBackup' -ErrorAction SilentlyContinue
     Remove-ItemProperty -Path $StateKey -Name 'DnsApplied' -ErrorAction SilentlyContinue

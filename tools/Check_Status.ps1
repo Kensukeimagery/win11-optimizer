@@ -77,7 +77,7 @@ function Format-Expected($Entry) {
 }
 
 function Get-Choice([string]$Name) {
-    try { return [string](Get-ItemProperty -Path $StateKey -Name ('Choice_' + $Name) -ErrorAction Stop).('Choice_' + $Name) } catch { return '' }
+    try { return [string](Get-ItemPropertyValue -Path $StateKey -Name ('Choice_' + $Name) -ErrorAction Stop) } catch { return '' }
 }
 
 function Set-Choice([string]$Name, [string]$Value) {
@@ -251,7 +251,9 @@ function Invoke-Checks([string]$RegRoot, [string]$BackupDir) {
     $pfKey = 'HKEY_LOCAL_MACHINE\SYSTEM\CurrentControlSet\Control\Session Manager\Memory Management\PrefetchParameters'
     $want = $null
     if ($media -eq 'SSD') { $want = 0 } elseif ($media -eq 'HDD') { $want = 3 }
-    if ($null -eq $want) {
+    if ((Get-Choice 'PREF') -eq 'N') {
+        Add-Item 'PREF' 'PREF' 'Prefetcher' 'SKIPPED' 'you put the Windows default back' 'auto' $null $null
+    } elseif ($null -eq $want) {
         Add-Item 'PREF' 'PREF' 'Prefetcher' 'UNKNOWN' 'disk type could not be detected' 'auto' $null $null
     } else {
         $cur = Get-RegValue $pfKey 'EnablePrefetcher'
@@ -285,6 +287,7 @@ function Invoke-Checks([string]$RegRoot, [string]$BackupDir) {
     foreach ($svc in @('DiagTrack', 'dmwappushservice')) {
         $start = Get-RegValue ('HKEY_LOCAL_MACHINE\SYSTEM\CurrentControlSet\Services\' + $svc) 'Start'
         if ($null -eq $start) { continue }
+        if ((Get-Choice 'SERVICES') -eq 'N') { Add-Item ('SVC:' + $svc) 'SVC' ('Service ' + $svc + ' disabled') 'SKIPPED' 'you put the Windows default back' 'auto' $null $null; continue }
         if ($start -eq 4) { Add-Item ('SVC:' + $svc) 'SVC' ('Service ' + $svc + ' disabled') 'OK' '' 'auto' $null $null; continue }
         Add-Item ('SVC:' + $svc) 'SVC' ('Service ' + $svc + ' disabled') 'CHANGED' ('start type is ' + $start + ', expected 4') 'auto' 'svc' $svc
     }
@@ -369,6 +372,8 @@ function Invoke-Fix($Item, [string]$BackupDir) {
         if ($Item.Id -match '^\d{2}$') { Set-Choice $Item.Id 'Y' }
         if ($Item.Id -eq 'PLAN' -or $Item.Id -eq 'PWR') { Set-Choice 'POWER' 'Y' }
         if ($Item.Id -eq 'TCP') { Set-Choice 'TCP' 'Y' }
+        if ($Item.Id -eq 'SVC') { Set-Choice 'SERVICES' 'Y' }
+        if ($Item.Id -eq 'PREF') { Set-Choice 'PREF' 'Y' }
         Write-Log ('   [FIXED] ' + $Item.Id + ' ' + $Item.Title) 'Green'
     } else {
         Write-Log ('   [FAILED] ' + $Item.Id + ' ' + $Item.Title + ' - see the notes in the manual') 'Red'

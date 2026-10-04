@@ -123,6 +123,12 @@ try {
     Fail ('driver rules threw: ' + $_.Exception.Message)
 }
 Write-Host ''
+Write-Host '== Safety guards' -ForegroundColor Cyan
+$deep = [IO.File]::ReadAllText((Join-Path $root 'repair-tools\Deep_Clean_Junk_Files.bat'))
+Assert ($deep -match '(?i)DownloadsFolder"\s*set "FLAG=0"') 'Deep clean switches the Downloads category OFF'
+Assert (-not ($deep -match '(?i)for /f[^\r\n]*VolumeCaches[^\r\n]*do\s*\(')) 'Deep clean no longer switches every category on in one loop'
+Assert ($deep -match 'Recycle Bin' -and $deep -match 'Previous Installations') 'Deep clean asks about the Recycle Bin and old Windows files'
+Write-Host ''
 Write-Host '== Hygiene' -ForegroundColor Cyan
 $leaks = @()
 foreach ($f in @(Get-ChildItem -LiteralPath $root -Recurse -File | Where-Object { $_.Extension -in '.bat', '.ps1', '.reg', '.md', '.html' -and $_.FullName -notmatch '\\(\.git|tests)\\' })) {

@@ -371,7 +371,7 @@ if errorlevel 1 goto PPDUP
 goto PPACT
 :PPDUP
 set "UGUID="
-for /f "tokens=4" %%g in ('powercfg /duplicatescheme e9a42b02-d5df-448d-aa00-03f14749eb61 2^>nul') do set "UGUID=%%g"
+for /f "usebackq delims=" %%g in (`powershell -NoProfile -Command "$o = (powercfg /duplicatescheme e9a42b02-d5df-448d-aa00-03f14749eb61 2>$null) -join ' '; if ($o -match '[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}') { $Matches[0] }"`) do set "UGUID=%%g"
 if not defined UGUID goto PPHIGH
 reg add "HKCU\Software\PCOptimizer" /v UltimateGUID /t REG_SZ /d "%UGUID%" /f >nul 2>&1
 :PPACT
@@ -400,6 +400,7 @@ sc start Spooler >> "%LOGFILE%" 2>&1
 sc config DiagTrack start= disabled >> "%LOGFILE%" 2>&1
 sc config dmwappushservice start= disabled >> "%LOGFILE%" 2>&1
 echo    [OK] Services updated. Already running is normal and not an error.
+call :SETCHOICE SERVICES Y
 goto :eof
 
 :PREFETCH
@@ -417,10 +418,12 @@ goto :eof
 :PFSSD
 reg add "%PFKEY%" /v EnablePrefetcher /t REG_DWORD /d 0 /f >> "%LOGFILE%" 2>&1
 echo    [OK] SSD - Prefetcher turned off.
+call :SETCHOICE PREF Y
 goto :eof
 :PFHDD
 reg add "%PFKEY%" /v EnablePrefetcher /t REG_DWORD /d 3 /f >> "%LOGFILE%" 2>&1
 echo    [OK] HDD - Prefetcher kept on, turning it off would slow an HDD.
+call :SETCHOICE PREF Y
 goto :eof
 
 :TCPTWEAK
@@ -451,8 +454,13 @@ goto :eof
 
 :TEMPCLEAN
 echo  - Cleaning temp files...
+if "%TEMP%"=="" goto TEMPSKIP
+if not exist "%TEMP%\" goto TEMPSKIP
 del /q /s "%TEMP%\*" >nul 2>nul
 echo    [OK] Temp files cleaned. Locked files were skipped safely.
+goto :eof
+:TEMPSKIP
+echo    [SKIPPED] The temp folder was not found.
 goto :eof
 
 :: ---------------------------------------------------------------------
@@ -542,6 +550,8 @@ echo   15  Timer resolution            16  CPU boost aggressive
 echo   17  DNS servers - back to the DNS you had before
 echo.
 echo    T  Network per-adapter tweak
+echo    S  Services - telemetry services back to the Windows defaults
+echo    F  Prefetcher back to the Windows default
 echo    P  Reset ALL power plans to Windows defaults
 echo.
 echo    Exact previous values are also in the Backup folder -
@@ -552,6 +562,8 @@ set /p "RV=Type a choice, or press Enter to go back: "
 if "%RV%"=="" goto :eof
 if /i "%RV%"=="T" goto REVERTTCP
 if /i "%RV%"=="P" goto REVERTPOWER
+if /i "%RV%"=="S" goto REVERTSVC
+if /i "%RV%"=="F" goto REVERTPREF
 set "RN=0%RV%"
 set "RN=%RN:~-2%"
 if "%RN%"=="16" goto REVERTBOOST
@@ -586,6 +598,22 @@ goto :eof
 if not exist "%TOOLDIR%\Power_Boost.ps1" echo    [WARN] tools\Power_Boost.ps1 was not found.
 if exist "%TOOLDIR%\Power_Boost.ps1" powershell -NoProfile -ExecutionPolicy Bypass -File "%TOOLDIR%\Power_Boost.ps1" -Action Undo
 call :SETCHOICE 16 N
+pause
+goto :eof
+
+:REVERTSVC
+sc config DiagTrack start= auto >> "%LOGFILE%" 2>&1
+sc config dmwappushservice start= demand >> "%LOGFILE%" 2>&1
+echo    [OK] DiagTrack is automatic again and dmwappushservice is manual, as in Windows.
+echo    They start at the next restart.
+call :SETCHOICE SERVICES N
+pause
+goto :eof
+
+:REVERTPREF
+reg add "HKLM\SYSTEM\CurrentControlSet\Control\Session Manager\Memory Management\PrefetchParameters" /v EnablePrefetcher /t REG_DWORD /d 3 /f >> "%LOGFILE%" 2>&1
+echo    [OK] Prefetcher is back to the Windows default (3).
+call :SETCHOICE PREF N
 pause
 goto :eof
 
