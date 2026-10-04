@@ -44,6 +44,7 @@ exit /b
 :STARTUP
 set "WINBUILD=0"
 set "ISLAPTOP=0"
+set /a EMPTYCNT=0
 if exist "%TOOLDIR%\Env_Check.ps1" for /f "usebackq tokens=1,2" %%a in (`powershell -NoProfile -ExecutionPolicy Bypass -File "%TOOLDIR%\Env_Check.ps1"`) do call :SETENV %%a %%b
 if %WINBUILD% GTR 0 if %WINBUILD% LSS 22000 goto OLDWIN
 goto UPDPREF
@@ -111,6 +112,10 @@ echo   [0] Exit
 echo.
 set "CHOICE="
 set /p "CHOICE=Select an option: "
+if defined CHOICE goto GOTCHOICE
+set /a EMPTYCNT+=1
+if %EMPTYCNT% GTR 60 goto END
+:GOTCHOICE
 if "%CHOICE%"=="1" goto DO1
 if "%CHOICE%"=="2" goto DO2
 if "%CHOICE%"=="3" goto DO3
