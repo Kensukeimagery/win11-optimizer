@@ -149,19 +149,29 @@ function Install-Offers($Session, $Chosen, [string]$RootDir) {
     $rp = Join-Path $PSScriptRoot 'Create_Restore_Point.ps1'
     $rpOk = $false
     if (Test-Path -LiteralPath $rp) {
-        & powershell.exe -NoProfile -ExecutionPolicy Bypass -File $rp -TimeoutSeconds 600
+        & powershell.exe -NoProfile -ExecutionPolicy Bypass -File $rp -TimeoutSeconds 600 -Description 'Before_Driver_Install'
         $rpOk = ($LASTEXITCODE -eq 0)
     }
-    if ($rpOk) { Write-Log '   [OK] Restore point created.' 'Green' }
+    if ($rpOk) { Write-Log '   [OK] Restore point created (named Before_Driver_Install).' 'Green' }
     else {
         Write-Log '   [WARNING] A restore point could not be created.' 'Yellow'
         $go = Read-Answer '   Install drivers without a restore point? Y/N (Enter = N)' @('N', 'Y')
         if ($go -ne 'Y') { Write-Log '   Stopped. Nothing was changed.' 'DarkGray'; return }
     }
     Write-Log ''
-    Write-Log '   Step 2 of 3: saving a copy of your current drivers (can take a few minutes)' 'White'
+    Write-Log '   Step 2 of 3: saving a copy of your current drivers (about 1 to 5 GB and a few minutes)' 'White'
     $backup = ''
     if ($RootDir -ne '') { $backup = Join-Path $RootDir ('Backup\drivers_' + (Get-Date -Format 'yyyyMMdd_HHmmss')) }
+    if ($backup -ne '') {
+        $freeGb = $null
+        try { $freeGb = [math]::Round((New-Object IO.DriveInfo ([IO.Path]::GetPathRoot($backup))).AvailableFreeSpace / 1GB, 1) } catch { }
+        if ($null -ne $freeGb -and $freeGb -lt 10) {
+            Write-Log ('   [WARNING] Only ' + $freeGb + ' GB are free where the copy would go. The copy needs up to about 5 GB.') 'Yellow'
+            $go3 = Read-Answer '   Continue without saving a copy of the drivers? Y/N (Enter = N)' @('N', 'Y')
+            if ($go3 -ne 'Y') { Write-Log '   Stopped. Nothing was changed.' 'DarkGray'; return }
+            $backup = ''
+        }
+    }
     if ($backup -ne '') {
         try {
             New-Item -ItemType Directory -Force -Path $backup | Out-Null

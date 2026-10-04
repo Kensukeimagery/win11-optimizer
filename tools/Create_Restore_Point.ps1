@@ -1,14 +1,16 @@
-# PC Optimizer v4.7 - creates the "Before_PC_Optimizer" restore point with a time limit.
+# PC Optimizer v4.7 - creates a restore point with a time limit. The default name is "Before_PC_Optimizer",
+# which 2_Revert_Everything looks for. Other tools pass their own -Description so they never take that name.
 # Exit codes: 0 = created, 1 = failed, 2 = timed out.
-param([int]$TimeoutSeconds = 600)
+param([int]$TimeoutSeconds = 600, [string]$Description = 'Before_PC_Optimizer')
 $ErrorActionPreference = 'Continue'
 
-$job = Start-Job -ScriptBlock {
+$job = Start-Job -ArgumentList $Description -ScriptBlock {
+    param($Name)
     try {
         Enable-ComputerRestore -Drive ($env:SystemDrive + '\') -ErrorAction SilentlyContinue
         $rk = 'HKLM:\Software\Microsoft\Windows NT\CurrentVersion\SystemRestore'
         New-ItemProperty -Path $rk -Name 'SystemRestorePointCreationFrequency' -Value 0 -PropertyType DWord -Force -ErrorAction SilentlyContinue | Out-Null
-        Checkpoint-Computer -Description 'Before_PC_Optimizer' -RestorePointType 'MODIFY_SETTINGS' -ErrorAction Stop
+        Checkpoint-Computer -Description $Name -RestorePointType 'MODIFY_SETTINGS' -ErrorAction Stop
         'OK'
     } catch {
         'FAIL: ' + $_.Exception.Message
