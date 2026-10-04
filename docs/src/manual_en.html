@@ -1,10 +1,10 @@
 <!doctype html>
-<html lang="en"><head><meta charset="utf-8"><title>Windows 11 Optimizer - User Manual v4.5</title>
+<html lang="en"><head><meta charset="utf-8"><title>Windows 11 Optimizer - User Manual v4.6</title>
 <link rel="stylesheet" href="style.css"></head><body>
 
 <!-- PAGE 1 -->
 <div class="page">
-<div class="banner cover"><div class="sub">User Manual v4.5</div><h1>Windows 11 Optimizer</h1><div class="sub">One menu for every tweak, with backups and one-by-one revert</div></div>
+<div class="banner cover"><div class="sub">User Manual v4.6</div><h1>Windows 11 Optimizer</h1><div class="sub">One menu for every tweak, with backups and one-by-one revert</div></div>
 
 <div class="box red"><h3>Read this first</h3>
 <ul>
@@ -15,7 +15,7 @@
 </ul></div>
 
 <h2>Requirements</h2>
-<ul><li>Windows 11 and an administrator account (right-click &gt; <i>Run as administrator</i>).</li>
+<ul><li>Windows 11 (build 22000 or newer) and an administrator account (right-click &gt; <i>Run as administrator</i>). On older Windows the menu warns you first. If it detects a laptop, it advises against tweaks 02 and 16 and asks before applying 02.</li>
 <li>Keep every folder next to the scripts. Do not move a <span class="mono">.bat</span> file out of the folder.</li>
 <li>System Protection (System Restore) turned on for the system drive, so the restore point can be created.</li></ul>
 
@@ -26,7 +26,8 @@
 <tr><td>3_Check_Status (Run as Administrator).bat</td><td>Check which tweaks are still applied, for example after a Windows update.</td></tr>
 <tr><td>4_Network_Test.bat</td><td>Ping, jitter, packet-loss and DNS speed test. Changes nothing unless you choose a DNS at the end. No administrator rights needed to run it.</td></tr>
 <tr><td>5_System_Report.bat</td><td>Read-only report: what uses your CPU and RAM, what starts with Windows, disk space, GPU driver age. No administrator rights needed.</td></tr>
-<tr><td>tools/</td><td>PowerShell helpers used by the menu, the status check, the two tools above and the DNS change. Do not delete.</td></tr>
+<tr><td>6_Check_For_Updates.bat</td><td>Looks for a newer version on GitHub and installs it only if you say yes. No administrator rights needed.</td></tr>
+<tr><td>tools/</td><td>PowerShell helpers used by the menu, the status check, the two tools above, the DNS change and the updater. Do not delete.</td></tr>
 <tr><td>reg/1_Recommended</td><td>Files 01-08: safe for most PCs.</td></tr>
 <tr><td>reg/2_Optional</td><td>Files 09-13 and 15: the script asks about each one. (16 is a power setting, see the optional tweaks.)</td></tr>
 <tr><td>reg/3_Power</td><td>File 14: unlocks hidden CPU options in Power Options.</td></tr>
@@ -64,6 +65,8 @@
 <tr><td>C</td><td>Check status</td><td>Same as 3_Check_Status.</td></tr>
 <tr><td>N</td><td>Network test</td><td>Same as 4_Network_Test. Changes nothing unless you pick a DNS at the end.</td></tr>
 <tr><td>R</td><td>System report</td><td>Same as 5_System_Report. Changes nothing.</td></tr>
+<tr><td>U</td><td>Check for updates</td><td>Shows what is new and updates only if you say yes. Same as 6_Check_For_Updates.</td></tr>
+<tr><td>A</td><td>Automatic update check</td><td>Turns the check at menu start on or off.</td></tr>
 <tr><td>0</td><td>Exit</td><td>Exits and shows where the log was saved.</td></tr>
 </table>
 </div>
@@ -100,10 +103,13 @@
 </table>
 <p class="small"><b>What it checks:</b> all 14 .reg files (read from the same files that are applied), the power plan (Ultimate Performance, or High Performance if Ultimate is unavailable), the four power values, Prefetcher (SSD must be 0, HDD must be 3), TcpAckFrequency and TCPNoDelay on every adapter, and the DiagTrack / dmwappushservice services. Optional 15, 16 and (once used) 17 are checked too (16: boost mode 2 and preference 0 while plugged in).<br>
 <b>Limits:</b> it tells you a value is still there, not that it still has an effect (item 08 can show OK on a GPU that does not support GPU scheduling). Values under GameConfigStore (01, 09) are rewritten by Windows and the Xbox Game Bar, so CHANGED there is common. Adding a new VPN or Wi-Fi adapter makes Network show CHANGED until it is configured.</p>
-</div>
+<div class="card rep"><div class="t"><span class="n">U</span>Updating: menu U or 6_Check_For_Updates.bat</div><ul>
+<li>Looks for a newer release on GitHub, shows what is new, and installs it only if you press U. N = not now, S = skip this version, L = open the release page.</li>
+<li>Safe by design: the download is checked against a SHA-256 checksum published with the release. The old version is moved to <span class="mono">Backup\update_oldversion_time</span>, and if anything fails it is put back. Your Backup folder, logs and reports are never touched.</li>
+<li>The first time you open the menu it asks once whether to check automatically at start (it contacts github.com and sends nothing about you). Press A to turn that on or off. Nothing is ever installed without your choice.</li>
+<li>Updating from v4.5 or older needs one manual download of the ZIP. From v4.6 on, the tool updates itself.</li></ul></div>
 
-<!-- PAGE 4 -->
-<div class="page">
+
 <div class="banner"><h1>.reg files, group 1: Recommended (01-08)</h1><p>Menu 1. Meant to be safe for most PCs</p></div>
 <div class="card"><div class="t"><span class="n">01</span>GameBar_DVR_Off</div><ul><li>Turns off Xbox Game Bar background recording (Game DVR), at user and policy level. Game Mode is kept on (v3 turned it off by mistake).</li></ul><div class="h">Helps: gives back CPU, GPU and disk time used for constant recording. No official Microsoft documentation for these values.</div></div>
 <div class="card"><div class="t"><span class="n">02</span>Power_Throttling_Off</div><ul><li>PowerThrottlingOff = 1 stops Windows slowing background programs. Energy estimation off. Fast Startup off, so Shutdown is a real clean restart.</li></ul><div class="h">Helps: Discord or OBS in the background are not slowed down. Cost: slightly longer boot, and more power use on laptops.</div></div>
@@ -252,6 +258,6 @@
 <li>11 Keyboard Response flags and 12 Ndu memory leak: from user reports, not Microsoft.</li>
 <li>The defaults in reg_undo for these are typical Windows values. If you need your exact originals, use the Backup folder.</li></ul>
 Results differ between PCs and Microsoft may change how these values behave in a later Windows release. Every item can be reverted with menu 7 or the Backup folder.</div>
-<div class="foot">win11-optimizer v4.5 - github.com/Kensukeimagery/win11-optimizer - MIT License</div>
+<div class="foot">win11-optimizer v4.6 - github.com/Kensukeimagery/win11-optimizer - MIT License</div>
 </div>
 </body></html>

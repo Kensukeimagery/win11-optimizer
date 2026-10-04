@@ -1,0 +1,38 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+jobs:
+  check:
+    runs-on: windows-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Repository checks (version, syntax, labels, undo files, Check Status dry run)
+        shell: powershell
+        run: powershell -NoProfile -ExecutionPolicy Bypass -File tests\Test-Repo.ps1
+
+      - name: Read-only tools run without errors
+        shell: powershell
+        run: |
+          powershell -NoProfile -ExecutionPolicy Bypass -File tools\Env_Check.ps1 -Human
+          powershell -NoProfile -ExecutionPolicy Bypass -File tools\System_Report.ps1
+          if ($LASTEXITCODE -ne 0) { exit 1 }
+
+      - name: Apply and undo every tweak on this disposable machine
+        shell: powershell
+        run: powershell -NoProfile -ExecutionPolicy Bypass -File tests\Test-RegRoundTrip.ps1
+
+      - name: Main menu starts, revert path works, menu exits
+        shell: cmd
+        run: |
+          type tests\master_input.txt | "1_Start_Here - PC_Optimizer_Master (Run as Administrator).bat" > master_out.txt 2>&1
+          type master_out.txt
+          findstr /c:"MASTER CONTROL v" master_out.txt
+          if errorlevel 1 exit /b 1
+          findstr /c:"Reverting with UNDO_15" master_out.txt
+          if errorlevel 1 exit /b 1

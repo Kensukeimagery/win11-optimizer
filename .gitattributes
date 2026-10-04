@@ -1,0 +1,4 @@
+# Keep the download ZIP clean: these files are for the GitHub repository only.
+/.github export-ignore
+/.gitattributes export-ignore
+/tests export-ignore

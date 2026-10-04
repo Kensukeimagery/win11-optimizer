@@ -1,0 +1,50 @@
+name: Bug report / ปัญหาที่เจอ
+description: Something did not work as the manual says
+labels: [bug]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for helping. Please fill in the fields below. / ขอบคุณที่ช่วยแจ้ง กรุณากรอกข้อมูลด้านล่าง
+        **Check every file and screenshot for private information before you attach it.** The reports hide your Windows user name, but program names and paths are still listed.
+  - type: input
+    id: version
+    attributes:
+      label: Version / เวอร์ชัน
+      description: Shown in the title of the menu window, or in the file named VERSION.
+      placeholder: "4.6"
+    validations:
+      required: true
+  - type: input
+    id: windows
+    attributes:
+      label: Windows build / เวอร์ชัน Windows
+      description: Press Win+R, type winver. Example 26200 (Windows 11 25H2).
+    validations:
+      required: true
+  - type: dropdown
+    id: pctype
+    attributes:
+      label: Desktop or laptop / เดสก์ท็อปหรือโน้ตบุ๊ก
+      options: [Desktop, Laptop, Not sure]
+    validations:
+      required: true
+  - type: textarea
+    id: what
+    attributes:
+      label: What happened, and what did you expect? / เกิดอะไรขึ้น และคาดว่าจะเป็นอย่างไร
+      description: Say which file or menu option you used and what you typed.
+    validations:
+      required: true
+  - type: textarea
+    id: logs
+    attributes:
+      label: Logs and screenshots / ไฟล์ log และภาพหน้าจอ
+      description: Drag files here. Useful ones are OptimizerLog_*.txt, CheckReport_*.txt, UpdateLog_*.txt and a screenshot of the window.
+  - type: checkboxes
+    id: confirm
+    attributes:
+      label: Before you send / ก่อนส่ง
+      options:
+        - label: I removed anything private from the files and screenshots. / ฉันลบข้อมูลส่วนตัวออกจากไฟล์และภาพแล้ว
+          required: true

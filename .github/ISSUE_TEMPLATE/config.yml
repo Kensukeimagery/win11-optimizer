@@ -1,0 +1,5 @@
+blank_issues_enabled: true
+contact_links:
+  - name: Read the manual first / อ่านคู่มือก่อน
+    url: https://github.com/Kensukeimagery/win11-optimizer/tree/main/docs
+    about: The English and Thai manuals explain every menu option and tweak.

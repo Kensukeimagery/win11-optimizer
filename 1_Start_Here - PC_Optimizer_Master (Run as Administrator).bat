@@ -1,10 +1,10 @@
 @echo off
 setlocal EnableExtensions
-title PC Optimizer - Master Control v4.5
+title PC Optimizer - Master Control v4.6
 color 0B
 
 :: =====================================================================
-::  PC OPTIMIZER - MASTER CONTROL v4.5
+::  PC OPTIMIZER - MASTER CONTROL v4.6
 ::  Safety rules used in this file - they avoid the crashes seen in v3:
 ::   - no brackets inside ECHO text that sits inside IF or FOR blocks
 ::   - flat GOTO labels instead of nested IF / ELSE blocks
@@ -22,12 +22,12 @@ set "TS=manual"
 for /f "usebackq delims=" %%t in (`powershell -NoProfile -Command "Get-Date -Format yyyyMMdd_HHmmss"`) do set "TS=%%t"
 set "LOGFILE=%SCRIPT_DIR%OptimizerLog_%TS%.txt"
 set "BACKUPDIR=%SCRIPT_DIR%Backup\%TS%"
-echo PC Optimizer v4.5 Log - %date% %time% > "%LOGFILE%"
+echo PC Optimizer v4.6 Log - %date% %time% > "%LOGFILE%"
 
 if not exist "%REGROOT%" goto NOREG
 if not exist "%UNDOROOT%" echo [WARN] reg_undo folder not found - option 7 will not work.
 if not exist "%TOOLDIR%\Check_Status.ps1" echo [WARN] tools folder not found - option C and the restore point time limit will not work.
-goto MENU
+goto STARTUP
 
 :NOADMIN
 echo [ERROR] Please right-click this file and choose Run as administrator.
@@ -41,11 +41,54 @@ pause
 exit /b
 
 :: ---------------------------------------------------------------------
+:STARTUP
+set "WINBUILD=0"
+set "ISLAPTOP=0"
+if exist "%TOOLDIR%\Env_Check.ps1" for /f "usebackq tokens=1,2" %%a in (`powershell -NoProfile -ExecutionPolicy Bypass -File "%TOOLDIR%\Env_Check.ps1"`) do call :SETENV %%a %%b
+if %WINBUILD% GTR 0 if %WINBUILD% LSS 22000 goto OLDWIN
+goto UPDPREF
+:SETENV
+set "WINBUILD=%~1"
+set "ISLAPTOP=%~2"
+goto :eof
+:OLDWIN
+echo.
+echo   [WARNING] This tool is made for Windows 11. Your Windows build is %WINBUILD%.
+echo   Some tweaks may not work or may behave differently on older Windows.
+set "OLDANS="
+set /p "OLDANS=  Continue anyway? Y/N: "
+if /i "%OLDANS%"=="Y" goto UPDPREF
+goto END
+:UPDPREF
+set "UPDCHK="
+for /f "tokens=3" %%v in ('reg query "HKCU\Software\PCOptimizer" /v Choice_UPDATECHECK 2^>nul ^| findstr /i "Choice_UPDATECHECK"') do set "UPDCHK=%%v"
+if defined UPDCHK goto UPDRUN
+if not exist "%TOOLDIR%\Update.ps1" goto MENU
+echo.
+echo   Check for updates automatically when this menu opens?
+echo   This contacts github.com once, sends nothing about you,
+echo   and never installs anything without asking you first.
+set "UPDANS="
+set /p "UPDANS=  Y = yes, N = no, you can still press U in the menu any time: "
+set "UPDCHK=N"
+if /i "%UPDANS%"=="Y" set "UPDCHK=Y"
+call :SETCHOICE UPDATECHECK %UPDCHK%
+:UPDRUN
+set "UPDMSG="
+if /i not "%UPDCHK%"=="Y" goto MENU
+if not exist "%TOOLDIR%\Update.ps1" goto MENU
+echo   Checking for updates ...
+for /f "usebackq delims=" %%m in (`powershell -NoProfile -ExecutionPolicy Bypass -File "%TOOLDIR%\Update.ps1" -Action Check`) do set "UPDMSG=%%m"
+goto MENU
+
+:: ---------------------------------------------------------------------
 :MENU
 cls
 echo ===================================================================
-echo    PC OPTIMIZER - MASTER CONTROL v4.5
+echo    PC OPTIMIZER - MASTER CONTROL v4.6
 echo    Log: OptimizerLog_%TS%.txt
+if "%ISLAPTOP%"=="1" echo    Laptop detected - tweaks 02 and 16 are not recommended on a laptop.
+if defined UPDMSG echo    %UPDMSG%
 echo ===================================================================
 echo.
 echo   [1] Recommended tweaks     - reg 01-08, safe for everyone
@@ -60,6 +103,8 @@ echo   [7] Revert ONE tweak back to the Windows default
 echo   [8] Check disk type SSD or HDD - info only
 echo   [9] Open the Power Options window
 echo   [C] Check status - find settings that Windows Update changed back
+echo   [U] Check for updates - see what is new, update only if you say yes
+echo   [A] Turn the automatic update check on or off
 echo   [N] Network test - ping, jitter, packet loss and DNS speed, you choose
 echo   [R] System report - CPU and RAM users, startup list, changes nothing
 echo   [0] Exit
@@ -76,6 +121,8 @@ if "%CHOICE%"=="7" goto DO7
 if "%CHOICE%"=="8" goto DO8
 if "%CHOICE%"=="9" goto DO9
 if /i "%CHOICE%"=="C" goto DOC
+if /i "%CHOICE%"=="U" goto DOU
+if /i "%CHOICE%"=="A" goto DOA
 if /i "%CHOICE%"=="N" goto DONET
 if /i "%CHOICE%"=="R" goto DOREP
 if "%CHOICE%"=="0" goto END
@@ -112,6 +159,12 @@ call :POWEROPT
 goto MENU
 :DOC
 call :CHECKSTATUS
+goto MENU
+:DOU
+call :UPDATE
+goto MENU
+:DOA
+call :UPDTOGGLE
 goto MENU
 :DONET
 call :NETTEST
@@ -169,7 +222,7 @@ echo.
 echo [Category 1] Recommended tweaks 01-08...
 call :PREPBACKUP
 call :IMPORTNUM 01
-call :IMPORTNUM 02
+call :APPLY02
 call :IMPORTNUM 03
 call :IMPORTNUM 04
 call :IMPORTNUM 05
@@ -180,6 +233,21 @@ echo.
 echo   Note: tweak 08 GPU scheduling needs a restart and a supported GPU driver.
 echo [Done] Recommended tweaks applied.
 pause
+goto :eof
+
+:APPLY02
+if not "%ISLAPTOP%"=="1" goto RUN02
+echo.
+echo   Laptop detected. Tweak 02 turns off power throttling and Fast Startup.
+echo   The battery drains faster and the laptop runs warmer. Skipping is recommended.
+set "ans="
+set /p "ans=  Apply 02 anyway? Y/N: "
+if /i "%ans%"=="Y" goto RUN02
+echo   - Skipped 02
+call :SETCHOICE 02 N
+goto :eof
+:RUN02
+call :IMPORTNUM 02
 goto :eof
 
 :: ---------------------------------------------------------------------
@@ -234,6 +302,7 @@ if /i not "%ans%"=="Y" call :SETCHOICE 15 N
 echo.
 echo   #16 CPU boost: aggressive boost and energy preference 0, plugged in only.
 echo   Ultimate Performance already does this on most PCs. Runs hotter on laptops.
+if "%ISLAPTOP%"=="1" echo   Laptop detected: more heat and battery use when plugged in. Not recommended.
 set "ans="
 set /p "ans=  #16 Apply? Y/N: "
 if /i "%ans%"=="Y" call :BOOSTAPPLY
@@ -546,6 +615,33 @@ pause
 goto :eof
 :CSMISSING
 echo [ERROR] tools\Check_Status.ps1 was not found next to this script.
+pause
+goto :eof
+
+:: ---------------------------------------------------------------------
+:UPDATE
+if not exist "%TOOLDIR%\Update.ps1" goto UPDMISSING
+powershell -NoProfile -ExecutionPolicy Bypass -File "%TOOLDIR%\Update.ps1" -Relaunch
+if errorlevel 10 exit
+pause
+goto :eof
+:UPDMISSING
+echo [ERROR] tools\Update.ps1 was not found next to this script.
+pause
+goto :eof
+
+:UPDTOGGLE
+set "UPDCHK="
+for /f "tokens=3" %%v in ('reg query "HKCU\Software\PCOptimizer" /v Choice_UPDATECHECK 2^>nul ^| findstr /i "Choice_UPDATECHECK"') do set "UPDCHK=%%v"
+if /i "%UPDCHK%"=="Y" goto UPDOFF
+call :SETCHOICE UPDATECHECK Y
+echo   Automatic update check is now ON. It runs when this menu opens.
+pause
+goto :eof
+:UPDOFF
+call :SETCHOICE UPDATECHECK N
+set "UPDMSG="
+echo   Automatic update check is now OFF. You can still press U any time.
 pause
 goto :eof
 

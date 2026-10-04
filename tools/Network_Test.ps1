@@ -1,4 +1,4 @@
-# PC Optimizer v4.5 - Network test (read-only: changes nothing on your PC)
+# PC Optimizer v4.6 - Network test (read-only: changes nothing on your PC)
 # Pings your router, 1.1.1.1, 8.8.8.8 and an optional game server, then shows average ping,
 # jitter and packet loss, and says where a problem most likely is.
 param(
@@ -148,7 +148,7 @@ if ($Count -lt 5) { $Count = 5 }
 if ($Count -gt 200) { $Count = 200 }
 
 Write-Log '==================================================================' 'Cyan'
-Write-Log '   PC OPTIMIZER v4.5 - NETWORK TEST (nothing is changed)' 'Cyan'
+Write-Log '   PC OPTIMIZER v4.6 - NETWORK TEST (nothing is changed)' 'Cyan'
 Write-Log ('   ' + (Get-Date -Format 'yyyy-MM-dd HH:mm')) 'Cyan'
 Write-Log '==================================================================' 'Cyan'
 Write-Log ''

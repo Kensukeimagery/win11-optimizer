@@ -1,5 +1,12 @@
 # Changelog
 
+## v4.6
+- **Self-update.** Menu **U** (or `6_Check_For_Updates`) looks for a newer release on GitHub, shows what is new, and installs it ONLY if you choose. The download is checked against a SHA-256 checksum, the old version is saved to `Backup\update_<old>_<time>` and put back automatically if anything fails. Your Backup folder, logs and reports are never touched. An optional automatic check at menu start is asked once (menu **A** turns it on or off). Updating from v4.5 or older needs one manual download.
+- **Laptop and Windows guard.** The menu detects laptops and older Windows: it warns before running on Windows older than 11, and on a laptop advises against 02 and 16 and asks before applying 02.
+- **Automatic checks on GitHub.** Every push is tested on a Windows machine: version consistency, syntax, batch labels, undo file for every tweak, a dry run of Check Status, and an apply-then-undo round trip of every tweak on a disposable VM.
+- The four `repair-tools` scripts now use CRLF line endings like the rest.
+- README: direct download link, screenshot, notes for Windows SmartScreen and for updating. Issue form that asks for the version and logs.
+
 ## v4.5
 - Network Test now also measures DNS speed (your DNS vs Cloudflare, Google, Quad9) and explains how much a change would matter, then asks whether to switch. Optional **17** sets the DNS of active Ethernet/Wi-Fi adapters, saves the old settings first and undoes via the test (U) or menu 7 then 17. Check Status watches it once used. DNS does not change in-game ping.
 
