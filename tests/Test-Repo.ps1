@@ -103,6 +103,26 @@ try {
 }
 
 Write-Host ''
+Write-Host '== Driver check rules (no driver is installed by this test)' -ForegroundColor Cyan
+try {
+    # the script has its own parameter named Root, so hand it the same value (PowerShell variable names ignore case)
+    . (Join-Path $root 'tools\Driver_Check.ps1') -Root $root -DryRun
+    $old = Get-Date '2019-01-01'; $new = Get-Date '2024-01-01'
+    Assert ((Get-OfferCategory 'Firmware' 'Some update' $new $null $false).Category -eq 'skip') 'firmware class is never offered'
+    Assert ((Get-OfferCategory 'System' 'Vendor Firmware 1.2' $new $null $false).Category -eq 'skip') 'a title that says Firmware is never offered'
+    Assert ((Get-OfferCategory 'Display' 'GPU' $new $null $true).Category -eq 'skip') 'Windows Update graphics are skipped when the maker driver is installed'
+    Assert ((Get-OfferCategory 'Display' 'GPU' $new $null $false).Category -eq 'recommended') 'graphics are recommended when only the basic driver exists'
+    Assert ((Get-OfferCategory 'Net' 'LAN' $new $old $false).Category -eq 'recommended') 'a newer network driver is recommended'
+    Assert ((Get-OfferCategory 'Net' 'LAN' $old $new $false).Category -eq 'skip') 'an older driver is never offered'
+    Assert ((Get-OfferCategory 'OtherHardware' 'Thing' $new $null $false).Category -eq 'optional') 'unknown hardware classes are optional'
+    Assert ((Get-ProblemText 28) -match 'no driver') 'problem code 28 is explained'
+    $fake = @([pscustomobject]@{ Title = 'Fake driver'; Update = $null })
+    Install-Offers $null $fake '' 6>$null
+    Pass 'dry run of the install step prints and installs nothing'
+} catch {
+    Fail ('driver rules threw: ' + $_.Exception.Message)
+}
+Write-Host ''
 Write-Host '== Hygiene' -ForegroundColor Cyan
 $leaks = @()
 foreach ($f in @(Get-ChildItem -LiteralPath $root -Recurse -File | Where-Object { $_.Extension -in '.bat', '.ps1', '.reg', '.md', '.html' -and $_.FullName -notmatch '\\(\.git|tests)\\' })) {

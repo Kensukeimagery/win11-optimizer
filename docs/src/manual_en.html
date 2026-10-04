@@ -1,10 +1,10 @@
 <!doctype html>
-<html lang="en"><head><meta charset="utf-8"><title>Windows 11 Optimizer - User Manual v4.6</title>
+<html lang="en"><head><meta charset="utf-8"><title>Windows 11 Optimizer - User Manual v4.7</title>
 <link rel="stylesheet" href="style.css"></head><body>
 
 <!-- PAGE 1 -->
 <div class="page">
-<div class="banner cover"><div class="sub">User Manual v4.6</div><h1>Windows 11 Optimizer</h1><div class="sub">One menu for every tweak, with backups and one-by-one revert</div></div>
+<div class="banner cover"><div class="sub">User Manual v4.7</div><h1>Windows 11 Optimizer</h1><div class="sub">One menu for every tweak, with backups and one-by-one revert</div></div>
 
 <div class="box red"><h3>Read this first</h3>
 <ul>
@@ -26,6 +26,7 @@
 <tr><td>3_Check_Status (Run as Administrator).bat</td><td>Check which tweaks are still applied, for example after a Windows update.</td></tr>
 <tr><td>4_Network_Test.bat</td><td>Ping, jitter, packet-loss and DNS speed test. Changes nothing unless you choose a DNS at the end. No administrator rights needed to run it.</td></tr>
 <tr><td>5_System_Report.bat</td><td>Read-only report: what uses your CPU and RAM, what starts with Windows, disk space, GPU driver age. No administrator rights needed.</td></tr>
+<tr><td>7_Driver_Check (Run as Administrator).bat</td><td>BETA. Finds devices with no driver and lists Windows Update driver updates. Installs only if you choose.</td></tr>
 <tr><td>6_Check_For_Updates.bat</td><td>Looks for a newer version on GitHub and installs it only if you say yes. No administrator rights needed.</td></tr>
 <tr><td>tools/</td><td>PowerShell helpers used by the menu, the status check, the two tools above, the DNS change and the updater. Do not delete.</td></tr>
 <tr><td>reg/1_Recommended</td><td>Files 01-08: safe for most PCs.</td></tr>
@@ -36,10 +37,8 @@
 <tr><td>Backup/ (created when you run)</td><td>Copy of every key before it is changed, in a dated folder.</td></tr>
 <tr><td>OptimizerLog_*.txt, CheckReport_*.txt (created when you run)</td><td>Log of every command, and the result of each status check.</td></tr>
 </table>
-</div>
 
-<!-- PAGE 2 -->
-<div class="page">
+
 <div class="banner"><h1>Quick start</h1><p>Three steps</p></div>
 <div class="card"><div class="t"><span class="n">1</span>Open 1_Start_Here - PC_Optimizer_Master</div><ul><li>Right-click &gt; <i>Run as administrator</i>.</li></ul></div>
 <div class="card"><div class="t"><span class="n">2</span>Type 5 and press Enter</div><ul>
@@ -65,6 +64,7 @@
 <tr><td>C</td><td>Check status</td><td>Same as 3_Check_Status.</td></tr>
 <tr><td>N</td><td>Network test</td><td>Same as 4_Network_Test. Changes nothing unless you pick a DNS at the end.</td></tr>
 <tr><td>R</td><td>System report</td><td>Same as 5_System_Report. Changes nothing.</td></tr>
+<tr><td>D</td><td>Drivers (beta)</td><td>Same as 7_Driver_Check. Scans, then asks what to install.</td></tr>
 <tr><td>U</td><td>Check for updates</td><td>Shows what is new and updates only if you say yes. Same as 6_Check_For_Updates.</td></tr>
 <tr><td>A</td><td>Automatic update check</td><td>Turns the check at menu start on or off.</td></tr>
 <tr><td>0</td><td>Exit</td><td>Exits and shows where the log was saved.</td></tr>
@@ -194,6 +194,14 @@
 <li>Lists Windows, CPU, RAM, graphics card and driver age, disks and free space, the power plan, the programs using the most CPU and RAM (browsers with many processes are added together), and the programs that start with Windows.</li>
 <li>Ends with plain hints: long uptime, RAM nearly full, an old GPU driver, a drive with less than 15% free, a failing disk, too many startup programs.</li>
 <li>Saved as <span class="mono">SystemReport_date-time.txt</span>. Your Windows user name is hidden in the file, but check it before you share it. Program names and paths are still listed.</li></ul></div>
+<div class="card opt"><div class="t"><span class="n">7</span>7_Driver_Check (BETA, menu D)</div><ul>
+<li>Scans for devices with no working driver, shows your graphics card and its driver age, and lists the driver updates Windows Update offers. Made mainly for a fresh Windows install, useful any time.</li>
+<li>It always asks first: A = install the recommended ones, E = everything listed, S = choose one by one, G = open the official graphics driver page, N = nothing (default).</li>
+<li>Installing uses Windows Update, so the drivers are Microsoft-signed. Before the first install it creates a restore point and saves a copy of your current drivers in <span class="mono">Backup\drivers_time</span>. It installs one at a time, never restarts the PC itself, and tells you how to go back: Roll Back Driver in Device Manager, System Restore, or the saved copy.</li>
+<li><b>Not installed by this tool:</b> graphics, chipset, BIOS and firmware. For the graphics card it opens the official NVIDIA, AMD or Intel page. For chipset, BIOS and Wi-Fi/LAN it names your motherboard or laptop so you can find its support page. Windows Update graphics drivers are skipped when you already have the maker driver, because they can be older.</li>
+<li>Low-impact items (for example processor sub-devices and monitors) are listed as optional, grouped by maker, and are not part of "recommended".</li>
+<li>On a fresh Windows with no network driver, Windows Update cannot be reached. Install the LAN or Wi-Fi driver from your motherboard or laptop maker first (use another PC and a USB drive).</li>
+<li>Beta: installing drivers has not been tested on many PCs. Read the list before you answer, and keep the restore point.</li></ul></div>
 <div class="box green"><h3>What really helps steady FPS and low ping</h3>
 <ul><li>Cap the frame rate 3-4 below your monitor's refresh rate (in the game, RTSS or the NVIDIA Control Panel). It gives steadier frame times than an uncapped game that pins the GPU.</li>
 <li>Turn on NVIDIA Reflex (or Low Latency Mode) if your game offers it.</li>
@@ -258,6 +266,6 @@
 <li>11 Keyboard Response flags and 12 Ndu memory leak: from user reports, not Microsoft.</li>
 <li>The defaults in reg_undo for these are typical Windows values. If you need your exact originals, use the Backup folder.</li></ul>
 Results differ between PCs and Microsoft may change how these values behave in a later Windows release. Every item can be reverted with menu 7 or the Backup folder.</div>
-<div class="foot">win11-optimizer v4.6 - github.com/Kensukeimagery/win11-optimizer - MIT License</div>
+<div class="foot">win11-optimizer v4.7 - github.com/Kensukeimagery/win11-optimizer - MIT License</div>
 </div>
 </body></html>

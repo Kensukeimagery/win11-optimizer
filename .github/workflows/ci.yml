@@ -23,6 +23,12 @@ jobs:
           powershell -NoProfile -ExecutionPolicy Bypass -File tools\System_Report.ps1
           if ($LASTEXITCODE -ne 0) { exit 1 }
 
+      - name: Driver scan runs (scan only, nothing is installed)
+        shell: powershell
+        run: |
+          powershell -NoProfile -ExecutionPolicy Bypass -File tools\Driver_Check.ps1 -SkipUpdateSearch -NoPrompt
+          if ($LASTEXITCODE -ne 0) { exit 1 }
+
       - name: Apply and undo every tweak on this disposable machine
         shell: powershell
         run: powershell -NoProfile -ExecutionPolicy Bypass -File tests\Test-RegRoundTrip.ps1

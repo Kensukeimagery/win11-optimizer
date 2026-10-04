@@ -1,5 +1,8 @@
 # Changelog
 
+## v4.7
+- **Driver check (beta).** `7_Driver_Check` (menu **D**) scans for devices with no working driver, shows your graphics card and driver age, and lists the driver updates Windows Update offers, split into recommended and low-impact optional. You choose: install the recommended ones, everything, one by one, open the official graphics page, or nothing. Installing happens through Windows Update after a restore point and a saved copy of your current drivers (`Backup\drivers_*`), one driver at a time, with no automatic restart. Graphics, chipset, BIOS and firmware are never installed by the tool (it points you to the maker); Windows Update graphics drivers are skipped when the maker driver is already installed. Best used on a fresh Windows install.
+
 ## v4.6
 - **Self-update.** Menu **U** (or `6_Check_For_Updates`) looks for a newer release on GitHub, shows what is new, and installs it ONLY if you choose. The download is checked against a SHA-256 checksum, the old version is saved to `Backup\update_<old>_<time>` and put back automatically if anything fails. Your Backup folder, logs and reports are never touched. An optional automatic check at menu start is asked once (menu **A** turns it on or off). Updating from v4.5 or older needs one manual download.
 - **Laptop and Windows guard.** The menu detects laptops and older Windows: it warns before running on Windows older than 11, and on a laptop advises against 02 and 16 and asks before applying 02.

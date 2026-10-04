@@ -1,10 +1,10 @@
 @echo off
 setlocal EnableExtensions
-title PC Optimizer - Master Control v4.6
+title PC Optimizer - Master Control v4.7
 color 0B
 
 :: =====================================================================
-::  PC OPTIMIZER - MASTER CONTROL v4.6
+::  PC OPTIMIZER - MASTER CONTROL v4.7
 ::  Safety rules used in this file - they avoid the crashes seen in v3:
 ::   - no brackets inside ECHO text that sits inside IF or FOR blocks
 ::   - flat GOTO labels instead of nested IF / ELSE blocks
@@ -22,7 +22,7 @@ set "TS=manual"
 for /f "usebackq delims=" %%t in (`powershell -NoProfile -Command "Get-Date -Format yyyyMMdd_HHmmss"`) do set "TS=%%t"
 set "LOGFILE=%SCRIPT_DIR%OptimizerLog_%TS%.txt"
 set "BACKUPDIR=%SCRIPT_DIR%Backup\%TS%"
-echo PC Optimizer v4.6 Log - %date% %time% > "%LOGFILE%"
+echo PC Optimizer v4.7 Log - %date% %time% > "%LOGFILE%"
 
 if not exist "%REGROOT%" goto NOREG
 if not exist "%UNDOROOT%" echo [WARN] reg_undo folder not found - option 7 will not work.
@@ -86,7 +86,7 @@ goto MENU
 :MENU
 cls
 echo ===================================================================
-echo    PC OPTIMIZER - MASTER CONTROL v4.6
+echo    PC OPTIMIZER - MASTER CONTROL v4.7
 echo    Log: OptimizerLog_%TS%.txt
 if "%ISLAPTOP%"=="1" echo    Laptop detected - tweaks 02 and 16 are not recommended on a laptop.
 if defined UPDMSG echo    %UPDMSG%
@@ -104,6 +104,7 @@ echo   [7] Revert ONE tweak back to the Windows default
 echo   [8] Check disk type SSD or HDD - info only
 echo   [9] Open the Power Options window
 echo   [C] Check status - find settings that Windows Update changed back
+echo   [D] Drivers - find missing or old drivers, install only if you choose (beta)
 echo   [U] Check for updates - see what is new, update only if you say yes
 echo   [A] Turn the automatic update check on or off
 echo   [N] Network test - ping, jitter, packet loss and DNS speed, you choose
@@ -126,6 +127,7 @@ if "%CHOICE%"=="7" goto DO7
 if "%CHOICE%"=="8" goto DO8
 if "%CHOICE%"=="9" goto DO9
 if /i "%CHOICE%"=="C" goto DOC
+if /i "%CHOICE%"=="D" goto DOD
 if /i "%CHOICE%"=="U" goto DOU
 if /i "%CHOICE%"=="A" goto DOA
 if /i "%CHOICE%"=="N" goto DONET
@@ -164,6 +166,9 @@ call :POWEROPT
 goto MENU
 :DOC
 call :CHECKSTATUS
+goto MENU
+:DOD
+call :DRIVERS
 goto MENU
 :DOU
 call :UPDATE
@@ -620,6 +625,17 @@ pause
 goto :eof
 :CSMISSING
 echo [ERROR] tools\Check_Status.ps1 was not found next to this script.
+pause
+goto :eof
+
+:: ---------------------------------------------------------------------
+:DRIVERS
+if not exist "%TOOLDIR%\Driver_Check.ps1" goto DRVMISSING
+powershell -NoProfile -ExecutionPolicy Bypass -File "%TOOLDIR%\Driver_Check.ps1" -Root "%SCRIPT_DIR%."
+pause
+goto :eof
+:DRVMISSING
+echo [ERROR] tools\Driver_Check.ps1 was not found next to this script.
 pause
 goto :eof
 
