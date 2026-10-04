@@ -47,7 +47,7 @@ jobs:
           $body = $m.Groups[1].Value.Trim()
           if ($body -eq '') { $body = 'See CHANGELOG.md' }
           $footer = "`n`nUse at your own risk. Windows 11, run the main menu as administrator, keep all folders together and read page 1 of the manual first. To update an existing install, press U in the main menu."
-          Set-Content -Path notes.md -Value ($body + $footer) -Encoding utf8
+          [IO.File]::WriteAllText((Join-Path $PWD.Path 'notes.md'), ($body + $footer), (New-Object System.Text.UTF8Encoding($false)))
 
       - name: Publish
         shell: powershell
