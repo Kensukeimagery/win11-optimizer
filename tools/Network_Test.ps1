@@ -299,11 +299,13 @@ if (-not $SkipDns) {
         $allowed.Add('N')
         if ($saved -ne '') { Write-Host '   U = put back the DNS I had before my last change'; $allowed.Add('U') }
         Write-Host '   N = keep my current DNS (default)'
-        $ans = ''
-        while ($true) {
-            $ans = ([string](Read-Host '   Your choice (Enter = N)')).Trim().ToUpper()
-            if ($ans -eq '') { $ans = 'N' }
-            if ($allowed -contains $ans) { break }
+        $ans = 'N'
+        for ($try = 0; $try -lt 20; $try++) {
+            $raw = Read-Host '   Your choice (Enter = N)'
+            if ($null -eq $raw) { break }   # input closed: keep the current DNS
+            $cand = ([string]$raw).Trim().ToUpper()
+            if ($cand -eq '') { $cand = 'N' }
+            if ($allowed -contains $cand) { $ans = $cand; break }
             Write-Host ('   Please type one of: ' + ($allowed -join ', ')) -ForegroundColor DarkYellow
         }
         if ($ans -eq 'N') {

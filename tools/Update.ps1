@@ -60,12 +60,16 @@ function Get-LatestRelease {
 }
 
 function Read-Answer([string]$Prompt, [string[]]$Allowed) {
-    while ($true) {
-        $a = ([string](Read-Host $Prompt)).Trim().ToUpper()
+    # Enter means the first (safe) answer. If the input is closed or keeps being wrong, use it too instead of looping forever.
+    for ($try = 0; $try -lt 20; $try++) {
+        $raw = Read-Host $Prompt
+        if ($null -eq $raw) { break }
+        $a = ([string]$raw).Trim().ToUpper()
         if ($a -eq '') { $a = $Allowed[0] }
         if ($Allowed -contains $a) { return $a }
         Say ('   Please type one of: ' + ($Allowed -join ', ')) 'DarkYellow'
     }
+    return $Allowed[0]
 }
 
 function Test-ZipEntries([string]$ZipPath) {

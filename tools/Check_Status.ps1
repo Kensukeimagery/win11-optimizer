@@ -316,11 +316,15 @@ function Write-Log([string]$Text, [string]$Color = 'Gray') {
 }
 
 function Read-Answer([string]$Prompt, [string[]]$Allowed) {
-    while ($true) {
-        $a = ([string](Read-Host $Prompt)).Trim().ToUpper()
+    # If the input is closed or keeps being wrong, fall back to the safe answer N instead of looping forever.
+    for ($try = 0; $try -lt 20; $try++) {
+        $raw = Read-Host $Prompt
+        if ($null -eq $raw) { break }
+        $a = ([string]$raw).Trim().ToUpper()
         if ($Allowed -contains $a) { return $a }
         Write-Host ('   Please type one of: ' + ($Allowed -join ', ')) -ForegroundColor DarkYellow
     }
+    return 'N'
 }
 
 function Invoke-Fix($Item, [string]$BackupDir) {
