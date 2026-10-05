@@ -2,7 +2,9 @@
 # 1. Scans: devices with no working driver, the graphics card, and the driver updates Windows Update offers.
 # 2. Asks what to do. Nothing is installed unless you choose it.
 # Installing uses Windows Update (Microsoft-signed drivers), after a restore point and a copy of your current drivers.
-# Graphics, chipset, BIOS and firmware are NOT installed automatically: the tool tells you where to get them.
+# Graphics from the maker, BIOS and firmware are NOT installed: the tool tells you where to get them.
+# Small chipset INF packages from Windows Update are offered as optional (the maker page stays the best source).
+# Menu choice C starts Driver_Clean.ps1 (old driver versions and unused device entries).
 #   -SkipUpdateSearch  scan only the PC itself (no internet, used for testing)
 #   -NoPrompt          print the report and stop
 #   -DryRun            show what would be installed and install nothing
@@ -57,8 +59,31 @@ function Get-OfferCategory([string]$Class, [string]$Title, $WuDate, $InstalledDa
     if ($null -ne $InstalledDate -and $null -ne $WuDate -and $WuDate -le $InstalledDate) {
         return @{ Category = 'skip'; Reason = 'not newer than the driver you already have' }
     }
+    if (Test-ChipsetPackage $Class $Title) { return @{ Category = 'optional'; Reason = '' } }
     if ($script:ImportantClasses -contains $Class) { return @{ Category = 'recommended'; Reason = '' } }
     return @{ Category = 'optional'; Reason = '' }
+}
+
+# Windows Update names small chipset INF packages like "INTEL - System - 10/3/2016 12:00:00 AM - 10.1.1.38".
+# They only tell Windows what the chipset parts are called. They are offered as optional, and the maker page stays the best source.
+function Test-ChipsetPackage([string]$Class, [string]$Title) {
+    return (($Class -in @('System', 'USB', 'HDC', 'SCSIAdapter', 'SoftwareComponent')) -and ($Title -match '^.+ - .+ - \d{1,2}/\d{1,2}/\d{4} .+ - [\d.]+$'))
+}
+
+function Get-FriendlyTitle([string]$Title) {
+    $m = [regex]::Match($Title, '^(.+?) - (.+?) - \d{1,2}/\d{1,2}/\d{4} .+? - ([\d.]+)$')
+    if (-not $m.Success) { return $Title }
+    $maker = (Get-Culture).TextInfo.ToTitleCase($m.Groups[1].Value.ToLower())
+    return ($maker + ' chipset driver package ' + $m.Groups[3].Value + ' (' + $m.Groups[2].Value + ')')
+}
+
+function Get-ResultText([int]$Code) {
+    # Windows Update result codes: 2 ok, 3 ok with errors, 4 failed, 5 cancelled
+    switch ($Code) {
+        4 { return 'Windows Update refused it. This usually means an earlier package already covers this device' }
+        5 { return 'it was cancelled' }
+        default { return ('Windows Update returned code ' + $Code) }
+    }
 }
 
 function Get-ProblemText([int]$Code) {
@@ -127,7 +152,7 @@ function Get-DriverOffers([bool]$VendorGpuInstalled) {
         $instDate = $null
         if ($null -ne $inst -and $inst.DriverDate) { $instDate = $inst.DriverDate }
         $cat = Get-OfferCategory ([string]$u.DriverClass) ([string]$u.Title) $u.DriverVerDate $instDate $VendorGpuInstalled
-        $offers += [pscustomobject]@{ Update = $u; Title = [string]$u.Title; Class = [string]$u.DriverClass; Maker = [string]$u.DriverManufacturer; Date = $u.DriverVerDate; SizeMb = [math]::Round($u.MaxDownloadSize / 1MB, 1); Category = $cat.Category; Reason = $cat.Reason }
+        $offers += [pscustomobject]@{ Update = $u; Title = (Get-FriendlyTitle ([string]$u.Title)); Class = [string]$u.DriverClass; Maker = [string]$u.DriverManufacturer; Date = $u.DriverVerDate; SizeMb = [math]::Round($u.MaxDownloadSize / 1MB, 1); Category = $cat.Category; Reason = $cat.Reason }
     }
     return @{ Session = $session; Offers = $offers }
 }
@@ -149,7 +174,7 @@ function Install-Offers($Session, $Chosen, [string]$RootDir) {
     $rp = Join-Path $PSScriptRoot 'Create_Restore_Point.ps1'
     $rpOk = $false
     if (Test-Path -LiteralPath $rp) {
-        & powershell.exe -NoProfile -ExecutionPolicy Bypass -File $rp -TimeoutSeconds 600 -Description 'Before_Driver_Install'
+        & powershell.exe -NoProfile -ExecutionPolicy Bypass -File $rp -TimeoutSeconds 600 -Description 'Before_Driver_Install' | Out-Host
         $rpOk = ($LASTEXITCODE -eq 0)
     }
     if ($rpOk) { Write-Log '   [OK] Restore point created (named Before_Driver_Install).' 'Green' }
@@ -185,11 +210,16 @@ function Install-Offers($Session, $Chosen, [string]$RootDir) {
     }
     Write-Log ''
     Write-Log ('   Step 3 of 3: installing ' + $Chosen.Count + ' driver(s) one at a time') 'White'
-    $okCount = 0; $failCount = 0; $reboot = $false
+    $okCount = 0; $reboot = $false
+    $failed = @()
+    $compact = ($Chosen.Count -gt 12)   # long lists: one progress line on screen, every item still goes into the report
     $n = 0
     foreach ($o in $Chosen) {
         $n++
-        Write-Log ('   [' + $n + '/' + $Chosen.Count + '] ' + $o.Title) 'Gray'
+        $head = '   [' + $n + '/' + $Chosen.Count + '] ' + $o.Title
+        if ($compact) { Write-Host ("`r   Installing " + $n + ' of ' + $Chosen.Count + '   ') -NoNewline -ForegroundColor Gray }
+        else { Write-Log $head 'Gray' }
+        $state = ''; $color = 'Green'
         try {
             $u = $o.Update
             if (-not $u.EulaAccepted) { $u.AcceptEula() }
@@ -197,25 +227,45 @@ function Install-Offers($Session, $Chosen, [string]$RootDir) {
             [void]$coll.Add($u)
             $dl = $Session.CreateUpdateDownloader(); $dl.Updates = $coll
             $dres = $dl.Download()
-            if ($dres.ResultCode -ne 2) { throw ('download result ' + $dres.ResultCode) }
+            if ($dres.ResultCode -ne 2) { throw (Get-ResultText $dres.ResultCode) }
             $ins = $Session.CreateUpdateInstaller(); $ins.Updates = $coll
             $ires = $ins.Install()
             if ($ires.ResultCode -eq 2 -or $ires.ResultCode -eq 3) {
                 $okCount++
                 if ($ires.RebootRequired) { $reboot = $true }
-                Write-Log ('       [OK] installed' + $(if ($ires.RebootRequired) { ' (restart needed)' } else { '' })) 'Green'
+                $state = 'installed' + $(if ($ires.RebootRequired) { ' (restart needed)' } else { '' })
             } else {
-                $failCount++
-                Write-Log ('       [FAILED] result code ' + $ires.ResultCode) 'Red'
+                throw (Get-ResultText $ires.ResultCode)
             }
         } catch {
-            $failCount++
-            Write-Log ('       [FAILED] ' + $_.Exception.Message) 'Red'
+            $failed += $o
+            $state = 'not installed: ' + $_.Exception.Message; $color = 'DarkYellow'
         }
+        if ($compact) { $script:Lines.Add((Hide-Private ($head + ' -> ' + $state))) }
+        else { Write-Log ('       ' + $state) $color }
+    }
+    if ($compact) { Write-Host '' }
+    return @{ Ok = $okCount; Failed = $failed; Reboot = $reboot }
+}
+
+function Show-InstallSummary($Result, [bool]$VendorGpu) {
+    # After installing, ask Windows Update again: a failed item that is no longer offered is already covered by another package.
+    $left = $null
+    Write-Log ''
+    Write-Log '   Checking again what is left (15-60 seconds)...' 'DarkGray'
+    try { $left = @((Get-DriverOffers $VendorGpu).Offers | Where-Object { $_.Category -ne 'skip' }) } catch { Write-Log ('   Could not check again: ' + $_.Exception.Message) 'Yellow' }
+    $covered = 0; $real = @()
+    foreach ($f in @($Result.Failed)) {
+        if ($null -ne $left -and -not (@($left | Where-Object { $_.Title -eq $f.Title }).Count)) { $covered++ } else { $real += $f }
     }
     Write-Log ''
-    Write-Log ('   Done: ' + $okCount + ' installed, ' + $failCount + ' failed.') 'White'
-    if ($okCount -gt 0) { Write-Log '   Restart the PC now so the new drivers load. The tool never restarts it for you.' 'Yellow' }
+    Write-Log ('   Done: ' + $Result.Ok + ' installed, ' + $covered + ' not needed (already covered by another package), ' + @($real).Count + ' could not be installed.') 'White'
+    if ($null -ne $left) {
+        if (@($left).Count -eq 0) { Write-Log '   Windows Update has no more driver updates for this PC.' 'Green' }
+        else { Write-Log ('   Still offered by Windows Update: ' + @($left).Count + '. Restart, then run Driver Check again.') 'Yellow' }
+    }
+    foreach ($f in @($real) | Select-Object -First 10) { Write-Log ('     - ' + $f.Title) 'DarkYellow' }
+    if ($Result.Ok -gt 0) { Write-Log '   Restart the PC now so the new drivers load. The tool never restarts it for you.' 'Yellow' }
     Write-Log '   If something stops working: Device Manager > the device > Properties > Driver > Roll Back Driver, or System Restore (Start, type Create a restore point, System Restore, pick Before_Driver_Install), or reinstall from the saved copy in Backup\drivers_* with: pnputil /add-driver "Backup\drivers_...\*.inf" /subdirs /install' 'DarkGray'
 }
 
@@ -325,15 +375,23 @@ function Start-DriverCheck {
     if ($rec.Count -gt 0) { $choices.Add('A') }
     if (($rec.Count + $opt.Count) -gt 0) { $choices.Add('S') }
     if ($opt.Count -gt 0) { $choices.Add('E') }
+    $cleanTool = Join-Path $PSScriptRoot 'Driver_Clean.ps1'
+    if (Test-Path -LiteralPath $cleanTool) { $choices.Add('C') }
     if ($choices.Count -eq 1) { Write-Log '   Nothing to do. Your drivers look fine.' 'Green'; return }
+    if (($rec.Count + $opt.Count) -eq 0 -and $problems.Count -eq 0) { Write-Log '   Your drivers look fine.' 'Green' }
     Write-Host '   What would you like to do? Nothing is installed unless you choose.' -ForegroundColor White
     if ($rec.Count -gt 0) { Write-Host ('   A = install the ' + $rec.Count + ' recommended drivers') }
     if ($opt.Count -gt 0) { Write-Host ('   E = install everything listed, recommended and optional (' + ($rec.Count + $opt.Count) + ')') }
     if (($rec.Count + $opt.Count) -gt 0) { Write-Host '   S = let me choose one by one' }
     if ($gpuVendors.Count -gt 0) { Write-Host '   G = open the official graphics driver page in my browser' }
+    if ($choices.Contains('C')) { Write-Host '   C = clean up: old driver versions and unused device entries (beta)' }
     Write-Host '   N = do nothing (default)'
     $ans = Read-Answer '   Your choice (Enter = N)' @($choices.ToArray())
     if ($ans -eq 'N') { Write-Log '   Nothing was changed.' 'DarkGray'; return }
+    if ($ans -eq 'C') {
+        & powershell.exe -NoProfile -ExecutionPolicy Bypass -File $cleanTool -Root $rootDir
+        return
+    }
     if ($ans -eq 'G') {
         foreach ($v in $gpuVendors) { try { Start-Process $urls[$v] } catch { } }
         return
@@ -358,7 +416,11 @@ function Start-DriverCheck {
         }
     }
     Write-Log ('   You selected ' + @($chosen).Count + ' driver(s).') 'White'
-    Install-Offers $session $chosen $rootDir
+    $res = @(Install-Offers $session $chosen $rootDir) | Where-Object { $_ -is [hashtable] } | Select-Object -Last 1
+    if ($null -ne $res) {
+        Show-InstallSummary $res $vendorGpu
+        Write-Log ('   Finished ' + (Get-Date -Format 'yyyy-MM-dd HH:mm')) 'DarkGray'
+    }
     if ($rootDir -ne '') { try { [IO.File]::WriteAllLines((Join-Path $rootDir ('DriverReport_' + (Get-Date -Format 'yyyyMMdd_HHmmss') + '_after.txt')), $script:Lines) } catch { } }
 }
 

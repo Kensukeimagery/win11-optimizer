@@ -1,4 +1,4 @@
-# PC Optimizer v4.7 - CPU boost helper (optional tweak 16)
+# PC Optimizer v4.8 - CPU boost helper (optional tweak 16)
 # Plugged-in only: processor performance boost mode = Aggressive (2) and
 # energy performance preference = 0 (favour performance) on the ACTIVE power plan.
 # The values you had before are saved first, so Undo restores exactly those.

@@ -1,10 +1,10 @@
 <!doctype html>
-<html lang="en"><head><meta charset="utf-8"><title>Windows 11 Optimizer - User Manual v4.7</title>
+<html lang="en"><head><meta charset="utf-8"><title>Windows 11 Optimizer - User Manual v4.8</title>
 <link rel="stylesheet" href="style.css"></head><body>
 
 <!-- PAGE 1 -->
 <div class="page">
-<div class="banner cover"><div class="sub">User Manual v4.7</div><h1>Windows 11 Optimizer</h1><div class="sub">One menu for every tweak, with backups and one-by-one revert</div></div>
+<div class="banner cover"><div class="sub">User Manual v4.8</div><h1>Windows 11 Optimizer</h1><div class="sub">One menu for every tweak, with backups and one-by-one revert</div></div>
 
 <div class="box red"><h3>Read this first</h3>
 <ul>
@@ -196,11 +196,14 @@
 <li>Saved as <span class="mono">SystemReport_date-time.txt</span>. Your Windows user name is hidden in the file, but check it before you share it. Program names and paths are still listed.</li></ul></div>
 <div class="card opt"><div class="t"><span class="n">7</span>7_Driver_Check (BETA, menu D)</div><ul>
 <li>Scans for devices with no working driver, shows your graphics card and its driver age, and lists the driver updates Windows Update offers. Made mainly for a fresh Windows install, useful any time.</li>
-<li>It always asks first: A = install the recommended ones, E = everything listed, S = choose one by one, G = open the official graphics driver page, N = nothing (default).</li>
+<li>It always asks first: A = install the recommended ones, E = everything listed, S = choose one by one, G = open the official graphics driver page, C = clean up old driver versions, N = nothing (default).</li>
 <li>Installing uses Windows Update, so the drivers are Microsoft-signed. Before the first install it creates a restore point and saves a copy of your current drivers in <span class="mono">Backup\drivers_time</span>. It installs one at a time, never restarts the PC itself, and tells you how to go back: Roll Back Driver in Device Manager, System Restore, or the saved copy.</li>
-<li><b>Not installed by this tool:</b> graphics, chipset, BIOS and firmware. For the graphics card it opens the official NVIDIA, AMD or Intel page. For chipset, BIOS and Wi-Fi/LAN it names your motherboard or laptop so you can find its support page. Windows Update graphics drivers are skipped when you already have the maker driver, because they can be older.</li>
+<li><b>Not installed by this tool:</b> the graphics driver from the maker, BIOS and firmware. For the graphics card it opens the official NVIDIA, AMD or Intel page. For the full chipset package, BIOS and Wi-Fi/LAN it names your motherboard or laptop so you can find its support page. Windows Update graphics drivers are skipped when you already have the maker driver, because they can be older. The small chipset INF packages that Windows Update offers (named like "Intel chipset driver package 10.1.1.38") are listed as optional.</li>
 <li>Low-impact items (for example processor sub-devices and monitors) are listed as optional, grouped by maker, and are not part of "recommended".</li>
 <li>On a fresh Windows with no network driver, Windows Update cannot be reached. Install the LAN or Wi-Fi driver from your motherboard or laptop maker first (use another PC and a USB drive).</li>
+<li>After installing it asks Windows Update again and tells you what is left. An item that "failed" because an earlier package already covers the device is counted as "not needed", not as an error.</li>
+<li><b>C = clean up (beta).</b> Lists (A) old versions of drivers you still use, which Windows keeps in its driver store (for example older NVIDIA versions, often several hundred MB each), and (B) entries of devices that are no longer connected (old USB devices, monitors). The newest version, any version in use and boot-critical packages are always kept. Before removing anything it creates a restore point <span class="mono">Before_Driver_Cleanup</span> and saves a copy of each package in <span class="mono">Backup\drivers_removed_time</span>; if a copy cannot be saved, that package is left alone. Nothing is forced: if Windows says a driver is still needed, it stays. Network, storage and system entries are listed but never removed. Driver packages for hardware that is only unplugged right now are deliberately left alone.</li>
+<li>Honest expectation for C: it frees disk space and tidies Device Manager. It does not raise FPS or lower ping.</li>
 <li>Beta: installing drivers has not been tested on many PCs. Read the list before you answer, and keep the restore point.</li></ul></div>
 <div class="box green"><h3>What really helps steady FPS and low ping</h3>
 <ul><li>Cap the frame rate 3-4 below your monitor's refresh rate (in the game, RTSS or the NVIDIA Control Panel). It gives steadier frame times than an uncapped game that pins the GPU.</li>
@@ -266,6 +269,6 @@
 <li>11 Keyboard Response flags and 12 Ndu memory leak: from user reports, not Microsoft.</li>
 <li>The defaults in reg_undo for these are typical Windows values. If you need your exact originals, use the Backup folder.</li></ul>
 Results differ between PCs and Microsoft may change how these values behave in a later Windows release. Every item can be reverted with menu 7 or the Backup folder.</div>
-<div class="foot">win11-optimizer v4.7 - github.com/Kensukeimagery/win11-optimizer - MIT License</div>
+<div class="foot">win11-optimizer v4.8 - github.com/Kensukeimagery/win11-optimizer - MIT License</div>
 </div>
 </body></html>

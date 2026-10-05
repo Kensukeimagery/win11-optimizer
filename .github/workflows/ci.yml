@@ -37,6 +37,12 @@ jobs:
           powershell -NoProfile -ExecutionPolicy Bypass -File tools\Driver_Check.ps1 -SkipUpdateSearch -NoPrompt
           if ($LASTEXITCODE -ne 0) { exit 1 }
 
+      - name: Driver cleanup scan runs (list only, nothing is removed)
+        shell: powershell
+        run: |
+          powershell -NoProfile -ExecutionPolicy Bypass -File tools\Driver_Clean.ps1 -NoPrompt
+          if ($LASTEXITCODE -ne 0) { exit 1 }
+
       - name: Updater install step (success, overwrite, roll back)
         shell: powershell
         run: powershell -NoProfile -ExecutionPolicy Bypass -File tests\Test-UpdateApply.ps1

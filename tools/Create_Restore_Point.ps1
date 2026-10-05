@@ -1,4 +1,4 @@
-# PC Optimizer v4.7 - creates a restore point with a time limit. The default name is "Before_PC_Optimizer",
+# PC Optimizer v4.8 - creates a restore point with a time limit. The default name is "Before_PC_Optimizer",
 # which 2_Revert_Everything looks for. Other tools pass their own -Description so they never take that name.
 # Exit codes: 0 = created, 1 = failed, 2 = timed out.
 param([int]$TimeoutSeconds = 600, [string]$Description = 'Before_PC_Optimizer')

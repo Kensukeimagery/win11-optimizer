@@ -116,11 +116,47 @@ try {
     Assert ((Get-OfferCategory 'Net' 'LAN' $old $new $false).Category -eq 'skip') 'an older driver is never offered'
     Assert ((Get-OfferCategory 'OtherHardware' 'Thing' $new $null $false).Category -eq 'optional') 'unknown hardware classes are optional'
     Assert ((Get-ProblemText 28) -match 'no driver') 'problem code 28 is explained'
+    $chip = 'INTEL - System - 10/3/2016 12:00:00 AM - 10.1.1.38'
+    Assert ((Get-OfferCategory 'System' $chip $new $null $false).Category -eq 'optional') 'a chipset INF package from Windows Update is optional, not recommended'
+    Assert ((Get-FriendlyTitle $chip) -eq 'Intel chipset driver package 10.1.1.38 (System)') 'the chipset INF title is shown in plain words'
+    Assert ((Get-FriendlyTitle 'Realtek - Net - Realtek PCIe GbE') -eq 'Realtek - Net - Realtek PCIe GbE') 'other titles are left alone'
+    Assert ((Get-ResultText 4) -match 'earlier package') 'result code 4 is explained in words'
     $fake = @([pscustomobject]@{ Title = 'Fake driver'; Update = $null })
     Install-Offers $null $fake '' 6>$null
     Pass 'dry run of the install step prints and installs nothing'
 } catch {
     Fail ('driver rules threw: ' + $_.Exception.Message)
+}
+Write-Host ''
+Write-Host '== Driver cleanup rules (nothing is removed by this test)' -ForegroundColor Cyan
+try {
+    . (Join-Path $root 'tools\Driver_Clean.ps1') -Root $root -DryRun
+    function Pk($inf, $orig, $prov, $cls, $ver, $date, $boot) { [pscustomobject]@{ Inf = $inf; Original = $orig; Provider = $prov; Class = $cls; Version = $ver; Date = [datetime]$date; Boot = $boot; Dir = '' } }
+    $set = @(
+        (Pk 'oem1.inf' 'nv_disp.inf' 'NVIDIA' 'Display' '31.0.15.4601' '2024-01-01' $false),
+        (Pk 'oem2.inf' 'nv_disp.inf' 'NVIDIA' 'Display' '32.0.15.8266' '2026-06-01' $false),
+        (Pk 'oem3.inf' 'nv_disp.inf' 'NVIDIA' 'Display' '32.0.15.6000' '2025-06-01' $false),
+        (Pk 'oem4.inf' 'rtl.inf' 'Realtek' 'Net' '10.0.0.1' '2020-01-01' $false),
+        (Pk 'oem5.inf' 'stor.inf' 'Vendor' 'HDC' '1.0.0.1' '2019-01-01' $true),
+        (Pk 'oem6.inf' 'stor.inf' 'Vendor' 'HDC' '2.0.0.1' '2022-01-01' $false),
+        (Pk 'oem7.inf' 'x.inf' 'Maker' 'Net' '1.0.0.1' '2019-01-01' $false),
+        (Pk 'oem8.inf' 'x.inf' 'Maker' 'Net' '1.0.0.2' '2021-01-01' $false)
+    )
+    $c = @(Get-StaleCandidates $set @('oem8.inf', 'oem7.inf'))
+    $ids = @($c | ForEach-Object { $_.Package.Inf })
+    Assert ($ids -contains 'oem1.inf' -and $ids -contains 'oem3.inf') 'older versions of the same driver are candidates'
+    Assert ($ids -notcontains 'oem2.inf') 'the newest version is never a candidate'
+    Assert ($ids -notcontains 'oem4.inf') 'a driver with only one version is never a candidate'
+    Assert ($ids -notcontains 'oem5.inf') 'a boot critical package is never a candidate'
+    Assert ($ids -notcontains 'oem7.inf') 'an old version that a device uses is never a candidate'
+    Assert (@($c | Where-Object { $_.KeepInf -ne 'oem2.inf' -and $_.Package.Inf -in 'oem1.inf', 'oem3.inf' }).Count -eq 0) 'candidates point at the version that is kept'
+    Assert ((Get-StaleCandidates $set @()).Count -eq 3) 'with nothing in use, exactly the three non-newest non-boot packages are candidates'
+    Assert ((Test-GhostRemovable 'USB') -and -not (Test-GhostRemovable 'Net') -and -not (Test-GhostRemovable 'System')) 'network and system ghost entries are never removable'
+    Remove-OldPackages $c '' 6>$null
+    Remove-GhostDevices @() 6>$null
+    Pass 'dry run of the removal steps removes nothing'
+} catch {
+    Fail ('driver cleanup rules threw: ' + $_.Exception.Message)
 }
 Write-Host ''
 Write-Host '== Safety guards' -ForegroundColor Cyan

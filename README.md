@@ -56,7 +56,7 @@ Files downloaded from the internet carry a "from the internet" mark, so Windows 
 | `4_Network_Test.bat` | Ping, jitter, packet loss and DNS speed; changes nothing unless you pick a DNS at the end |
 | `5_System_Report.bat` | Read-only report of CPU/RAM users, startup programs, disk space, GPU driver age (no admin needed) |
 | `6_Check_For_Updates.bat` | Looks for a newer version and updates only if you say yes (no admin needed) |
-| `7_Driver_Check ... .bat` | BETA: finds devices with no driver and Windows Update driver updates; installs only if you choose |
+| `7_Driver_Check ... .bat` | BETA: finds devices with no driver and Windows Update driver updates; installs only if you choose; menu choice C cleans old driver versions |
 | `reg/` | Tweaks: `1_Recommended` (01-08), `2_Optional` (09-13, 15), `3_Power` (14) |
 | `reg_undo/` | One undo file per tweak (Windows defaults) |
 | `tools/` | PowerShell helpers used by the menu (keep this folder) |
@@ -69,7 +69,7 @@ Files downloaded from the internet carry a "from the internet" mark, so Windows 
 These tweaks give small, situational gains. GPU driver updates, in-game settings, XMP/EXPO and cooling matter far more. Items without official Microsoft documentation are marked as community-sourced in the manual's References page.
 
 ### Requirements
-Windows 11 (build 22000 or newer), administrator rights. Built for desktops: on a laptop the menu advises against tweaks 02 and 16, and on older Windows it warns first. Manuals: [English](docs/Manual_EN_v4.7.pdf) and [Thai](docs/Manual_TH_v4.7.pdf). The scripts print English.
+Windows 11 (build 22000 or newer), administrator rights. Built for desktops: on a laptop the menu advises against tweaks 02 and 16, and on older Windows it warns first. Manuals: [English](docs/Manual_EN_v4.8.pdf) and [Thai](docs/Manual_TH_v4.8.pdf). The scripts print English.
 
 ### Problems or ideas
 Open an [issue](https://github.com/Kensukeimagery/win11-optimizer/issues/new/choose). The form asks for your version and Windows build and tells you which log files to attach (check them for anything private first).
@@ -101,7 +101,7 @@ MIT, see `LICENSE`.
 - เปิดอ่านสคริปต์ก่อน (เป็นข้อความธรรมดา) ถ้าไม่ไว้ใจไฟล์ไหน อย่ารัน
 - อย่าปิดแอนตี้ไวรัสเพื่อใช้เครื่องมือนี้
 
-รายละเอียดแต่ละไฟล์ ลำดับการรัน และการตั้งค่า Windows เพิ่มเติมอยู่ในคู่มือ PDF: [ภาษาไทย](docs/Manual_TH_v4.7.pdf) | [English](docs/Manual_EN_v4.7.pdf)
+รายละเอียดแต่ละไฟล์ ลำดับการรัน และการตั้งค่า Windows เพิ่มเติมอยู่ในคู่มือ PDF: [ภาษาไทย](docs/Manual_TH_v4.8.pdf) | [English](docs/Manual_EN_v4.8.pdf)
 
 ### ความคาดหวังที่เป็นจริง
 tweak เหล่านี้ให้ผลเล็กน้อยเฉพาะสถานการณ์ ไดรเวอร์การ์ดจอ การตั้งค่าในเกม XMP/EXPO และการระบายความร้อนสำคัญกว่ามาก รายการที่ไม่มีเอกสารทางการของ Microsoft ระบุไว้ในหน้าแหล่งอ้างอิงของคู่มือ
