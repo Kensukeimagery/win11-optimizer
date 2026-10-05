@@ -1,10 +1,10 @@
 <!doctype html>
-<html lang="en"><head><meta charset="utf-8"><title>Windows 11 Optimizer - User Manual v4.10</title>
+<html lang="en"><head><meta charset="utf-8"><title>Windows 11 Optimizer - User Manual v4.11</title>
 <link rel="stylesheet" href="style.css"></head><body>
 
 <!-- PAGE 1 -->
 <div class="page">
-<div class="banner cover"><div class="sub">User Manual v4.10</div><h1>Windows 11 Optimizer</h1><div class="sub">One menu for every tweak, with backups and one-by-one revert</div></div>
+<div class="banner cover"><div class="sub">User Manual v4.11</div><h1>Windows 11 Optimizer</h1><div class="sub">One menu for every tweak, with backups and one-by-one revert</div></div>
 
 <div class="box red"><h3>Read this first</h3>
 <ul>
@@ -28,6 +28,8 @@
 <tr><td>5_System_Report.bat</td><td>Read-only report: what uses your CPU and RAM, what starts with Windows, disk space, GPU driver age. No administrator rights needed.</td></tr>
 <tr><td>6_Check_For_Updates.bat</td><td>Looks for a newer version on GitHub and installs it only if you say yes. No administrator rights needed.</td></tr>
 <tr><td>7_Driver_Check (Run as Administrator).bat</td><td>BETA. Finds devices with no driver and lists Windows Update driver updates. Installs only if you choose.</td></tr>
+<tr><td>8_PC_Health.bat</td><td>Read-only: blue screens and crashes, drive health, battery wear, screen refresh rate, RAM speed, network cable speed. No administrator rights needed.</td></tr>
+<tr><td>9_Support_Bundle.bat</td><td>Collects the logs and reports into ONE file for a problem report, with private details replaced. Nothing is sent. No administrator rights needed.</td></tr>
 <tr><td>tools/</td><td>PowerShell helpers used by the menu, the status check, the two tools above, the DNS change and the updater. Do not delete.</td></tr>
 <tr><td>reg/1_Recommended</td><td>Files 01-08: safe for most PCs.</td></tr>
 <tr><td>reg/2_Optional</td><td>Files 09-13 and 15: the script asks about each one. (16 is a power setting, see the optional tweaks.)</td></tr>
@@ -65,6 +67,8 @@
 <tr><td>N</td><td>Network test</td><td>Same as 4_Network_Test. Changes nothing unless you pick a DNS at the end.</td></tr>
 <tr><td>R</td><td>System report</td><td>Same as 5_System_Report. Changes nothing.</td></tr>
 <tr><td>D</td><td>Drivers (beta)</td><td>Same as 7_Driver_Check. Scans, then asks what to install.</td></tr>
+<tr><td>H</td><td>PC health</td><td>Same as 8_PC_Health. Changes nothing.</td></tr>
+<tr><td>B</td><td>Support bundle</td><td>Same as 9_Support_Bundle. Changes nothing, sends nothing.</td></tr>
 <tr><td>U</td><td>Check for updates</td><td>Shows what is new and updates only if you say yes. Same as 6_Check_For_Updates.</td></tr>
 <tr><td>A</td><td>Automatic update check</td><td>Turns the check at menu start on or off.</td></tr>
 <tr><td>0</td><td>Exit</td><td>Exits and shows where the log was saved.</td></tr>
@@ -173,7 +177,7 @@
 </table>
 <p class="small"><b>Make sure of:</b> GPU drivers installed from the vendor directly, XMP/EXPO enabled in the BIOS, Variable Refresh Rate on if your monitor supports it, and games set to use the "High performance" GPU on dual-GPU laptops.</p>
 
-<div class="banner"><h1>Diagnostic tools</h1><p>These tools look at your PC. They change nothing unless you choose to at the end (a DNS in the network test, drivers in the driver check). Menu N, R and D run the same tools</p></div>
+<div class="banner"><h1>Diagnostic tools</h1><p>These tools look at your PC. They change nothing unless you choose to at the end (a DNS in the network test, drivers in the driver check). Menu N, R, D, H and B run the same tools</p></div>
 <div class="card"><div class="t"><span class="n">4</span>4_Network_Test.bat</div><ul>
 <li>Sends 30 pings each to your router, 1.1.1.1, 8.8.8.8 and, if you type one, a game server (these are ordinary ping packets). It shows average ping, jitter and packet loss, grades each line Good / Fair / Poor and says where the problem most likely is.</li>
 <li><b>Jitter</b> is how much the delay jumps around. It is what you feel as rubber-banding, and it matters more than a slightly higher average ping.</li>
@@ -205,7 +209,14 @@
 <li><b>C = clean up (beta).</b> Lists (A) old versions of drivers you still use, which Windows keeps in its driver store (for example older NVIDIA versions, often several hundred MB each), and (B) entries of devices that are no longer connected (old USB devices, monitors). The newest version, any version in use and boot-critical packages are always kept. Before removing anything it creates a restore point <span class="mono">Before_Driver_Cleanup</span> and saves a copy of each package in <span class="mono">Backup\drivers_removed_time</span>; if a copy cannot be saved, that package is left alone. Nothing is forced: if Windows says a driver is still needed, it stays. Network, storage and system entries are listed but never removed, and Bluetooth entries are kept because the device may only be switched off. Packages from Microsoft, and groups where the highest version number is not also the newest date (the maker changed its numbering), are left alone and named in the list. Driver packages for hardware that is only unplugged right now are deliberately left alone.</li>
 <li>Honest expectation for C: it frees disk space and tidies Device Manager. It does not raise FPS or lower ping.</li>
 <li>Beta: installing drivers has not been tested on many PCs. Read the list before you answer, and keep the restore point.</li></ul></div>
-<div class="box green"><h3>What really helps steady FPS and low ping</h3>
+<div class="card"><div class="t"><span class="n">8</span>8_PC_Health.bat (menu H)</div><ul>
+<li>Read-only. It looks at: (A) blue screens, unexpected shutdowns, graphics driver resets and programs that crashed in the last 30 days, with the blue screen code explained in plain words; (B) drive health, temperature and wear when the drive reports them; (C) battery wear on laptops; (D) things that matter for games: whether each screen runs at its highest refresh rate, whether the RAM runs at its rated speed (XMP / EXPO), and whether the network cable link is slower than the adapter supports.</li>
+<li>Items worth a look are marked CHECK. They are hints, not faults: one blue screen is not proof of a broken part. A screen that supports 144 Hz but runs at 60 Hz can feel like input lag, and no tweak can fix that.</li>
+<li>Administrator rights are not needed; drive temperature and wear appear more often when you run it as administrator. The result is saved as <span class="mono">PCHealth_date-time.txt</span>.</li></ul></div>
+<div class="card"><div class="t"><span class="n">9</span>9_Support_Bundle.bat (menu B)</div><ul>
+<li>Collects the version, Windows build, Check Status, PC health, system report, a driver scan (this PC only, nothing is installed), your saved choices and the latest logs into ONE file, <span class="mono">SupportBundle_date-time.txt</span>. Attach that file to a problem report.</li>
+<li>Private details are replaced: your user name, the computer name, home network addresses (192.168..., 172.16-31..., 169.254...), hardware (MAC) addresses and e-mail addresses. The file still lists program names and your PC model, so read it before you share it.</li>
+<li>Nothing is changed and nothing is sent anywhere. The file stays in the folder; you decide whether to share it.</li></ul></div><div class="box green"><h3>What really helps steady FPS and low ping</h3>
 <ul><li>Cap the frame rate 3-4 below your monitor's refresh rate (in the game, RTSS or the NVIDIA Control Panel). It gives steadier frame times than an uncapped game that pins the GPU.</li>
 <li>Turn on NVIDIA Reflex (or Low Latency Mode) if your game offers it.</li>
 <li>Use a network cable. Wi-Fi jitter is the most common cause of bad ping.</li>
@@ -269,6 +280,6 @@
 <li>11 Keyboard Response flags and 12 Ndu memory leak: from user reports, not Microsoft.</li>
 <li>The defaults in reg_undo for these are typical Windows values. If you need your exact originals, use the Backup folder.</li></ul>
 Results differ between PCs and Microsoft may change how these values behave in a later Windows release. Every item can be reverted with menu 7 or the Backup folder.</div>
-<div class="foot">win11-optimizer v4.10 - github.com/Kensukeimagery/win11-optimizer - MIT License</div>
+<div class="foot">win11-optimizer v4.11 - github.com/Kensukeimagery/win11-optimizer - MIT License</div>
 </div>
 </body></html>

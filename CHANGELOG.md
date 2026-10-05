@@ -1,5 +1,10 @@
 # Changelog
 
+## v4.11
+- **New: PC health** (`8_PC_Health.bat`, menu **H**). Read-only. Blue screens, unexpected shutdowns, graphics driver resets and crashed programs from the last 30 days (blue screen codes explained in plain words); drive health, temperature and wear; battery wear on laptops; and three things that matter for games: whether each screen runs at its highest refresh rate, whether the RAM runs at its rated speed (XMP / EXPO), and whether the network cable link is slower than the adapter supports.
+- **New: support bundle** (`9_Support_Bundle.bat`, menu **B**). Puts the version, Windows build, Check Status, PC health, system report, a driver scan (this PC only), saved choices and the latest logs into ONE text file to attach to a problem report. User name, computer name, home network addresses, MAC addresses and e-mail addresses are replaced. Nothing is changed or sent.
+- Tests for the new rules (blue screen codes, drive, RAM, cable and refresh-rate hints, the privacy replacements) and a CI step that runs both tools on a disposable machine.
+
 ## v4.10
 - **DNS change: the backup can no longer be lost.** After a real change on a PC the registry copy of the saved DNS settings was missing while the backup file was still there, so Network Test would not offer "U = put back the DNS I had before". Now Network Test also offers U when only the backup file exists, a later change reads the file instead of treating the current DNS as the original, the registry copy is restored and checked after every change, and a successful Undo removes the file so an old backup is never mistaken for a new one. Undo itself always worked from the file.
 - Tests for the above (including a dry run of Undo with only the backup file).

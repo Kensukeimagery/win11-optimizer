@@ -1,10 +1,10 @@
 @echo off
 setlocal EnableExtensions
-title PC Optimizer - Master Control v4.10
+title PC Optimizer - Master Control v4.11
 color 0B
 
 :: =====================================================================
-::  PC OPTIMIZER - MASTER CONTROL v4.10
+::  PC OPTIMIZER - MASTER CONTROL v4.11
 ::  Safety rules used in this file - they avoid the crashes seen in v3:
 ::   - no brackets inside ECHO text that sits inside IF or FOR blocks
 ::   - flat GOTO labels instead of nested IF / ELSE blocks
@@ -22,7 +22,7 @@ set "TS=manual"
 for /f "usebackq delims=" %%t in (`powershell -NoProfile -Command "Get-Date -Format yyyyMMdd_HHmmss"`) do set "TS=%%t"
 set "LOGFILE=%SCRIPT_DIR%OptimizerLog_%TS%.txt"
 set "BACKUPDIR=%SCRIPT_DIR%Backup\%TS%"
-echo PC Optimizer v4.10 Log - %date% %time% > "%LOGFILE%"
+echo PC Optimizer v4.11 Log - %date% %time% > "%LOGFILE%"
 
 if not exist "%REGROOT%" goto NOREG
 if not exist "%UNDOROOT%" echo [WARN] reg_undo folder not found - option 7 will not work.
@@ -86,7 +86,7 @@ goto MENU
 :MENU
 cls
 echo ===================================================================
-echo    PC OPTIMIZER - MASTER CONTROL v4.10
+echo    PC OPTIMIZER - MASTER CONTROL v4.11
 echo    Log: OptimizerLog_%TS%.txt
 if "%ISLAPTOP%"=="1" echo    Laptop detected - tweaks 02 and 16 are not recommended on a laptop.
 if defined UPDMSG echo    %UPDMSG%
@@ -109,6 +109,8 @@ echo   [U] Check for updates - see what is new, update only if you say yes
 echo   [A] Turn the automatic update check on or off
 echo   [N] Network test - ping, jitter, packet loss and DNS speed, you choose
 echo   [R] System report - CPU and RAM users, startup list, changes nothing
+echo   [H] PC health - crashes, drive health, screen refresh rate, RAM speed, cable speed
+echo   [B] Support bundle - one file to attach to a problem report
 echo   [0] Exit
 echo.
 set "CHOICE="
@@ -132,6 +134,8 @@ if /i "%CHOICE%"=="U" goto DOU
 if /i "%CHOICE%"=="A" goto DOA
 if /i "%CHOICE%"=="N" goto DONET
 if /i "%CHOICE%"=="R" goto DOREP
+if /i "%CHOICE%"=="H" goto DOHEALTH
+if /i "%CHOICE%"=="B" goto DOBUNDLE
 if "%CHOICE%"=="0" goto END
 goto MENU
 
@@ -181,6 +185,14 @@ call :NETTEST
 goto MENU
 :DOREP
 call :SYSREPORT
+goto MENU
+
+:DOHEALTH
+call :HEALTHRUN
+goto MENU
+
+:DOBUNDLE
+call :BUNDLERUN
 goto MENU
 
 :: ---------------------------------------------------------------------
@@ -720,6 +732,26 @@ pause
 goto :eof
 :SRMISSING
 echo [ERROR] tools\System_Report.ps1 was not found next to this script.
+pause
+goto :eof
+
+:HEALTHRUN
+if not exist "%TOOLDIR%\PC_Health.ps1" goto HEALTHMISSING
+powershell -NoProfile -ExecutionPolicy Bypass -File "%TOOLDIR%\PC_Health.ps1" -Root "%SCRIPT_DIR%."
+pause
+goto :eof
+:HEALTHMISSING
+echo [ERROR] tools\PC_Health.ps1 was not found next to this script.
+pause
+goto :eof
+
+:BUNDLERUN
+if not exist "%TOOLDIR%\Support_Bundle.ps1" goto BUNDLEMISSING
+powershell -NoProfile -ExecutionPolicy Bypass -File "%TOOLDIR%\Support_Bundle.ps1" -Root "%SCRIPT_DIR%."
+pause
+goto :eof
+:BUNDLEMISSING
+echo [ERROR] tools\Support_Bundle.ps1 was not found next to this script.
 pause
 goto :eof
 

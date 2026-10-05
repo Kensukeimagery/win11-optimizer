@@ -172,6 +172,36 @@ try {
     Fail ('driver cleanup rules threw: ' + $_.Exception.Message)
 }
 Write-Host ''
+Write-Host '== PC health rules (read-only tool, nothing is changed)' -ForegroundColor Cyan
+try {
+    . (Join-Path $root 'tools\PC_Health.ps1') -Root $root
+    Assert ((Get-BugcheckInfo '0x00000116').Name -eq 'VIDEO_TDR_FAILURE') 'a graphics blue screen code is named'
+    Assert ((Get-BugcheckInfo '0x124').Name -eq 'WHEA_UNCORRECTABLE_ERROR') 'a short hex code is understood'
+    Assert ((Get-BugcheckInfo '0xABCDEF').Name -match '^code 0x') 'an unknown code is shown as the code, not guessed'
+    Assert (@(Get-DiskHints ([pscustomobject]@{ Health = 'Healthy'; Status = 'OK'; Media = 'SSD'; Temp = 40; Wear = 5; ReadErrors = 0; WriteErrors = 0 })).Count -eq 0) 'a healthy drive has no hint'
+    Assert (@(Get-DiskHints ([pscustomobject]@{ Health = 'Warning'; Status = 'OK'; Media = 'SSD'; Temp = $null; Wear = $null; ReadErrors = $null; WriteErrors = $null })).Count -eq 1) 'a drive that Windows calls unhealthy is flagged'
+    Assert (@(Get-DiskHints ([pscustomobject]@{ Health = 'Healthy'; Status = 'OK'; Media = 'SSD'; Temp = 40; Wear = 85; ReadErrors = 0; WriteErrors = 0 })).Count -eq 1) 'a worn SSD is flagged'
+    Assert (@(Get-DiskHints ([pscustomobject]@{ Health = 'Healthy'; Status = 'OK'; Media = 'HDD'; Temp = 56; Wear = $null; ReadErrors = 0; WriteErrors = 0 })).Count -eq 1) 'a hot hard drive is flagged'
+    Assert (@(Get-DiskHints ([pscustomobject]@{ Health = 'Healthy'; Status = 'OK'; Media = 'SSD'; Temp = 56; Wear = $null; ReadErrors = 0; WriteErrors = 0 })).Count -eq 0) 'the same temperature on an SSD is fine'
+    Assert (@(Get-DiskHints ([pscustomobject]@{ Health = 'Healthy'; Status = 'OK'; Media = 'HDD'; Temp = $null; Wear = $null; ReadErrors = 3; WriteErrors = 0 })).Count -eq 1) 'logged read errors are flagged'
+    Assert (@(Get-RamHint 2133 3200 2).Count -eq 1) 'RAM running far below its rated speed is flagged'
+    Assert (@(Get-RamHint 3200 3200 2).Count -eq 0) 'RAM at its rated speed is fine'
+    Assert (@(Get-RamHint 3200 3200 1).Count -eq 1) 'a single RAM module is mentioned'
+    Assert ((Get-LanHint 'Realtek PCIe GbE Family Controller' 100) -ne '') 'a Gigabit adapter linked at 100 Mbps is flagged'
+    Assert ((Get-LanHint 'Realtek PCIe GbE Family Controller' 1000) -eq '') 'a Gigabit link is fine'
+    Assert ((Get-LanHint 'Old Fast Ethernet Adapter' 100) -eq '') 'a 100 Mbps adapter at 100 Mbps is fine'
+    Assert ((Get-RefreshHint 60 144) -ne '') 'a screen below its highest refresh rate is flagged'
+    Assert ((Get-RefreshHint 144 144) -eq '' -and (Get-RefreshHint 143 144) -eq '') 'a screen at its highest refresh rate (143 vs 144 rounding) is fine'
+    Assert ((Get-BatteryHealthPercent 50000 40000) -eq 80 -and $null -eq (Get-BatteryHealthPercent $null 1)) 'battery health is a percent of the design capacity'
+    . (Join-Path $root 'tools\Support_Bundle.ps1') -Root $root
+    $sc = ConvertTo-Scrubbed "user Kensuke on PC-ONE: mac 00-1A-2B-3C-4D-5E, router 192.168.1.1, mail a.b@example.com, driver 10.1.1.38, administrator" 'Kensuke' 'PC-ONE'
+    Assert ($sc -notmatch 'Kensuke|PC-ONE|00-1A|192\.168|example\.com') 'user name, computer name, MAC, home IP and e-mail are replaced'
+    Assert ($sc -match '10\.1\.1\.38') 'a driver version that looks like an address is left alone'
+    Assert ((ConvertTo-Scrubbed 'administrator' 'admin' 'PC') -eq 'administrator') 'a user name inside a longer word is left alone'
+} catch {
+    Fail ('PC health rules threw: ' + $_.Exception.Message)
+}
+Write-Host ''
 Write-Host '== Updater release notes are shown as plain text' -ForegroundColor Cyan
 try {
     $ast = [System.Management.Automation.Language.Parser]::ParseFile((Join-Path $root 'tools\Update.ps1'), [ref]$null, [ref]$null)
