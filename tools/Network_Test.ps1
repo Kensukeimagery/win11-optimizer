@@ -1,4 +1,4 @@
-# PC Optimizer v4.9 - Network test (read-only: changes nothing on your PC)
+# PC Optimizer v4.10 - Network test (read-only: changes nothing on your PC)
 # Pings your router, 1.1.1.1, 8.8.8.8 and an optional game server, then shows average ping,
 # jitter and packet loss, and says where a problem most likely is.
 param(
@@ -148,7 +148,7 @@ if ($Count -lt 5) { $Count = 5 }
 if ($Count -gt 200) { $Count = 200 }
 
 Write-Log '==================================================================' 'Cyan'
-Write-Log '   PC OPTIMIZER v4.9 - NETWORK TEST (nothing is changed)' 'Cyan'
+Write-Log '   PC OPTIMIZER v4.10 - NETWORK TEST (nothing is changed)' 'Cyan'
 Write-Log ('   ' + (Get-Date -Format 'yyyy-MM-dd HH:mm')) 'Cyan'
 Write-Log '==================================================================' 'Cyan'
 Write-Log ''
@@ -285,6 +285,12 @@ if (-not $SkipDns) {
         Write-Log ''
         $saved = ''
         try { $saved = [string](Get-ItemProperty -Path 'HKCU:\Software\PCOptimizer' -Name 'DnsBackup' -ErrorAction Stop).DnsBackup } catch { }
+        # the backup file next to the scripts counts too, in case the registry copy is gone
+        $applied = ''
+        try { $applied = [string](Get-ItemProperty -Path 'HKCU:\Software\PCOptimizer' -Name 'DnsApplied' -ErrorAction Stop).DnsApplied } catch { }
+        if ($saved -eq '' -and $applied -ne '' -and $Root -ne '') {
+            try { if (Test-Path -LiteralPath (Join-Path (Resolve-Path -LiteralPath $Root).Path 'Backup\DNS_before.json')) { $saved = 'file' } } catch { }
+        }
         $allowed = New-Object System.Collections.Generic.List[string]
         Write-Host '   Change DNS now? Nothing changes unless you pick a number.' -ForegroundColor White
         foreach ($p in $presets) {

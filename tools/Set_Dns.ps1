@@ -1,4 +1,4 @@
-# PC Optimizer v4.9 - DNS helper (optional tweak 17)
+# PC Optimizer v4.10 - DNS helper (optional tweak 17)
 # Sets the IPv4 DNS servers of your active physical network adapters, or puts them back.
 # The DNS settings you had before are saved first, so Undo restores exactly those
 # (including "obtain automatically" if that is what you had).
@@ -84,16 +84,20 @@ if ($Action -eq 'Apply') {
     # so an adapter that appeared after the first change is also restored by Undo.
     $existing = @()
     $oldJson = Get-State 'DnsBackup'
+    # if the registry copy is gone, the file next to the scripts still holds the ORIGINAL settings: use it, never overwrite it with the current ones
+    # (only while a change made by this tool is still recorded; an old file left behind by an earlier Undo is ignored)
+    if ($oldJson -eq '' -and (Get-State 'DnsApplied') -ne '' -and $backupFile -ne '' -and (Test-Path -LiteralPath $backupFile)) { try { $oldJson = [IO.File]::ReadAllText($backupFile) } catch { $oldJson = '' } }
     if ($oldJson -ne '') {
         # Windows PowerShell 5.1 returns the whole JSON array as ONE object, so keep it as it comes and wrap only a single object
         try { $existing = ConvertFrom-Json -InputObject $oldJson; if ($existing -isnot [System.Array]) { $existing = @($existing) } } catch { $existing = @() }
     }
     $known = @($existing | ForEach-Object { [string]$_.Guid })
     $added = @($adapters | Where-Object { $known -notcontains [string]$_.InterfaceGuid } | ForEach-Object { [pscustomobject]@{ Guid = [string]$_.InterfaceGuid; Name = [string]$_.Name; Static = (Test-StaticDns ([string]$_.InterfaceGuid)); Servers = @(Get-Ipv4Dns $_.ifIndex) } })
-    if ($added.Count -gt 0) {
+    if (@($existing).Count -gt 0 -or $added.Count -gt 0) {
         $json = ConvertTo-Json -InputObject @(@($existing) + @($added)) -Compress
         if (-not $DryRun) {
             Set-State 'DnsBackup' $json
+            if ((Get-State 'DnsBackup') -eq '') { Out-Result '   [WARNING] The backup could not be saved in the registry. It is saved in the Backup folder instead; Undo reads it from there.' 'Yellow' }
             if ($backupFile -ne '') { try { New-Item -ItemType Directory -Force -Path (Split-Path -Parent $backupFile) | Out-Null; [IO.File]::WriteAllText($backupFile, $json) } catch { } }
         }
     }
@@ -145,6 +149,8 @@ if ($allOk -and $skippedAny) {
 if ($allOk) {
     Remove-ItemProperty -Path $StateKey -Name 'DnsBackup' -ErrorAction SilentlyContinue
     Remove-ItemProperty -Path $StateKey -Name 'DnsApplied' -ErrorAction SilentlyContinue
+    # the file backup goes too, otherwise a later change would treat these old settings as the original
+    if ($backupFile -ne '' -and (Test-Path -LiteralPath $backupFile)) { try { [IO.File]::Delete($backupFile) } catch { } }
     Set-State 'Choice_17' 'N'
     exit 0
 }

@@ -187,6 +187,24 @@ try {
     Fail ('release notes formatting threw: ' + $_.Exception.Message)
 }
 Write-Host ''
+Write-Host '== DNS backup survives a lost registry copy (dry run, nothing is changed)' -ForegroundColor Cyan
+try {
+    $sd = [IO.File]::ReadAllText((Join-Path $root 'tools\Set_Dns.ps1'))
+    Assert ($sd -match "Get-State 'DnsApplied'" -and $sd -match 'never overwrite it with the current ones') 'Apply reads the file backup when the registry copy is gone'
+    Assert ($sd -match 'a later change would treat these old settings as the original') 'a successful Undo removes the file backup'
+    $nt = [IO.File]::ReadAllText((Join-Path $root 'tools\Network_Test.ps1'))
+    Assert ($nt -match 'DNS_before\.json') 'Network Test offers U when only the backup file exists'
+    $tmpRoot = Join-Path ([IO.Path]::GetTempPath()) ('pcopt_dnstest_' + [guid]::NewGuid().ToString('N'))
+    New-Item -ItemType Directory -Force -Path (Join-Path $tmpRoot 'Backup') | Out-Null
+    [IO.File]::WriteAllText((Join-Path $tmpRoot 'Backup\DNS_before.json'), '[{"Guid":"{00000000-0000-0000-0000-000000000000}","Name":"Test adapter","Static":true,"Servers":["9.9.9.9"]}]')
+    $out = (& powershell.exe -NoProfile -ExecutionPolicy Bypass -File (Join-Path $root 'tools\Set_Dns.ps1') -Action Undo -DryRun -Root $tmpRoot 2>&1) -join "`n"
+    if ($out -match 'No active network adapter') { Pass 'no active adapter on this machine, file fallback check skipped' }
+    else { Assert ($out -notmatch 'No saved earlier DNS') 'Undo finds the backup in the file when the registry copy is missing' }
+    try { [IO.Directory]::Delete($tmpRoot, $true) } catch { }
+} catch {
+    Fail ('DNS backup test threw: ' + $_.Exception.Message)
+}
+Write-Host ''
 Write-Host '== Power plan is never downgraded' -ForegroundColor Cyan
 $master = [IO.File]::ReadAllText((Join-Path $root '1_Start_Here - PC_Optimizer_Master (Run as Administrator).bat'))
 Assert ($master -match ':PPKEEP' -and $master -match 'goto PPKEEP') 'the menu keeps a custom power plan when Ultimate Performance cannot be added'

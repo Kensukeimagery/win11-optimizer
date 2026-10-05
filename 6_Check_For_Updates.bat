@@ -1,5 +1,5 @@
 @echo off
-title PC Optimizer - Check For Updates v4.9
+title PC Optimizer - Check For Updates v4.10
 color 0B
 
 :: Looks for a newer version on GitHub. It only installs one if you say yes,

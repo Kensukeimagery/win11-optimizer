@@ -1,5 +1,9 @@
 # Changelog
 
+## v4.10
+- **DNS change: the backup can no longer be lost.** After a real change on a PC the registry copy of the saved DNS settings was missing while the backup file was still there, so Network Test would not offer "U = put back the DNS I had before". Now Network Test also offers U when only the backup file exists, a later change reads the file instead of treating the current DNS as the original, the registry copy is restored and checked after every change, and a successful Undo removes the file so an old backup is never mistaken for a new one. Undo itself always worked from the file.
+- Tests for the above (including a dry run of Undo with only the backup file).
+
 ## v4.9
 - **Power plan is never downgraded.** If Ultimate Performance cannot be added (for example on a company PC where Windows or a policy blocks it) and you are already on a custom performance plan, the menu now keeps it instead of switching to High Performance; when it does fall back to High Performance it says why. Check Status accepts a custom plan that already keeps the CPU at 100% (for example an Ultimate Performance copy made earlier) instead of offering to change it to High Performance.
 - **Driver cleanup, after the first real run on a PC:** packages from Microsoft are left alone; a group where the highest version number is not also the newest date is left alone and named; Bluetooth entries are never offered; an unknown size shows `?`; step 2 now says how many copies were saved and where; when a copy cannot be saved that package is skipped and its empty folder removed; after removing, the tool checks again and the report ends with the result and a finish time.
