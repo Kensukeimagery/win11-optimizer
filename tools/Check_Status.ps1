@@ -1,4 +1,4 @@
-# PC Optimizer v4.8 - Check Status
+# PC Optimizer v4.9 - Check Status
 # Compares the current PC settings with what the optimizer applies,
 # then offers to re-apply only the items that are missing or changed.
 param([string]$Root = '')
@@ -180,11 +180,15 @@ function Invoke-Checks([string]$RegRoot, [string]$BackupDir) {
     $active = Get-ActiveSchemeGuid
     $target = $high
     if (Test-SchemeExists $ultimate) { $target = $ultimate }
+    # A custom plan (not Balanced, Power saver or High Performance) that already keeps the CPU at 100% is a performance plan,
+    # for example an Ultimate Performance copy made before this tool ran. It is never "fixed" to the slower High Performance.
+    $builtIn = @('381b4222-f694-41f0-9685-ff5bb260df2e', 'a1841308-3541-4fab-bc81-f71556f20b4a', $high)
+    $customFast = ($active -ne '' -and ($builtIn -notcontains $active) -and ((Get-PowerIndex @('SUB_PROCESSOR', 'PROCTHROTTLEMIN')) -eq 100))
     if ($powerChoice -eq 'N') {
         Add-Item 'PLAN' 'PLAN' 'Power plan' 'SKIPPED' 'you reset the power plans' 'auto' $null $null
     } elseif ($active -eq '') {
         Add-Item 'PLAN' 'PLAN' 'Power plan' 'UNKNOWN' 'could not read the active plan' 'auto' $null $null
-    } elseif ($active -eq $target -or ($ultimate -ne '' -and $active -eq $ultimate)) {
+    } elseif ($active -eq $target -or ($ultimate -ne '' -and $active -eq $ultimate) -or $customFast) {
         Add-Item 'PLAN' 'PLAN' 'Power plan' 'OK' '' 'auto' $null $null
     } else {
         Add-Item 'PLAN' 'PLAN' 'Power plan' 'CHANGED' ('active plan is ' + $active) 'auto' 'plan' $target
@@ -399,7 +403,7 @@ function Start-CheckStatus {
     $reportFile = Join-Path $script:RootDir ('CheckReport_' + $stamp + '.txt')
 
     Write-Log '==================================================================' 'Cyan'
-    Write-Log '   PC OPTIMIZER v4.8 - CHECK STATUS' 'Cyan'
+    Write-Log '   PC OPTIMIZER v4.9 - CHECK STATUS' 'Cyan'
     Write-Log ('   ' + (Get-Date -Format 'yyyy-MM-dd HH:mm') + '   Windows build ' + [Environment]::OSVersion.Version.ToString()) 'Cyan'
     Write-Log '==================================================================' 'Cyan'
     Write-Log ''

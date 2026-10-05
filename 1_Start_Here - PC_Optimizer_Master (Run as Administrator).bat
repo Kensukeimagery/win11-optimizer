@@ -1,10 +1,10 @@
 @echo off
 setlocal EnableExtensions
-title PC Optimizer - Master Control v4.8
+title PC Optimizer - Master Control v4.9
 color 0B
 
 :: =====================================================================
-::  PC OPTIMIZER - MASTER CONTROL v4.8
+::  PC OPTIMIZER - MASTER CONTROL v4.9
 ::  Safety rules used in this file - they avoid the crashes seen in v3:
 ::   - no brackets inside ECHO text that sits inside IF or FOR blocks
 ::   - flat GOTO labels instead of nested IF / ELSE blocks
@@ -22,7 +22,7 @@ set "TS=manual"
 for /f "usebackq delims=" %%t in (`powershell -NoProfile -Command "Get-Date -Format yyyyMMdd_HHmmss"`) do set "TS=%%t"
 set "LOGFILE=%SCRIPT_DIR%OptimizerLog_%TS%.txt"
 set "BACKUPDIR=%SCRIPT_DIR%Backup\%TS%"
-echo PC Optimizer v4.8 Log - %date% %time% > "%LOGFILE%"
+echo PC Optimizer v4.9 Log - %date% %time% > "%LOGFILE%"
 
 if not exist "%REGROOT%" goto NOREG
 if not exist "%UNDOROOT%" echo [WARN] reg_undo folder not found - option 7 will not work.
@@ -86,7 +86,7 @@ goto MENU
 :MENU
 cls
 echo ===================================================================
-echo    PC OPTIMIZER - MASTER CONTROL v4.8
+echo    PC OPTIMIZER - MASTER CONTROL v4.9
 echo    Log: OptimizerLog_%TS%.txt
 if "%ISLAPTOP%"=="1" echo    Laptop detected - tweaks 02 and 16 are not recommended on a laptop.
 if defined UPDMSG echo    %UPDMSG%
@@ -381,9 +381,17 @@ echo    [OK] Ultimate Performance is active - the same plan is reused on every r
 call :SETCHOICE POWER Y
 goto :eof
 :PPHIGH
+set "KEEPPLAN="
+for /f "usebackq delims=" %%g in (`powershell -NoProfile -Command "$o = (powercfg /getactivescheme) -join ' '; if ($o -match '[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}') { if (@('381b4222-f694-41f0-9685-ff5bb260df2e','a1841308-3541-4fab-bc81-f71556f20b4a') -notcontains $Matches[0].ToLower()) { 'KEEP' } }"`) do set "KEEPPLAN=%%g"
+if defined KEEPPLAN goto PPKEEP
 powercfg /setactive 8c5e7fda-e8bf-4a96-9a85-a6e23a8c635c >> "%LOGFILE%" 2>&1
 if errorlevel 1 goto PPBAL
-echo    [OK] High Performance is active.
+echo    [OK] High Performance is active. Ultimate Performance could not be added on this PC.
+call :SETCHOICE POWER Y
+goto :eof
+:PPKEEP
+echo    [OK] Ultimate Performance could not be added on this PC. Your current power plan was kept.
+echo         It is not Balanced or Power saver, so it is not replaced by a slower one.
 call :SETCHOICE POWER Y
 goto :eof
 :PPBAL

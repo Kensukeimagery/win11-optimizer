@@ -152,12 +152,46 @@ try {
     Assert (@($c | Where-Object { $_.KeepInf -ne 'oem2.inf' -and $_.Package.Inf -in 'oem1.inf', 'oem3.inf' }).Count -eq 0) 'candidates point at the version that is kept'
     Assert ((Get-StaleCandidates $set @()).Count -eq 3) 'with nothing in use, exactly the three non-newest non-boot packages are candidates'
     Assert ((Test-GhostRemovable 'USB') -and -not (Test-GhostRemovable 'Net') -and -not (Test-GhostRemovable 'System')) 'network and system ghost entries are never removable'
+    $more = @(
+        (Pk 'oem20.inf' 'ms.inf' 'Microsoft Corporation' 'Printer' '10.0.1.1' '2024-01-01' $false),
+        (Pk 'oem21.inf' 'ms.inf' 'Microsoft Corporation' 'Printer' '10.0.1.2' '2025-01-01' $false),
+        (Pk 'oem30.inf' 'odd.inf' 'Maker' 'Media' '10.0.0.1' '2024-01-01' $false),
+        (Pk 'oem31.inf' 'odd.inf' 'Maker' 'Media' '1.0.9.9' '2026-01-01' $false)
+    )
+    $c2 = @(Get-StaleCandidates @($set + $more) @())
+    $ids2 = @($c2 | ForEach-Object { $_.Package.Inf })
+    Assert (@($ids2 | Where-Object { $_ -in 'oem20.inf', 'oem21.inf' }).Count -eq 0) 'packages from Microsoft are never candidates'
+    Assert (@($ids2 | Where-Object { $_ -in 'oem30.inf', 'oem31.inf' }).Count -eq 0) 'a group where version and date disagree is left alone'
+    Assert (@($script:SkippedGroups).Count -eq 2) 'the skipped groups are reported'
+    Assert ((Test-GhostBluetooth 'BTHENUM\DEV_001122334455\7&1&0&BLUETOOTHDEVICE_001122334455') -and (Test-GhostBluetooth 'HID\{00001124-0000-1000-8000-00805f9b34fb}_DEV_VID&0201\8&1') -and -not (Test-GhostBluetooth 'USB\VID_046D&PID_C52B\5&1')) 'Bluetooth entries are recognised and a USB one is not'
+    Assert (((Format-Mb $null) -eq '?') -and ((Format-Mb 0.02) -eq '<0.1') -and ((Format-Mb 3.4) -eq '3.4')) 'unknown and tiny sizes are shown honestly'
     Remove-OldPackages $c '' 6>$null
     Remove-GhostDevices @() 6>$null
     Pass 'dry run of the removal steps removes nothing'
 } catch {
     Fail ('driver cleanup rules threw: ' + $_.Exception.Message)
 }
+Write-Host ''
+Write-Host '== Updater release notes are shown as plain text' -ForegroundColor Cyan
+try {
+    $ast = [System.Management.Automation.Language.Parser]::ParseFile((Join-Path $root 'tools\Update.ps1'), [ref]$null, [ref]$null)
+    $fn = $ast.Find({ param($n) $n -is [System.Management.Automation.Language.FunctionDefinitionAst] -and $n.Name -eq 'ConvertTo-PlainNotes' }, $true)
+    . ([scriptblock]::Create($fn.Extent.Text))
+    $md = "## v9`n- **Bold** and ``code`` text that is long enough to need wrapping at a small width for the test`n`n`n- second"
+    $plain = @(ConvertTo-PlainNotes $md 30)
+    Assert (-not (($plain -join "`n") -match '\*\*|`|##')) 'Markdown marks are removed'
+    Assert (@($plain | Where-Object { $_.Length -gt 32 }).Count -eq 0) 'lines are wrapped to the width'
+    Assert ($plain -contains '- second') 'bullets stay bullets'
+    Assert (@($plain | Where-Object { $_ -eq '' }).Count -eq 1) 'blank lines are collapsed'
+} catch {
+    Fail ('release notes formatting threw: ' + $_.Exception.Message)
+}
+Write-Host ''
+Write-Host '== Power plan is never downgraded' -ForegroundColor Cyan
+$master = [IO.File]::ReadAllText((Join-Path $root '1_Start_Here - PC_Optimizer_Master (Run as Administrator).bat'))
+Assert ($master -match ':PPKEEP' -and $master -match 'goto PPKEEP') 'the menu keeps a custom power plan when Ultimate Performance cannot be added'
+$cs = [IO.File]::ReadAllText((Join-Path $root 'tools\Check_Status.ps1'))
+Assert ($cs -match '\$customFast') 'Check Status accepts a custom plan that already runs the CPU at 100%'
 Write-Host ''
 Write-Host '== Safety guards' -ForegroundColor Cyan
 $deep = [IO.File]::ReadAllText((Join-Path $root 'repair-tools\Deep_Clean_Junk_Files.bat'))

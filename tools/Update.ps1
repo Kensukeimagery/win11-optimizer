@@ -34,6 +34,28 @@ $Root = (Resolve-Path -LiteralPath $Root).Path
 
 function Say([string]$Text, [string]$Color = 'Gray') { Write-Host $Text -ForegroundColor $Color }
 
+function ConvertTo-PlainNotes([string]$Text, [int]$Width = 90) {
+    # Release notes are written in Markdown; the console shows plain text, wrapped at word boundaries.
+    $out = @()
+    foreach ($raw in @($Text -split "`r?`n")) {
+        $l = ($raw -replace '\*\*', '' -replace '`', '' -replace '^\s*#+\s*', '').TrimEnd()
+        if ($l -eq '') {
+            if ($out.Count -gt 0 -and $out[$out.Count - 1] -ne '') { $out += '' }
+            continue
+        }
+        $indent = ''
+        if ($l -match '^\s*[-*]\s+(.*)$') { $l = '- ' + $Matches[1]; $indent = '  ' }
+        $cur = ''
+        foreach ($w in ($l -split ' ')) {
+            if ($cur -ne '' -and ($cur.Length + 1 + $w.Length) -gt $Width) { $out += $cur; $cur = $indent + $w }
+            elseif ($cur -eq '') { $cur = $w }
+            else { $cur = $cur + ' ' + $w }
+        }
+        if ($cur -ne '') { $out += $cur }
+    }
+    return $out
+}
+
 function Get-LocalVersion {
     try {
         $raw = ([IO.File]::ReadAllText((Join-Path $Root 'VERSION'))).Trim()
@@ -187,8 +209,9 @@ if ($latest.Version -le $local) {
 Say ('   New version: ' + $latest.Tag) 'Yellow'
 Say ''
 Say '   What is new:' 'White'
-$lines = @($latest.Notes -split "`r?`n" | Select-Object -First 25)
-foreach ($l in $lines) { Say ('     ' + $l) }
+$width = 90
+try { $width = [math]::Max(50, [math]::Min(110, $Host.UI.RawUI.WindowSize.Width - 8)) } catch { }
+foreach ($l in @(ConvertTo-PlainNotes $latest.Notes $width | Select-Object -First 30)) { Say ('     ' + $l) }
 Say ''
 Say '   U = update now (the old version is saved first and you can go back)' 'White'
 Say '   N = not now (default)' 'White'

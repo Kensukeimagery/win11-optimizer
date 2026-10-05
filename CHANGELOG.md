@@ -1,5 +1,11 @@
 # Changelog
 
+## v4.9
+- **Power plan is never downgraded.** If Ultimate Performance cannot be added (for example on a company PC where Windows or a policy blocks it) and you are already on a custom performance plan, the menu now keeps it instead of switching to High Performance; when it does fall back to High Performance it says why. Check Status accepts a custom plan that already keeps the CPU at 100% (for example an Ultimate Performance copy made earlier) instead of offering to change it to High Performance.
+- **Driver cleanup, after the first real run on a PC:** packages from Microsoft are left alone; a group where the highest version number is not also the newest date is left alone and named; Bluetooth entries are never offered; an unknown size shows `?`; step 2 now says how many copies were saved and where; when a copy cannot be saved that package is skipped and its empty folder removed; after removing, the tool checks again and the report ends with the result and a finish time.
+- **Updater:** the "What is new" text is shown as plain text, wrapped to the window, without Markdown marks.
+- Tests for all of the above.
+
 ## v4.8
 - **Driver check, after the first real test on a PC with 83 offered drivers:** a failed item is now explained in words ("Windows Update refused it, usually because an earlier package already covers this device") instead of `result code 4`; after installing, the tool asks Windows Update again and reports what is really left, counting items that an earlier package covered as "not needed" instead of errors; long installs show one progress line (every item still goes into the report); the report keeps a finish time.
 - Small chipset INF packages from Windows Update (named like `INTEL - System - 10/3/2016 ... - 10.1.1.38`) are shown in plain words and offered as optional. The manual and the tool header no longer say chipset is never installed.

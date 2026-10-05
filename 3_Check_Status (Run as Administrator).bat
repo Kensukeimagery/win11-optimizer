@@ -1,5 +1,5 @@
 @echo off
-title PC Optimizer - Check Status v4.8
+title PC Optimizer - Check Status v4.9
 color 0B
 
 :: Checks whether every optimizer setting is still in place, for example

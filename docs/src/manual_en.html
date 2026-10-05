@@ -1,10 +1,10 @@
 <!doctype html>
-<html lang="en"><head><meta charset="utf-8"><title>Windows 11 Optimizer - User Manual v4.8</title>
+<html lang="en"><head><meta charset="utf-8"><title>Windows 11 Optimizer - User Manual v4.9</title>
 <link rel="stylesheet" href="style.css"></head><body>
 
 <!-- PAGE 1 -->
 <div class="page">
-<div class="banner cover"><div class="sub">User Manual v4.8</div><h1>Windows 11 Optimizer</h1><div class="sub">One menu for every tweak, with backups and one-by-one revert</div></div>
+<div class="banner cover"><div class="sub">User Manual v4.9</div><h1>Windows 11 Optimizer</h1><div class="sub">One menu for every tweak, with backups and one-by-one revert</div></div>
 
 <div class="box red"><h3>Read this first</h3>
 <ul>
@@ -202,7 +202,7 @@
 <li>Low-impact items (for example processor sub-devices and monitors) are listed as optional, grouped by maker, and are not part of "recommended".</li>
 <li>On a fresh Windows with no network driver, Windows Update cannot be reached. Install the LAN or Wi-Fi driver from your motherboard or laptop maker first (use another PC and a USB drive).</li>
 <li>After installing it asks Windows Update again and tells you what is left. An item that "failed" because an earlier package already covers the device is counted as "not needed", not as an error.</li>
-<li><b>C = clean up (beta).</b> Lists (A) old versions of drivers you still use, which Windows keeps in its driver store (for example older NVIDIA versions, often several hundred MB each), and (B) entries of devices that are no longer connected (old USB devices, monitors). The newest version, any version in use and boot-critical packages are always kept. Before removing anything it creates a restore point <span class="mono">Before_Driver_Cleanup</span> and saves a copy of each package in <span class="mono">Backup\drivers_removed_time</span>; if a copy cannot be saved, that package is left alone. Nothing is forced: if Windows says a driver is still needed, it stays. Network, storage and system entries are listed but never removed. Driver packages for hardware that is only unplugged right now are deliberately left alone.</li>
+<li><b>C = clean up (beta).</b> Lists (A) old versions of drivers you still use, which Windows keeps in its driver store (for example older NVIDIA versions, often several hundred MB each), and (B) entries of devices that are no longer connected (old USB devices, monitors). The newest version, any version in use and boot-critical packages are always kept. Before removing anything it creates a restore point <span class="mono">Before_Driver_Cleanup</span> and saves a copy of each package in <span class="mono">Backup\drivers_removed_time</span>; if a copy cannot be saved, that package is left alone. Nothing is forced: if Windows says a driver is still needed, it stays. Network, storage and system entries are listed but never removed, and Bluetooth entries are kept because the device may only be switched off. Packages from Microsoft, and groups where the highest version number is not also the newest date (the maker changed its numbering), are left alone and named in the list. Driver packages for hardware that is only unplugged right now are deliberately left alone.</li>
 <li>Honest expectation for C: it frees disk space and tidies Device Manager. It does not raise FPS or lower ping.</li>
 <li>Beta: installing drivers has not been tested on many PCs. Read the list before you answer, and keep the restore point.</li></ul></div>
 <div class="box green"><h3>What really helps steady FPS and low ping</h3>
@@ -269,6 +269,6 @@
 <li>11 Keyboard Response flags and 12 Ndu memory leak: from user reports, not Microsoft.</li>
 <li>The defaults in reg_undo for these are typical Windows values. If you need your exact originals, use the Backup folder.</li></ul>
 Results differ between PCs and Microsoft may change how these values behave in a later Windows release. Every item can be reverted with menu 7 or the Backup folder.</div>
-<div class="foot">win11-optimizer v4.8 - github.com/Kensukeimagery/win11-optimizer - MIT License</div>
+<div class="foot">win11-optimizer v4.9 - github.com/Kensukeimagery/win11-optimizer - MIT License</div>
 </div>
 </body></html>

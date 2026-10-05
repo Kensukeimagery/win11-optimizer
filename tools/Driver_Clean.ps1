@@ -54,18 +54,36 @@ function ConvertTo-VersionSafe($Text) {
     try { return [version][string]$Text } catch { return [version]'0.0' }
 }
 
+# Bluetooth devices are often only switched off, and removing their entry can mean pairing again. They are never offered.
+function Test-GhostBluetooth([string]$InstanceId) {
+    return ($InstanceId -match '^BTH' -or $InstanceId -match '^HID\\\{0000(1124|1812)-0000-1000-8000-00805F9B34FB\}')
+}
+
+function Format-Mb($Mb) {
+    if ($null -eq $Mb) { return '?' }
+    if ([double]$Mb -lt 0.1) { return '<0.1' }
+    return [string]$Mb
+}
+
 function Get-StaleCandidates($Packages, $InUseInfs) {
     # Packages: objects with Inf, Original, Provider, Class, Version, Date, Boot.
     # A package is a candidate only when a NEWER package of the same driver (same original file name, maker and class) exists,
     # it is not boot critical and no device uses it right now.
+    # Left alone on purpose: packages from Microsoft (Windows manages them), and groups where the highest version number is not
+    # also the newest date (the maker changed its numbering, so "newest" is a guess).
     $inUse = @{}
     foreach ($i in @($InUseInfs)) { if ($i) { $inUse[([string]$i).ToLower()] = $true } }
     $out = @()
+    $script:SkippedGroups = @()
     $groups = @($Packages | Group-Object { ([string]$_.Original).ToLower() + '|' + [string]$_.Provider + '|' + [string]$_.Class })
     foreach ($g in $groups) {
         if ($g.Count -lt 2) { continue }
+        $first = $g.Group[0]
+        if ([string]$first.Provider -match '^Microsoft') { $script:SkippedGroups += ($first.Original + ' (Microsoft)'); continue }
         $sorted = @($g.Group | Sort-Object @{ Expression = { ConvertTo-VersionSafe $_.Version }; Descending = $true }, @{ Expression = { $_.Date }; Descending = $true })
         $newest = $sorted[0]
+        $latestDate = ($g.Group | ForEach-Object { [datetime]$_.Date } | Measure-Object -Maximum).Maximum
+        if ([datetime]$newest.Date -lt $latestDate) { $script:SkippedGroups += ($first.Original + ' (version and date disagree)'); continue }
         foreach ($p in @($sorted | Select-Object -Skip 1)) {
             if ($p.Boot) { continue }
             if ($inUse.ContainsKey(([string]$p.Inf).ToLower())) { continue }
@@ -99,7 +117,8 @@ function Get-InUseInfs {
 }
 
 function Get-FolderMb([string]$Dir) {
-    if ($Dir -eq '' -or -not (Test-Path -LiteralPath $Dir)) { return 0 }
+    # $null means the size is not known (folder not found), which is shown as "?"
+    if ($Dir -eq '' -or -not (Test-Path -LiteralPath $Dir)) { return $null }
     $sum = 0
     try { $sum = (Get-ChildItem -LiteralPath $Dir -Recurse -File -Force -ErrorAction SilentlyContinue | Measure-Object -Property Length -Sum).Sum } catch { }
     if ($null -eq $sum) { return 0 }
@@ -142,7 +161,7 @@ function Remove-OldPackages($Chosen, [string]$RootDir) {
     Write-Log '   Step 2 of 3: saving a copy of each package that will be removed' 'White'
     $dest = ''
     if ($RootDir -ne '') { $dest = Join-Path $RootDir ('Backup\drivers_removed_' + (Get-Date -Format 'yyyyMMdd_HHmmss')) }
-    $need = 0; foreach ($c in $Chosen) { $need += [double]$c.SizeMb }
+    $need = 0; foreach ($c in $Chosen) { if ($null -ne $c.SizeMb) { $need += [double]$c.SizeMb } }
     if ($dest -ne '') {
         $freeMb = $null
         try { $freeMb = (New-Object IO.DriveInfo ([IO.Path]::GetPathRoot($dest))).AvailableFreeSpace / 1MB } catch { }
@@ -153,30 +172,45 @@ function Remove-OldPackages($Chosen, [string]$RootDir) {
             $dest = ''
         }
     }
-    Write-Log ''
-    Write-Log ('   Step 3 of 3: removing ' + @($Chosen).Count + ' old package(s)') 'White'
-    $ok = 0; $kept = 0; $freed = 0.0
-    foreach ($c in $Chosen) {
-        $p = $c.Package
-        $label = $p.Provider + ' ' + $p.Class + ' ' + $p.Version + ' (' + $p.Inf + ')'
-        if ($dest -ne '') {
+    $toRemove = @()
+    if ($dest -ne '') {
+        foreach ($c in $Chosen) {
+            $p = $c.Package
             $sub = Join-Path $dest ($p.Inf -replace '\.inf$', '')
             New-Item -ItemType Directory -Force -Path $sub | Out-Null
             & pnputil.exe /export-driver $p.Inf $sub | Out-Null
-            if ($LASTEXITCODE -ne 0) {
-                Write-Log ('   [SKIPPED] ' + $label + ': the copy could not be saved, so it was left alone') 'Yellow'
-                $kept++
-                continue
+            if ($LASTEXITCODE -eq 0) { $toRemove += $c }
+            else {
+                Write-Log ('   [SKIPPED] ' + $p.Provider + ' ' + $p.Class + ' ' + $p.Version + ' (' + $p.Inf + '): the copy could not be saved, so it is left alone') 'Yellow'
+                try { [IO.Directory]::Delete($sub, $true) } catch { }
             }
         }
+        Write-Log ('   [OK] Saved ' + $toRemove.Count + ' of ' + @($Chosen).Count + ' copies to Backup\' + (Split-Path -Leaf $dest)) 'Green'
+    } else {
+        $toRemove = @($Chosen)
+        Write-Log '   No copies were saved (you chose to continue without them).' 'Yellow'
+    }
+    Write-Log ''
+    Write-Log ('   Step 3 of 3: removing ' + $toRemove.Count + ' old package(s)') 'White'
+    $ok = 0; $kept = @($Chosen).Count - $toRemove.Count; $freed = 0.0
+    foreach ($c in $toRemove) {
+        $p = $c.Package
+        $label = $p.Provider + ' ' + $p.Class + ' ' + $p.Version + ' (' + $p.Inf + ')'
         & pnputil.exe /delete-driver $p.Inf | Out-Null
-        if ($LASTEXITCODE -eq 0) { $ok++; $freed += [double]$c.SizeMb; Write-Log ('   [OK] removed ' + $label) 'Green' }
+        if ($LASTEXITCODE -eq 0) { $ok++; if ($null -ne $c.SizeMb) { $freed += [double]$c.SizeMb }; Write-Log ('   [OK] removed ' + $label) 'Green' }
         else { $kept++; Write-Log ('   [KEPT] ' + $label + ': Windows says it is still needed') 'Yellow' }
     }
     Write-Log ''
     Write-Log ('   Done: ' + $ok + ' removed (about ' + [math]::Round($freed / 1024, 2) + ' GB), ' + $kept + ' left in place.') 'White'
     if ($dest -ne '') { Write-Log '   The copies are in Backup\drivers_removed_*. Delete that folder when you are sure everything works. To put a package back: pnputil /add-driver "Backup\drivers_removed_...\*.inf" /subdirs /install' 'DarkGray' }
     Write-Log '   Or use System Restore and pick Before_Driver_Cleanup.' 'DarkGray'
+    Write-Log ''
+    Write-Log '   Checking again what is left...' 'DarkGray'
+    try {
+        $left = @(Get-StaleCandidates (Get-DriverPackages) (Get-InUseInfs))
+        if ($left.Count -eq 0) { Write-Log '   No old driver versions are left.' 'Green' }
+        else { Write-Log ('   ' + $left.Count + ' old package(s) are still there (Windows kept them). Restart and run this again if you like.') 'Yellow' }
+    } catch { Write-Log ('   Could not check again: ' + $_.Exception.Message) 'Yellow' }
 }
 
 function Remove-GhostDevices($Groups) {
@@ -228,16 +262,19 @@ function Start-DriverClean {
     Write-Log ''
     Write-Log '   A. Old versions of drivers you still use' 'White'
     $totalMb = 0.0
-    foreach ($c in $cands) { $totalMb += [double]$c.SizeMb }
+    foreach ($c in $cands) { if ($null -ne $c.SizeMb) { $totalMb += [double]$c.SizeMb } }
     if ($scanOk -and $cands.Count -eq 0) { Write-Log '     None. Windows keeps only the current versions.' 'Green' }
     foreach ($grp in @($cands | Group-Object { $_.Package.Provider + ' / ' + $_.Package.Class + ' / ' + $_.Package.Original })) {
         $keep = $grp.Group[0]
         Write-Log ('     ' + $grp.Name + '  (newest, kept: ' + $keep.KeepVersion + ')') 'Gray'
-        foreach ($c in $grp.Group) { Write-Log ('       old: ' + $c.Package.Version + ' ' + $c.Package.Date.ToString('yyyy-MM-dd') + ' [' + $c.Package.Inf + '] ' + $c.SizeMb + ' MB') 'DarkGray' }
+        foreach ($c in $grp.Group) { Write-Log ('       old: ' + $c.Package.Version + ' ' + $c.Package.Date.ToString('yyyy-MM-dd') + ' [' + $c.Package.Inf + '] ' + (Format-Mb $c.SizeMb) + ' MB') 'DarkGray' }
     }
     if ($cands.Count -gt 0) { Write-Log ('     Total: ' + $cands.Count + ' old package(s), about ' + [math]::Round($totalMb / 1024, 2) + ' GB.') 'Yellow' }
+    if (@($script:SkippedGroups).Count -gt 0) { Write-Log ('     Left alone on purpose (' + @($script:SkippedGroups).Count + '): ' + ($script:SkippedGroups -join ', ')) 'DarkGray' }
 
-    $ghosts = @(Get-GhostDevices)
+    $allGhosts = @(Get-GhostDevices)
+    $btGhosts = @($allGhosts | Where-Object { Test-GhostBluetooth ([string]$_.InstanceId) })
+    $ghosts = @($allGhosts | Where-Object { -not (Test-GhostBluetooth ([string]$_.InstanceId)) })
     $ghostGroups = @($ghosts | Group-Object { [string]$_.Class })
     $removable = @($ghostGroups | Where-Object { Test-GhostRemovable $_.Name })
     $other = @($ghostGroups | Where-Object { -not (Test-GhostRemovable $_.Name) })
@@ -245,6 +282,7 @@ function Start-DriverClean {
     Write-Log '   B. Devices that are not connected any more' 'White'
     if ($ghosts.Count -eq 0) { Write-Log '     None.' 'Green' }
     foreach ($g in $removable) { Write-Log ('     ' + $g.Count + ' x ' + $(if ($g.Name -ne '') { $g.Name } else { 'unknown class' }) + ' (can be cleaned)') 'Gray' }
+    if ($btGhosts.Count -gt 0) { Write-Log ('     ' + $btGhosts.Count + ' Bluetooth entries are kept (the device may only be switched off, removing it can mean pairing again).') 'DarkGray' }
     if ($other.Count -gt 0) {
         $n = 0; foreach ($g in $other) { $n += $g.Count }
         Write-Log ('     ' + $n + ' more entries (network, system and other classes) are only listed, never removed by this tool: ' + (($other | ForEach-Object { $_.Name }) -join ', ')) 'DarkGray'
@@ -257,6 +295,8 @@ function Start-DriverClean {
     if ($rootDir -ne '') { try { [IO.File]::WriteAllLines((Join-Path $rootDir ('DriverCleanReport_' + (Get-Date -Format 'yyyyMMdd_HHmmss') + '.txt')), $script:Lines) } catch { } }
     if ($NoPrompt) { return }
 
+    Write-Log ''
+    Write-Log '   ---- your choices and what happened ----' 'DarkGray'
     $choices = New-Object System.Collections.Generic.List[string]
     $choices.Add('N')
     if ($cands.Count -gt 0) { $choices.Add('V'); $choices.Add('O') }
@@ -276,7 +316,7 @@ function Start-DriverClean {
     if ($ans -eq 'O') {
         $chosen = @()
         foreach ($c in $cands) {
-            $yn = Read-Answer ('   Remove ' + $c.Package.Provider + ' ' + $c.Package.Class + ' ' + $c.Package.Version + ' (' + $c.SizeMb + ' MB)? Y/N, Q = stop asking (Enter = N)') @('N', 'Y', 'Q')
+            $yn = Read-Answer ('   Remove ' + $c.Package.Provider + ' ' + $c.Package.Class + ' ' + $c.Package.Version + ' (' + (Format-Mb $c.SizeMb) + ' MB)? Y/N, Q = stop asking (Enter = N)') @('N', 'Y', 'Q')
             if ($yn -eq 'Q') { break }
             if ($yn -eq 'Y') { $chosen += $c }
         }
@@ -291,6 +331,7 @@ function Start-DriverClean {
         }
         Remove-GhostDevices $pick
     }
+    Write-Log ('   Finished ' + (Get-Date -Format 'yyyy-MM-dd HH:mm')) 'DarkGray'
     if ($rootDir -ne '') { try { [IO.File]::WriteAllLines((Join-Path $rootDir ('DriverCleanReport_' + (Get-Date -Format 'yyyyMMdd_HHmmss') + '_after.txt')), $script:Lines) } catch { } }
 }
 
