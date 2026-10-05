@@ -2,6 +2,10 @@
 
 [![CI](https://github.com/Kensukeimagery/win11-optimizer/actions/workflows/ci.yml/badge.svg)](https://github.com/Kensukeimagery/win11-optimizer/actions/workflows/ci.yml) [![Latest release](https://img.shields.io/github/v/release/Kensukeimagery/win11-optimizer)](https://github.com/Kensukeimagery/win11-optimizer/releases/latest) [![License: MIT](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
 
+<p align="center"><img src="docs/img/main-menu.png" alt="The main menu of win11-optimizer" width="640"></p>
+
+<p align="center"><sub>The main menu (a preview, nothing to install to see it). / หน้าตาของเมนูหลัก</sub></p>
+
 ## Download / ดาวน์โหลด
 
 ### [Download the latest ZIP (click here) / ดาวน์โหลดไฟล์ ZIP ล่าสุด (กดที่นี่)](https://github.com/Kensukeimagery/win11-optimizer/releases/latest/download/win11-optimizer.zip)
