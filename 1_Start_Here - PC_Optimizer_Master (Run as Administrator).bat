@@ -1,10 +1,10 @@
 @echo off
 setlocal EnableExtensions
-title PC Optimizer - Master Control v4.11
+title PC Optimizer - Master Control v4.12
 color 0B
 
 :: =====================================================================
-::  PC OPTIMIZER - MASTER CONTROL v4.11
+::  PC OPTIMIZER - MASTER CONTROL v4.12
 ::  Safety rules used in this file - they avoid the crashes seen in v3:
 ::   - no brackets inside ECHO text that sits inside IF or FOR blocks
 ::   - flat GOTO labels instead of nested IF / ELSE blocks
@@ -22,7 +22,7 @@ set "TS=manual"
 for /f "usebackq delims=" %%t in (`powershell -NoProfile -Command "Get-Date -Format yyyyMMdd_HHmmss"`) do set "TS=%%t"
 set "LOGFILE=%SCRIPT_DIR%OptimizerLog_%TS%.txt"
 set "BACKUPDIR=%SCRIPT_DIR%Backup\%TS%"
-echo PC Optimizer v4.11 Log - %date% %time% > "%LOGFILE%"
+echo PC Optimizer v4.12 Log - %date% %time% > "%LOGFILE%"
 
 if not exist "%REGROOT%" goto NOREG
 if not exist "%UNDOROOT%" echo [WARN] reg_undo folder not found - option 7 will not work.
@@ -86,7 +86,7 @@ goto MENU
 :MENU
 cls
 echo ===================================================================
-echo    PC OPTIMIZER - MASTER CONTROL v4.11
+echo    PC OPTIMIZER - MASTER CONTROL v4.12
 echo    Log: OptimizerLog_%TS%.txt
 if "%ISLAPTOP%"=="1" echo    Laptop detected - tweaks 02 and 16 are not recommended on a laptop.
 if defined UPDMSG echo    %UPDMSG%
@@ -424,9 +424,10 @@ call :SETCHOICE SERVICES Y
 goto :eof
 
 :PREFETCH
-echo  - Checking disk type before changing Prefetcher...
+echo  - Checking the type of the drive Windows is installed on before changing Prefetcher...
 set "MEDIATYPE="
-for /f "usebackq delims=" %%m in (`powershell -NoProfile -Command "try { (Get-PhysicalDisk | Sort-Object DeviceId | Select-Object -First 1).MediaType } catch { 'Unknown' }"`) do set "MEDIATYPE=%%m"
+for /f "usebackq delims=" %%m in (`powershell -NoProfile -Command "try { $n = (Get-Partition -DriveLetter $env:SystemDrive.Substring(0,1) -ErrorAction Stop | Get-Disk -ErrorAction Stop | Select-Object -First 1).Number; (Get-PhysicalDisk -ErrorAction Stop | Where-Object { [int]$_.DeviceId -eq [int]$n } | Select-Object -First 1).MediaType } catch { 'Unknown' }"`) do set "MEDIATYPE=%%m"
+if not defined MEDIATYPE set "MEDIATYPE=Unknown"
 echo    Detected disk type: %MEDIATYPE%
 echo    Detected disk type: %MEDIATYPE% >> "%LOGFILE%"
 set "PFKEY=HKLM\SYSTEM\CurrentControlSet\Control\Session Manager\Memory Management\PrefetchParameters"

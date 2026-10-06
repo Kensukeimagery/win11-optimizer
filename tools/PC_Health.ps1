@@ -1,4 +1,4 @@
-# PC Optimizer v4.11 - PC health check
+# PC Optimizer v4.12 - PC health check
 # Read-only: it only reads the Windows event log, the drives, the battery, the memory and the displays. It changes nothing.
 # Shows: crashes and blue screens, drive health, battery wear (laptops), and three things that matter for games:
 # the screen refresh rate, whether the RAM runs at its rated speed, and the speed of the network cable link.
@@ -24,6 +24,10 @@ function Write-Log([string]$Text, [string]$Color = 'Gray') {
     $safe = Hide-Private $Text
     Write-Host $safe -ForegroundColor $Color
     $script:Lines.Add($safe)
+}
+function Test-IsAdmin {
+    $p = New-Object Security.Principal.WindowsPrincipal([Security.Principal.WindowsIdentity]::GetCurrent())
+    return $p.IsInRole([Security.Principal.WindowsBuiltInRole]::Administrator)
 }
 function Write-Check([string]$Text) { $script:Flags++; Write-Log ('     [CHECK] ' + $Text) 'Yellow' }
 function Write-Good([string]$Text) { Write-Log ('     [OK]    ' + $Text) 'Green' }
@@ -57,12 +61,25 @@ function Get-BugcheckInfo([string]$Code) {
     }
 }
 
+function Get-ExceptionText([string]$Code) {
+    $c = ([string]$Code).Trim().ToLower() -replace '^0x', ''
+    switch ($c) {
+        'c0000005' { return 'access violation (the program touched memory it should not; a bug in the program or a damaged install)' }
+        'c0000409' { return 'a safety check stopped the program (stack overrun)' }
+        'c0000374' { return 'heap corruption (a bug in the program)' }
+        'c000001d' { return 'illegal instruction' }
+        'e06d7363' { return 'an unhandled C++ error inside the program' }
+        '80000003' { return 'a breakpoint was hit' }
+        default { if ($c -eq '') { return 'unknown error' } else { return ('error code 0x' + $c) } }
+    }
+}
+
 function Get-DiskHints($Disk) {
     # Disk: Name, Media, Health, Status, Temp, Wear, ReadErrors, WriteErrors
     $out = @()
     if ($Disk.Health -and $Disk.Health -ne 'Healthy') { $out += ('Windows reports the health as ' + $Disk.Health + '. Back up your files now.') }
     if ($Disk.Status -and $Disk.Status -notin @('OK', 'Unknown')) { $out += ('the drive status is ' + $Disk.Status) }
-    if ($null -ne $Disk.Wear -and [int]$Disk.Wear -ge 80) { $out += ('about ' + $Disk.Wear + '% of the rated write life is used; plan a replacement') }
+    if ($Disk.Media -ne 'HDD' -and $null -ne $Disk.Wear -and [int]$Disk.Wear -ge 80) { $out += ('about ' + $Disk.Wear + '% of the rated write life is used; plan a replacement') }
     $limit = 70
     if ($Disk.Media -eq 'HDD') { $limit = 55 }
     if ($null -ne $Disk.Temp -and [int]$Disk.Temp -ge $limit) { $out += ('it is hot (' + $Disk.Temp + ' C); check the airflow') }
@@ -140,8 +157,17 @@ function Show-Crashes {
 
     $apps = @(Get-Events 'Application' 1000 'Application Error' $since)
     if ($apps.Count -gt 0) {
-        $names = @($apps | ForEach-Object { try { [string]$_.Properties[0].Value } catch { '' } } | Where-Object { $_ -ne '' } | Group-Object | Sort-Object Count -Descending | Select-Object -First 5)
-        Write-Note ('programs that crashed: ' + (($names | ForEach-Object { $_.Name + ' x' + $_.Count }) -join ', '))
+        $groups = @($apps | Group-Object { try { [string]$_.Properties[0].Value } catch { '' } } | Where-Object { $_.Name -ne '' } | Sort-Object Count -Descending)
+        if ($groups.Count -gt 0) {
+            Write-Note ('programs that crashed: ' + (($groups | Select-Object -First 5 | ForEach-Object { $_.Name + ' x' + $_.Count }) -join ', '))
+            $top = $groups[0]
+            if ($top.Count -ge 5) {
+                $path = ''; $exc = ''
+                try { $path = [string]$top.Group[0].Properties[10].Value; $exc = [string]$top.Group[0].Properties[6].Value } catch { }
+                $days = @($top.Group | ForEach-Object { $_.TimeCreated.ToString('yyyy-MM-dd') } | Select-Object -Unique).Count
+                Write-Check ('"' + $top.Name + '" crashed ' + $top.Count + ' times on ' + $days + ' different day(s). File: ' + $path + '. Error: ' + (Get-ExceptionText $exc) + '. A program that crashes this often is usually broken or out of date: update or reinstall it, or remove it if you do not need it.')
+            }
+        }
     }
 }
 
@@ -162,13 +188,13 @@ function Show-Disks {
         }
         $line = $info.Name + ', ' + $info.Media + ', ' + [math]::Round($d.Size / 1GB) + ' GB, health ' + $info.Health
         if ($null -ne $info.Temp -and [int]$info.Temp -gt 0) { $line += ', ' + $info.Temp + ' C' }
-        if ($null -ne $info.Wear) { $line += ', ' + $info.Wear + '% worn' }
+        if ($null -ne $info.Wear -and $info.Media -ne 'HDD') { $line += ', ' + $info.Wear + '% worn' }   # a hard drive has no wear figure
         if ($null -ne $info.Hours -and [int64]$info.Hours -gt 0) { $line += ', ' + $info.Hours + ' hours on' }
         $hints = @(Get-DiskHints $info)
         if ($hints.Count -eq 0) { Write-Good $line }
         else { Write-Log ('     ' + $line) 'Gray'; foreach ($h in $hints) { Write-Check $h } }
     }
-    Write-Note 'Temperature and wear are shown when the drive reports them (some need administrator rights).'
+    if (-not (Test-IsAdmin)) { Write-Note 'Temperature and wear are shown when the drive reports them; some drives only report them when this runs as administrator.' }
 }
 
 function Show-Battery {
@@ -295,7 +321,7 @@ function Start-PcHealth {
     $rootDir = ''
     if ($Root -ne '') { try { $rootDir = (Resolve-Path -LiteralPath $Root).Path } catch { } }
     Write-Log '==================================================================' 'Cyan'
-    Write-Log '   PC OPTIMIZER v4.11 - PC HEALTH (nothing is changed)' 'Cyan'
+    Write-Log '   PC OPTIMIZER v4.12 - PC HEALTH (nothing is changed)' 'Cyan'
     Write-Log ('   ' + (Get-Date -Format 'yyyy-MM-dd HH:mm')) 'Cyan'
     Write-Log '==================================================================' 'Cyan'
     Write-Log ''

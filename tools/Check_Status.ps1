@@ -1,4 +1,4 @@
-# PC Optimizer v4.11 - Check Status
+# PC Optimizer v4.12 - Check Status
 # Compares the current PC settings with what the optimizer applies,
 # then offers to re-apply only the items that are missing or changed.
 param([string]$Root = '')
@@ -250,8 +250,12 @@ function Invoke-Checks([string]$RegRoot, [string]$BackupDir) {
     }
 
     # --- prefetcher, by disk type
+    # the drive Windows is installed on, not just "disk 0" (disk 0 can be a data drive of another type)
     $media = ''
-    try { $media = [string](Get-PhysicalDisk -ErrorAction Stop | Sort-Object DeviceId | Select-Object -First 1).MediaType } catch { }
+    try {
+        $sysDisk = (Get-Partition -DriveLetter ([string]$env:SystemDrive).Substring(0, 1) -ErrorAction Stop | Get-Disk -ErrorAction Stop | Select-Object -First 1).Number
+        $media = [string](Get-PhysicalDisk -ErrorAction Stop | Where-Object { [int]$_.DeviceId -eq [int]$sysDisk } | Select-Object -First 1).MediaType
+    } catch { }
     $pfKey = 'HKEY_LOCAL_MACHINE\SYSTEM\CurrentControlSet\Control\Session Manager\Memory Management\PrefetchParameters'
     $want = $null
     if ($media -eq 'SSD') { $want = 0 } elseif ($media -eq 'HDD') { $want = 3 }
@@ -403,7 +407,7 @@ function Start-CheckStatus {
     $reportFile = Join-Path $script:RootDir ('CheckReport_' + $stamp + '.txt')
 
     Write-Log '==================================================================' 'Cyan'
-    Write-Log '   PC OPTIMIZER v4.11 - CHECK STATUS' 'Cyan'
+    Write-Log '   PC OPTIMIZER v4.12 - CHECK STATUS' 'Cyan'
     Write-Log ('   ' + (Get-Date -Format 'yyyy-MM-dd HH:mm') + '   Windows build ' + [Environment]::OSVersion.Version.ToString()) 'Cyan'
     Write-Log '==================================================================' 'Cyan'
     Write-Log ''

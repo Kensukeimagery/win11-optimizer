@@ -184,6 +184,8 @@ try {
     Assert (@(Get-DiskHints ([pscustomobject]@{ Health = 'Healthy'; Status = 'OK'; Media = 'HDD'; Temp = 56; Wear = $null; ReadErrors = 0; WriteErrors = 0 })).Count -eq 1) 'a hot hard drive is flagged'
     Assert (@(Get-DiskHints ([pscustomobject]@{ Health = 'Healthy'; Status = 'OK'; Media = 'SSD'; Temp = 56; Wear = $null; ReadErrors = 0; WriteErrors = 0 })).Count -eq 0) 'the same temperature on an SSD is fine'
     Assert (@(Get-DiskHints ([pscustomobject]@{ Health = 'Healthy'; Status = 'OK'; Media = 'HDD'; Temp = $null; Wear = $null; ReadErrors = 3; WriteErrors = 0 })).Count -eq 1) 'logged read errors are flagged'
+    Assert (@(Get-DiskHints ([pscustomobject]@{ Health = 'Healthy'; Status = 'OK'; Media = 'HDD'; Temp = 35; Wear = 90; ReadErrors = 0; WriteErrors = 0 })).Count -eq 0) 'a hard drive wear figure is ignored'
+    Assert ((Get-ExceptionText 'c0000005') -match 'access violation' -and (Get-ExceptionText '0xC0000005') -match 'access violation' -and (Get-ExceptionText 'deadbeef') -eq 'error code 0xdeadbeef') 'crash error codes are explained, unknown ones are shown as the code'
     Assert (@(Get-RamHint 2133 3200 2).Count -eq 1) 'RAM running far below its rated speed is flagged'
     Assert (@(Get-RamHint 3200 3200 2).Count -eq 0) 'RAM at its rated speed is fine'
     Assert (@(Get-RamHint 3200 3200 1).Count -eq 1) 'a single RAM module is mentioned'
@@ -201,6 +203,14 @@ try {
 } catch {
     Fail ('PC health rules threw: ' + $_.Exception.Message)
 }
+Write-Host ''
+Write-Host '== Prefetcher looks at the drive Windows is installed on' -ForegroundColor Cyan
+$masterText = [IO.File]::ReadAllText((Join-Path $root '1_Start_Here - PC_Optimizer_Master (Run as Administrator).bat'))
+$csText = [IO.File]::ReadAllText((Join-Path $root 'tools\Check_Status.ps1'))
+Assert ($masterText -match 'Get-Partition -DriveLetter \$env:SystemDrive' -and $masterText -notmatch 'Sort-Object DeviceId \| Select-Object -First 1') 'the menu decides about Prefetcher from the drive Windows is on, not disk 0'
+Assert ($csText -match 'Get-Partition -DriveLetter' -and $csText -notmatch 'Sort-Object DeviceId \| Select-Object -First 1') 'Check Status uses the same rule'
+Assert ($masterText -match 'if not defined MEDIATYPE set \"MEDIATYPE=Unknown\"') 'an unreadable drive type leaves Prefetcher alone'
+
 Write-Host ''
 Write-Host '== Updater release notes are shown as plain text' -ForegroundColor Cyan
 try {

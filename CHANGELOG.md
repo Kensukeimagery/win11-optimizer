@@ -1,5 +1,10 @@
 # Changelog
 
+## v4.12
+- **Fix: Prefetcher is decided from the drive Windows is installed on.** The menu (option 3 and 5) and Check Status used "disk 0" to decide between SSD (Prefetcher off) and HDD (keep on). Disk 0 is not always the Windows drive: with an SSD as disk 0 and Windows on a hard drive, Prefetcher would have been switched off on the HDD, which slows start-up. Now the drive that holds C: is used; if it cannot be identified, Prefetcher is left alone.
+- **PC health:** a program that crashed 5 or more times is shown with its file location, how many days it crashed on and a plain-words error (for example "access violation"); hard drives no longer show a meaningless "0% worn"; the note about administrator rights only appears when you are not running as administrator.
+- Tests for the above.
+
 ## v4.11
 - **New: PC health** (`8_PC_Health.bat`, menu **H**). Read-only. Blue screens, unexpected shutdowns, graphics driver resets and crashed programs from the last 30 days (blue screen codes explained in plain words); drive health, temperature and wear; battery wear on laptops; and three things that matter for games: whether each screen runs at its highest refresh rate, whether the RAM runs at its rated speed (XMP / EXPO), and whether the network cable link is slower than the adapter supports.
 - **New: support bundle** (`9_Support_Bundle.bat`, menu **B**). Puts the version, Windows build, Check Status, PC health, system report, a driver scan (this PC only), saved choices and the latest logs into ONE text file to attach to a problem report. User name, computer name, home network addresses, MAC addresses and e-mail addresses are replaced. Nothing is changed or sent.

@@ -1,10 +1,10 @@
 <!doctype html>
-<html lang="en"><head><meta charset="utf-8"><title>Windows 11 Optimizer - User Manual v4.11</title>
+<html lang="en"><head><meta charset="utf-8"><title>Windows 11 Optimizer - User Manual v4.12</title>
 <link rel="stylesheet" href="style.css"></head><body>
 
 <!-- PAGE 1 -->
 <div class="page">
-<div class="banner cover"><div class="sub">User Manual v4.11</div><h1>Windows 11 Optimizer</h1><div class="sub">One menu for every tweak, with backups and one-by-one revert</div></div>
+<div class="banner cover"><div class="sub">User Manual v4.12</div><h1>Windows 11 Optimizer</h1><div class="sub">One menu for every tweak, with backups and one-by-one revert</div></div>
 
 <div class="box red"><h3>Read this first</h3>
 <ul>
@@ -145,7 +145,7 @@
 <table><tr><th style="width:17%">Item</th><th>What it does</th><th style="width:36%">Note</th></tr>
 <tr><td>Power plan</td><td>Uses Ultimate Performance; High Performance if that is missing; leaves Balanced if neither exists.</td><td>The plan GUID is remembered, so repeat runs do not create duplicates (v3 did).</td></tr>
 <tr><td>Services</td><td>Windows Search and Print Spooler on; DiagTrack and dmwappushservice off.</td><td>"already running" in the log is normal.</td></tr>
-<tr><td>Prefetcher</td><td>Checks the disk first: SSD off, HDD on, unknown type left alone.</td><td>Stops you disabling it on an HDD, which would slow it down.</td></tr>
+<tr><td>Prefetcher</td><td>Checks the type of the drive Windows is installed on (C:) first: SSD off, HDD on, unknown type left alone.</td><td>Stops you disabling it on an HDD, which would slow it down.</td></tr>
 <tr><td>Network</td><td>Sets TcpAckFrequency and TCPNoDelay on every network adapter.</td><td>v3 set these globally, where Windows ignores them. Only affects games using TCP. Microsoft advises testing before changing these.</td></tr>
 <tr><td>Old values</td><td>Removes MaxUserPort, TcpTimedWaitDelay and misplaced TCP values from v3.</td><td>None of them matter for gaming.</td></tr>
 <tr><td>Temp files</td><td>Deletes the user's temporary files.</td><td>Files in use are skipped safely.</td></tr>
@@ -210,7 +210,7 @@
 <li>Honest expectation for C: it frees disk space and tidies Device Manager. It does not raise FPS or lower ping.</li>
 <li>Beta: installing drivers has not been tested on many PCs. Read the list before you answer, and keep the restore point.</li></ul></div>
 <div class="card"><div class="t"><span class="n">8</span>8_PC_Health.bat (menu H)</div><ul>
-<li>Read-only. It looks at: (A) blue screens, unexpected shutdowns, graphics driver resets and programs that crashed in the last 30 days, with the blue screen code explained in plain words; (B) drive health, temperature and wear when the drive reports them; (C) battery wear on laptops; (D) things that matter for games: whether each screen runs at its highest refresh rate, whether the RAM runs at its rated speed (XMP / EXPO), and whether the network cable link is slower than the adapter supports.</li>
+<li>Read-only. It looks at: (A) blue screens, unexpected shutdowns, graphics driver resets and programs that crashed in the last 30 days (one that crashes often is shown with its file location), with the blue screen code explained in plain words; (B) drive health, temperature and wear when the drive reports them; (C) battery wear on laptops; (D) things that matter for games: whether each screen runs at its highest refresh rate, whether the RAM runs at its rated speed (XMP / EXPO), and whether the network cable link is slower than the adapter supports.</li>
 <li>Items worth a look are marked CHECK. They are hints, not faults: one blue screen is not proof of a broken part. A screen that supports 144 Hz but runs at 60 Hz can feel like input lag, and no tweak can fix that.</li>
 <li>Administrator rights are not needed; drive temperature and wear appear more often when you run it as administrator. The result is saved as <span class="mono">PCHealth_date-time.txt</span>.</li></ul></div>
 <div class="card"><div class="t"><span class="n">9</span>9_Support_Bundle.bat (menu B)</div><ul>
@@ -280,6 +280,6 @@
 <li>11 Keyboard Response flags and 12 Ndu memory leak: from user reports, not Microsoft.</li>
 <li>The defaults in reg_undo for these are typical Windows values. If you need your exact originals, use the Backup folder.</li></ul>
 Results differ between PCs and Microsoft may change how these values behave in a later Windows release. Every item can be reverted with menu 7 or the Backup folder.</div>
-<div class="foot">win11-optimizer v4.11 - github.com/Kensukeimagery/win11-optimizer - MIT License</div>
+<div class="foot">win11-optimizer v4.12 - github.com/Kensukeimagery/win11-optimizer - MIT License</div>
 </div>
 </body></html>

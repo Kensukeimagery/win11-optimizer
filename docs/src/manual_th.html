@@ -1,10 +1,10 @@
 <!doctype html>
-<html lang="th"><head><meta charset="utf-8"><title>คู่มือ Windows 11 Optimizer v4.11</title>
+<html lang="th"><head><meta charset="utf-8"><title>คู่มือ Windows 11 Optimizer v4.12</title>
 <link rel="stylesheet" href="style.css"></head><body>
 
 <!-- PAGE 1 -->
 <div class="page">
-<div class="banner cover"><div class="sub">คู่มือการใช้งาน v4.11</div><h1>Windows 11 Optimizer</h1><div class="sub">รวมทุกอย่างไว้ในเมนูเดียว พร้อมระบบสำรองและย้อนกลับรายข้อ</div></div>
+<div class="banner cover"><div class="sub">คู่มือการใช้งาน v4.12</div><h1>Windows 11 Optimizer</h1><div class="sub">รวมทุกอย่างไว้ในเมนูเดียว พร้อมระบบสำรองและย้อนกลับรายข้อ</div></div>
 
 <div class="box red"><h3>อ่านก่อนใช้</h3>
 <ul>
@@ -144,7 +144,7 @@
 <table><tr><th style="width:17%">หัวข้อ</th><th>ทำอะไร</th><th style="width:36%">หมายเหตุ</th></tr>
 <tr><td>Power Plan</td><td>ใช้ Ultimate Performance ถ้าไม่มีใช้ High Performance ถ้าไม่มีอีกคงไว้ที่ Balanced</td><td>จำ GUID ไว้ รันกี่ครั้งก็ไม่สร้างแผนซ้ำ (v3 สร้างเพิ่มทุกครั้ง)</td></tr>
 <tr><td>Services</td><td>Windows Search และ Print Spooler เปิด, DiagTrack และ dmwappushservice ปิด</td><td>"already running" ใน log เป็นเรื่องปกติ</td></tr>
-<tr><td>Prefetcher</td><td>ตรวจชนิดดิสก์ก่อน: SSD ปิด, HDD เปิด, ไม่รู้ชนิด ไม่แตะ</td><td>กันการปิดบน HDD ซึ่งทำให้ช้าลง</td></tr>
+<tr><td>Prefetcher</td><td>ตรวจชนิดของไดรฟ์ที่ลง Windows (C:) ก่อน: SSD ปิด, HDD เปิด, ไม่รู้ชนิด ไม่แตะ</td><td>กันการปิดบน HDD ซึ่งทำให้ช้าลง</td></tr>
 <tr><td>Network</td><td>ตั้ง TcpAckFrequency และ TCPNoDelay ให้ทุก network adapter</td><td>v3 ตั้งระดับรวมซึ่ง Windows ไม่อ่าน มีผลเฉพาะเกมที่ใช้ TCP Microsoft แนะนำให้ทดสอบก่อนเปลี่ยนค่านี้</td></tr>
 <tr><td>ล้างค่าเก่า</td><td>ลบ MaxUserPort, TcpTimedWaitDelay และค่า TCP ที่ผิดตำแหน่งจาก v3</td><td>ค่าพวกนี้ไม่เกี่ยวกับการเล่นเกม</td></tr>
 <tr><td>Temp</td><td>ลบไฟล์ชั่วคราวของผู้ใช้</td><td>ไฟล์ที่ถูกใช้งานอยู่จะถูกข้ามอย่างปลอดภัย</td></tr>
@@ -209,7 +209,7 @@
 <li>ความคาดหวังที่เป็นจริงของ C: ได้พื้นที่ดิสก์คืนและ Device Manager เป็นระเบียบ ไม่ทำให้ FPS สูงขึ้นหรือปิงต่ำลง</li>
 <li>เบต้า: การติดตั้งไดรเวอร์ยังไม่ได้ทดสอบกับเครื่องจำนวนมาก อ่านรายการก่อนตอบ และเก็บจุดคืนค่าไว้</li></ul></div>
 <div class="card"><div class="t"><span class="n">8</span>8_PC_Health.bat (เมนู H)</div><ul>
-<li>อ่านอย่างเดียว ตรวจ (A) จอฟ้า การดับเครื่องผิดปกติ การรีเซ็ตไดรเวอร์การ์ดจอ และโปรแกรมที่แครชใน 30 วันล่าสุด พร้อมอธิบายรหัสจอฟ้าเป็นภาษาง่ายๆ (B) สุขภาพไดรฟ์ อุณหภูมิ และความสึกหรอเมื่อไดรฟ์รายงานได้ (C) ความเสื่อมของแบตเตอรี่ในโน้ตบุ๊ก (D) เรื่องที่มีผลกับเกม: จอแต่ละจอใช้รีเฟรชเรตสูงสุดหรือยัง แรมวิ่งที่ความเร็วตามสเปกหรือไม่ (XMP / EXPO) และสาย LAN เชื่อมต่อช้ากว่าที่การ์ดรองรับหรือไม่</li>
+<li>อ่านอย่างเดียว ตรวจ (A) จอฟ้า การดับเครื่องผิดปกติ การรีเซ็ตไดรเวอร์การ์ดจอ และโปรแกรมที่แครชใน 30 วันล่าสุด (ตัวที่แครชบ่อยจะแสดงตำแหน่งไฟล์) พร้อมอธิบายรหัสจอฟ้าเป็นภาษาง่ายๆ (B) สุขภาพไดรฟ์ อุณหภูมิ และความสึกหรอเมื่อไดรฟ์รายงานได้ (C) ความเสื่อมของแบตเตอรี่ในโน้ตบุ๊ก (D) เรื่องที่มีผลกับเกม: จอแต่ละจอใช้รีเฟรชเรตสูงสุดหรือยัง แรมวิ่งที่ความเร็วตามสเปกหรือไม่ (XMP / EXPO) และสาย LAN เชื่อมต่อช้ากว่าที่การ์ดรองรับหรือไม่</li>
 <li>รายการที่ควรดูจะติดป้าย CHECK เป็นข้อสังเกต ไม่ใช่ข้อผิดพลาด จอฟ้าครั้งเดียวไม่ได้แปลว่าอุปกรณ์เสีย จอที่รองรับ 144 Hz แต่ใช้ 60 Hz อาจรู้สึกเหมือน input lag ซึ่ง tweak ใดก็แก้ไม่ได้</li>
 <li>ไม่ต้องใช้สิทธิ์แอดมิน แต่อุณหภูมิและความสึกหรอของไดรฟ์จะแสดงบ่อยขึ้นถ้ารันแบบแอดมิน ผลบันทึกเป็น <span class="mono">PCHealth_วันที่-เวลา.txt</span></li></ul></div>
 <div class="card"><div class="t"><span class="n">9</span>9_Support_Bundle.bat (เมนู B)</div><ul>
@@ -279,6 +279,6 @@
 <li>11 Keyboard Response Flags และ 12 ปัญหา RAM รั่วของ Ndu: มาจากรายงานผู้ใช้ ไม่ใช่เอกสาร Microsoft</li>
 <li>ค่าเริ่มต้นใน reg_undo ของรายการเหล่านี้ อ้างอิงจากค่ามาตรฐานของ Windows ที่พบทั่วไป ถ้าต้องการค่าเดิมที่แม่นยำให้ใช้ไฟล์ในโฟลเดอร์ Backup</li></ul>
 ผลลัพธ์ต่างกันไปตามเครื่อง และ Microsoft อาจเปลี่ยนพฤติกรรมของค่าเหล่านี้ใน Windows รุ่นถัดไปได้ ทุกรายการย้อนกลับได้ผ่านเมนู 7 หรือโฟลเดอร์ Backup</div>
-<div class="foot">win11-optimizer v4.11 - github.com/Kensukeimagery/win11-optimizer - MIT License</div>
+<div class="foot">win11-optimizer v4.12 - github.com/Kensukeimagery/win11-optimizer - MIT License</div>
 </div>
 </body></html>
