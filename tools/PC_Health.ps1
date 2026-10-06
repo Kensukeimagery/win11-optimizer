@@ -1,4 +1,4 @@
-# PC Optimizer v4.14 - PC health check
+# PC Optimizer v4.15 - PC health check
 # Read-only: it only reads the Windows event log, the drives, the battery, the memory and the displays. It changes nothing.
 # Shows: crashes and blue screens, drive health, battery wear (laptops), and three things that matter for games:
 # the screen refresh rate, whether the RAM runs at its rated speed, and the speed of the network cable link.
@@ -10,6 +10,7 @@ param(
 )
 
 $ErrorActionPreference = 'Continue'
+. (Join-Path $PSScriptRoot 'Report_Files.ps1')
 $script:Lines = New-Object System.Collections.Generic.List[string]
 $script:Flags = 0
 $user = [string]$env:USERNAME
@@ -248,7 +249,7 @@ function Start-PcHealth {
     $rootDir = ''
     if ($Root -ne '') { try { $rootDir = (Resolve-Path -LiteralPath $Root).Path } catch { } }
     Write-Log '==================================================================' 'Cyan'
-    Write-Log '   PC OPTIMIZER v4.14 - PC HEALTH (nothing is changed)' 'Cyan'
+    Write-Log '   PC OPTIMIZER v4.15 - PC HEALTH (nothing is changed)' 'Cyan'
     Write-Log ('   ' + (Get-Date -Format 'yyyy-MM-dd HH:mm')) 'Cyan'
     Write-Log '==================================================================' 'Cyan'
     Write-Log ''
@@ -262,7 +263,7 @@ function Start-PcHealth {
     else { Write-Log ('   ' + $script:Flags + ' item(s) are worth a look (marked CHECK above).') 'Yellow' }
     Write-Log '   This is a quick look, not a full diagnosis. Tell a technician or attach this report to an issue if something looks wrong.' 'DarkGray'
     if ($rootDir -ne '') {
-        try { [IO.File]::WriteAllLines((Join-Path $rootDir ('PCHealth_' + (Get-Date -Format 'yyyyMMdd_HHmmss') + '.txt')), $script:Lines) } catch { }
+        try { [IO.File]::WriteAllLines((New-ReportPath $rootDir 'PCHealth'), $script:Lines); Remove-OldReports $rootDir | Out-Null } catch { }
     }
 }
 

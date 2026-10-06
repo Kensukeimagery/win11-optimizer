@@ -1,9 +1,10 @@
-# PC Optimizer v4.14 - System report (read-only: changes nothing on your PC)
+# PC Optimizer v4.15 - System report (read-only: changes nothing on your PC)
 # Shows what is using your CPU and RAM, what starts with Windows, disk space, GPU driver age
 # and plain-language hints. The saved report hides your Windows user name.
 param([string]$Root = '')
 
 $ErrorActionPreference = 'Continue'
+. (Join-Path $PSScriptRoot 'Report_Files.ps1')
 $script:Lines = New-Object System.Collections.Generic.List[string]
 $script:Hints = New-Object System.Collections.Generic.List[string]
 $user = [string]$env:USERNAME
@@ -25,7 +26,7 @@ function Get-Short([string]$Text, [int]$Max) {
 }
 
 Write-Log '==================================================================' 'Cyan'
-Write-Log '   PC OPTIMIZER v4.14 - SYSTEM REPORT (nothing is changed)' 'Cyan'
+Write-Log '   PC OPTIMIZER v4.15 - SYSTEM REPORT (nothing is changed)' 'Cyan'
 Write-Log ('   ' + (Get-Date -Format 'yyyy-MM-dd HH:mm')) 'Cyan'
 Write-Log '==================================================================' 'Cyan'
 Write-Log ''
@@ -156,8 +157,9 @@ Write-Log '   Before you share this report: it lists program names and paths. Yo
 
 if ($Root -ne '') {
     try {
-        $file = Join-Path (Resolve-Path -LiteralPath $Root).Path ('SystemReport_' + (Get-Date -Format 'yyyyMMdd_HHmmss') + '.txt')
+        $file = New-ReportPath (Resolve-Path -LiteralPath $Root).Path 'SystemReport'
         [IO.File]::WriteAllLines($file, $script:Lines)
+        Remove-OldReports (Resolve-Path -LiteralPath $Root).Path | Out-Null
         Write-Host ''
         Write-Host ('   Report saved: ' + (Split-Path -Leaf $file)) -ForegroundColor DarkGray
     } catch { }

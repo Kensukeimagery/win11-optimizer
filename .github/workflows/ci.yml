@@ -56,12 +56,20 @@ jobs:
           if ($LASTEXITCODE -ne 0) { exit 1 }
           powershell -NoProfile -ExecutionPolicy Bypass -File tools\Support_Bundle.ps1 -Root .
           if ($LASTEXITCODE -ne 0) { exit 1 }
-          $b = Get-ChildItem -Filter 'SupportBundle_*.txt' | Select-Object -First 1
+          $b = Get-ChildItem -Path 'Logs' -Filter 'SupportBundle_*.txt' | Select-Object -First 1
           if ($null -eq $b) { Write-Host 'no bundle was written'; exit 1 }
           $t = [IO.File]::ReadAllText($b.FullName)
           foreach ($s in '## Environment', '## Check Status', '## PC specs', '## PC health', '## System report', '## Driver scan') { if (-not $t.Contains($s)) { Write-Host ('missing section ' + $s); exit 1 } }
           if ($t -match [regex]::Escape($env:USERNAME + '\') -or $t.Contains($env:COMPUTERNAME)) { Write-Host 'the bundle still contains the user or computer name'; exit 1 }
           Write-Host ('bundle ok, ' + [math]::Round($b.Length / 1KB) + ' KB')
+
+      - name: Cleanup summary runs (list only, nothing is removed)
+        shell: powershell
+        run: |
+          powershell -NoProfile -ExecutionPolicy Bypass -File tools\Clean_Up.ps1 -NoPrompt
+          if ($LASTEXITCODE -ne 0) { exit 1 }
+          if (-not (Test-Path 'Logs')) { Write-Host 'the tools did not create a Logs folder'; exit 1 }
+          if (@(Get-ChildItem -File -Filter '*_*.txt' | Where-Object { $_.Name -match '^(CheckReport|NetworkTest|SystemReport|DriverReport|PCHealth|PCSpecs|SupportBundle)_' }).Count -gt 0) { Write-Host 'a tool still saved a report next to the scripts'; exit 1 }
 
       - name: Updater install step (success, overwrite, roll back)
         shell: powershell

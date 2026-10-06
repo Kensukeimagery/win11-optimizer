@@ -17,10 +17,12 @@ Set-Content -LiteralPath (Join-Path $inst 'VERSION') -Value '1.0'
 New-Item -ItemType Directory -Force -Path (Join-Path $inst 'Backup\old') | Out-Null
 Set-Content -LiteralPath (Join-Path $inst 'Backup\old\keep.txt') -Value 'x'
 Set-Content -LiteralPath (Join-Path $inst 'OptimizerLog_test.txt') -Value 'log'
+New-Item -ItemType Directory -Force -Path (Join-Path $inst 'Logs') | Out-Null
+Set-Content -LiteralPath (Join-Path $inst 'Logs\CheckReport_20260101_000000.txt') -Value 'user report'
 Set-Content -LiteralPath (Join-Path $inst 'NEWFILE.md') -Value 'precious'   # a file the new version also ships
 
 # the "new version": same files, VERSION 2.0, README removed, a changed NEWFILE.md and one extra file
-foreach ($c in @(Get-ChildItem -LiteralPath $inst -Force | Where-Object { $_.Name -notin 'Backup', 'OptimizerLog_test.txt' })) { Copy-Item -LiteralPath $c.FullName -Destination $stg -Recurse }
+foreach ($c in @(Get-ChildItem -LiteralPath $inst -Force | Where-Object { $_.Name -notin 'Backup', 'Logs', 'OptimizerLog_test.txt' })) { Copy-Item -LiteralPath $c.FullName -Destination $stg -Recurse }
 Set-Content -LiteralPath (Join-Path $stg 'VERSION') -Value '2.0'
 Set-Content -LiteralPath (Join-Path $stg 'NEWFILE.md') -Value 'replaced'
 Set-Content -LiteralPath (Join-Path $stg 'ONLYNEW.md') -Value 'n'
@@ -47,7 +49,8 @@ Check ((Get-Content -LiteralPath (Join-Path $bk2 'NEWFILE.md')).Trim() -eq 'prec
 Check (Test-Path -LiteralPath (Join-Path $bk2 'README.md')) 'a file removed by the new version is kept in the backup'
 Check (-not (Test-Path -LiteralPath (Join-Path $inst 'README.md'))) 'a file removed by the new version is gone from the install'
 Check ((Test-Path -LiteralPath (Join-Path $inst 'Backup\old\keep.txt')) -and (Test-Path -LiteralPath (Join-Path $inst 'OptimizerLog_test.txt'))) 'user Backup and logs are untouched'
-Check (@(Get-ChildItem -LiteralPath $inst -Filter 'UpdateLog_*').Count -ge 1) 'an update log was written'
+Check (@(Get-ChildItem -LiteralPath (Join-Path $inst 'Logs') -Filter 'UpdateLog_*' -ErrorAction SilentlyContinue).Count -ge 1) 'an update log was written into Logs'
+Check (Test-Path -LiteralPath (Join-Path $inst 'Logs\CheckReport_20260101_000000.txt')) 'the user Logs folder is untouched'
 
 try { [IO.Directory]::Delete($tmp, $true) } catch { }
 Write-Host ''

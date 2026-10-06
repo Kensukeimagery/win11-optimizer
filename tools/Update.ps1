@@ -122,7 +122,9 @@ if ($Action -eq 'Check') {
 
 # ---------------------------------------------------------------- Apply (runs after the menu window closed)
 if ($Action -eq 'Apply') {
-    $log = Join-Path $Root ('UpdateLog_' + (Get-Date -Format 'yyyyMMdd_HHmmss') + '.txt')
+    $logDir = Join-Path $Root 'Logs'
+    try { if (-not (Test-Path -LiteralPath $logDir)) { New-Item -ItemType Directory -Force -Path $logDir | Out-Null } } catch { $logDir = $Root }
+    $log = Join-Path $logDir ('UpdateLog_' + (Get-Date -Format 'yyyyMMdd_HHmmss') + '.txt')
     function Log([string]$Text, [string]$Color = 'Gray') { Say $Text $Color; try { Add-Content -LiteralPath $log -Value $Text -Encoding ASCII } catch { } }
     Log '=================================================================' 'Cyan'
     Log '   PC OPTIMIZER - UPDATING. Please do not close this window.' 'Cyan'

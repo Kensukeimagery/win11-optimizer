@@ -244,6 +244,78 @@ try {
     Fail ('PC specs rules threw: ' + $_.Exception.Message)
 }
 Write-Host ''
+Write-Host '== Reports go to Logs and old ones are removed safely (temporary folder, nothing real is touched)' -ForegroundColor Cyan
+try {
+    . (Join-Path $root 'tools\Report_Files.ps1')
+    $tmp = Join-Path ([IO.Path]::GetTempPath()) ('pcopt_logs_' + [guid]::NewGuid().ToString('N'))
+    $logs = Join-Path $tmp 'Logs'
+    New-Item -ItemType Directory -Force -Path $logs, (Join-Path $tmp 'Backup\old'), (Join-Path $tmp 'tools') | Out-Null
+    foreach ($i in 1..5) { Set-Content -LiteralPath (Join-Path $logs ('CheckReport_2026100' + $i + '_101010.txt')) -Value 'x' }
+    foreach ($i in 1..4) { Set-Content -LiteralPath (Join-Path $logs ('DriverReport_2026100' + $i + '_101010_after.txt')) -Value 'x' }
+    foreach ($i in 1..4) { Set-Content -LiteralPath (Join-Path $logs ('DriverReport_2026100' + $i + '_101010.txt')) -Value 'x' }
+    foreach ($i in 1..7) { Set-Content -LiteralPath (Join-Path $logs ('SupportBundle_2026100' + $i + '_101010.txt')) -Value 'x' }
+    Set-Content -LiteralPath (Join-Path $logs 'my notes.txt') -Value 'mine'
+    Set-Content -LiteralPath (Join-Path $logs 'CheckReport_today.txt') -Value 'not a report name'
+    Set-Content -LiteralPath (Join-Path $tmp 'Backup\old\keep.txt') -Value 'backup'
+    Set-Content -LiteralPath (Join-Path $tmp 'README.md') -Value 'readme'
+    $r1 = Remove-OldReports $tmp -Keep 3
+    $left = @(Get-ChildItem -LiteralPath $logs -File | ForEach-Object { $_.Name })
+    Assert (@($left | Where-Object { $_ -like 'CheckReport_2026*' }).Count -eq 3 -and ($left -contains 'CheckReport_20261005_101010.txt') -and ($left -notcontains 'CheckReport_20261001_101010.txt')) 'the newest 3 of a kind are kept and the oldest are removed'
+    Assert (@($left | Where-Object { $_ -like 'DriverReport_*_after.txt' }).Count -eq 3 -and @($left | Where-Object { $_ -like 'DriverReport_2026*' -and $_ -notlike '*_after.txt' }).Count -eq 3) 'a report and its _after report are counted separately'
+    Assert (@($left | Where-Object { $_ -like 'SupportBundle_*' }).Count -eq 5) 'a support bundle keeps 2 more than the others'
+    Assert (($left -contains 'my notes.txt') -and ($left -contains 'CheckReport_today.txt')) 'files that are not exact report names are never removed'
+    Assert ((Test-Path -LiteralPath (Join-Path $tmp 'Backup\old\keep.txt')) -and (Test-Path -LiteralPath (Join-Path $tmp 'README.md'))) 'Backup and the program files are never touched by the report cleanup'
+    Assert ($r1.Count -eq 2 + 1 + 1 + 2) 'the cleanup reports how many files it removed'
+    $r0 = Remove-OldReports $tmp -Keep 0
+    Assert ($r0.Count -eq 0) 'keep 0 means nothing is ever removed'
+    $before = @(Get-ChildItem -LiteralPath $logs -File).Count
+    $dry = Remove-OldReports $tmp -Keep 1 -DryRun
+    Assert ($dry.Count -gt 0 -and @(Get-ChildItem -LiteralPath $logs -File).Count -eq $before) 'a dry run counts but removes nothing'
+    # reports left next to the scripts by older versions are moved into Logs, never overwritten
+    Set-Content -LiteralPath (Join-Path $tmp 'PCHealth_20260901_010101.txt') -Value 'old'
+    Set-Content -LiteralPath (Join-Path $tmp 'CheckReport_20261005_101010.txt') -Value 'root copy'
+    Set-Content -LiteralPath (Join-Path $tmp 'notes.txt') -Value 'mine'
+    $mv = Move-ReportsToLogs $tmp
+    Assert ($mv -eq 1 -and (Test-Path -LiteralPath (Join-Path $logs 'PCHealth_20260901_010101.txt')) -and (Test-Path -LiteralPath (Join-Path $tmp 'notes.txt'))) 'old reports are moved into Logs and other files stay'
+    Assert ((Get-Content -LiteralPath (Join-Path $logs 'CheckReport_20261005_101010.txt')) -eq 'x') 'a report with the same name in Logs is not overwritten'
+    Set-Content -LiteralPath (Join-Path $logs 'a.txt') -Value 'x'
+    Assert ((Test-PathInside (Join-Path $logs 'a.txt') $logs) -and -not (Test-PathInside (Join-Path $logs '..\README.md') $logs) -and -not (Test-PathInside $tmp $logs)) 'a path outside the Logs folder is refused (also with ..)'
+    # backups: the groups and how many are kept
+    $names = @('drivers_20261001_100000', 'drivers_20261002_100000', 'drivers_20261003_100000', 'drivers_removed_20261001_100000', 'update_4.1_20261001_100000', 'update_4.2_20261002_100000', 'update_4.3_20261003_100000', '20261001_100000_check', '20261001_100000', 'old')
+    foreach ($n in $names) { New-Item -ItemType Directory -Force -Path (Join-Path $tmp ('Backup\' + $n)) | Out-Null; Set-Content -LiteralPath (Join-Path $tmp ('Backup\' + $n + '\f.txt')) -Value 'x' }
+    $items = @(Get-BackupItems $tmp)
+    Assert (@($items | Where-Object { $_.Name -eq 'old' }).Count -eq 0) 'a folder with another name in Backup is not even listed'
+    $rm = @(Select-BackupsToRemove $items | ForEach-Object { $_.Name } | Sort-Object)
+    Assert (($rm -join ',') -eq 'drivers_20261001_100000,drivers_20261002_100000,update_4.1_20261001_100000') 'only the older backups beyond the newest 1 drivers copy and 2 updater copies are offered'
+    $rb = Remove-BackupItems @(Select-BackupsToRemove $items) $tmp
+    Assert ($rb.Count -eq 3 -and (Test-Path -LiteralPath (Join-Path $tmp 'Backup\drivers_20261003_100000')) -and (Test-Path -LiteralPath (Join-Path $tmp 'Backup\old\keep.txt'))) 'removing the offered backups keeps the newest ones and everything else'
+    # the housekeeping script and the cleanup tool run
+    Copy-Item -LiteralPath (Join-Path $root 'tools\Report_Files.ps1') -Destination (Join-Path $tmp 'tools\Report_Files.ps1')
+    Copy-Item -LiteralPath (Join-Path $root 'tools\Report_Maintain.ps1') -Destination (Join-Path $tmp 'tools\Report_Maintain.ps1')
+    Copy-Item -LiteralPath (Join-Path $root 'tools\Clean_Up.ps1') -Destination (Join-Path $tmp 'tools\Clean_Up.ps1')
+    & powershell.exe -NoProfile -ExecutionPolicy Bypass -File (Join-Path $tmp 'tools\Report_Maintain.ps1') -Root $tmp | Out-Null
+    Assert ($LASTEXITCODE -eq 0) 'the housekeeping script runs'
+    $sum = & powershell.exe -NoProfile -ExecutionPolicy Bypass -File (Join-Path $tmp 'tools\Clean_Up.ps1') -Root $tmp -NoPrompt 2>&1 | Out-String
+    Assert ($sum -match 'Reports and logs' -and $sum -match 'Backups' -and $sum -notmatch 'Exception') 'the cleanup tool shows its summary'
+    try { [IO.Directory]::Delete($tmp, $true) } catch { }
+    # no tool may still save a report next to the scripts
+    $stray = @()
+    foreach ($f in @(Get-ChildItem -LiteralPath (Join-Path $root 'tools') -Filter '*.ps1')) {
+        if ($f.Name -in 'Update.ps1', 'Report_Files.ps1') { continue }
+        if (([IO.File]::ReadAllText($f.FullName)) -match "Get-Date -Format 'yyyyMMdd_HHmmss'\) \+ '(_after)?\.txt'") { $stray += $f.Name }
+    }
+    Assert ($stray.Count -eq 0) ('every tool saves its report with New-ReportPath (Logs folder) ' + ($stray -join ', '))
+    $upd = [IO.File]::ReadAllText((Join-Path $root 'tools\Update.ps1'))
+    Assert ($upd -match "Join-Path \`$Root 'Logs'") 'the updater writes its log into Logs'
+    $mst = [IO.File]::ReadAllText((Join-Path $root '1_Start_Here - PC_Optimizer_Master (Run as Administrator).bat'))
+    Assert ($mst -match 'set "LOGFILE=%LOGDIR%\\OptimizerLog_' -and $mst -match 'Report_Maintain\.ps1' -and $mst -match 'LSS 150') 'the menu logs into Logs, runs the housekeeping and drops a log that only has its first line'
+    . (Join-Path $root 'tools\Driver_Check.ps1') -Root $root -DryRun
+    $opt = [pscustomobject]@{ Category = 'optional' }; $recd = [pscustomobject]@{ Category = 'recommended' }
+    Assert ((-not (Test-FullCopyNeeded @($opt))) -and (-not (Test-FullCopyNeeded @($opt, $opt, $opt))) -and (Test-FullCopyNeeded @($opt, $opt, $opt, $opt)) -and (Test-FullCopyNeeded @($recd))) 'the full driver copy is optional only for a few low-impact drivers'
+} catch {
+    Fail ('reports and cleanup tests threw: ' + $_.Exception.Message)
+}
+Write-Host ''
 Write-Host '== Updater release notes are shown as plain text' -ForegroundColor Cyan
 try {
     $ast = [System.Management.Automation.Language.Parser]::ParseFile((Join-Path $root 'tools\Update.ps1'), [ref]$null, [ref]$null)

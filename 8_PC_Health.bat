@@ -1,5 +1,5 @@
 @echo off
-title PC Optimizer - PC Health v4.14
+title PC Optimizer - PC Health v4.15
 color 0B
 
 :: Read-only. Looks at crashes and blue screens, drive health, the battery (laptops),

@@ -14,6 +14,7 @@ param(
 )
 
 $ErrorActionPreference = 'Continue'
+. (Join-Path $PSScriptRoot 'Report_Files.ps1')
 $script:Lines = New-Object System.Collections.Generic.List[string]
 $user = [string]$env:USERNAME
 
@@ -292,7 +293,7 @@ function Start-DriverClean {
     Write-Log '   Not done on purpose: driver packages for hardware that is simply not plugged in right now (printers, phones, controllers) are kept, because they may be needed again.' 'DarkGray'
     Write-Log '   Honest expectation: this frees disk space and tidies Device Manager. It does not raise FPS or lower ping.' 'DarkGray'
 
-    if ($rootDir -ne '') { try { [IO.File]::WriteAllLines((Join-Path $rootDir ('DriverCleanReport_' + (Get-Date -Format 'yyyyMMdd_HHmmss') + '.txt')), $script:Lines) } catch { } }
+    if ($rootDir -ne '') { try { [IO.File]::WriteAllLines((New-ReportPath $rootDir 'DriverCleanReport'), $script:Lines); Remove-OldReports $rootDir | Out-Null } catch { } }
     if ($NoPrompt) { return }
 
     Write-Log ''
@@ -332,7 +333,7 @@ function Start-DriverClean {
         Remove-GhostDevices $pick
     }
     Write-Log ('   Finished ' + (Get-Date -Format 'yyyy-MM-dd HH:mm')) 'DarkGray'
-    if ($rootDir -ne '') { try { [IO.File]::WriteAllLines((Join-Path $rootDir ('DriverCleanReport_' + (Get-Date -Format 'yyyyMMdd_HHmmss') + '_after.txt')), $script:Lines) } catch { } }
+    if ($rootDir -ne '') { try { [IO.File]::WriteAllLines((New-ReportPath $rootDir 'DriverCleanReport' '_after'), $script:Lines); Remove-OldReports $rootDir | Out-Null } catch { } }
 }
 
 if ($MyInvocation.InvocationName -ne '.') {

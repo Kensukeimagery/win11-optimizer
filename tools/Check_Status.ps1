@@ -1,9 +1,10 @@
-# PC Optimizer v4.14 - Check Status
+# PC Optimizer v4.15 - Check Status
 # Compares the current PC settings with what the optimizer applies,
 # then offers to re-apply only the items that are missing or changed.
 param([string]$Root = '')
 
 $ErrorActionPreference = 'Continue'
+. (Join-Path $PSScriptRoot 'Report_Files.ps1')
 $StateKey = 'HKCU:\Software\PCOptimizer'
 
 # ---------------------------------------------------------------- helpers
@@ -404,10 +405,10 @@ function Start-CheckStatus {
     }
     $stamp = Get-Date -Format 'yyyyMMdd_HHmmss'
     $backupDir = Join-Path $script:RootDir ('Backup\' + $stamp + '_check')
-    $reportFile = Join-Path $script:RootDir ('CheckReport_' + $stamp + '.txt')
+    $reportFile = New-ReportPath $script:RootDir 'CheckReport'
 
     Write-Log '==================================================================' 'Cyan'
-    Write-Log '   PC OPTIMIZER v4.14 - CHECK STATUS' 'Cyan'
+    Write-Log '   PC OPTIMIZER v4.15 - CHECK STATUS' 'Cyan'
     Write-Log ('   ' + (Get-Date -Format 'yyyy-MM-dd HH:mm') + '   Windows build ' + [Environment]::OSVersion.Version.ToString()) 'Cyan'
     Write-Log '==================================================================' 'Cyan'
     Write-Log ''
@@ -462,7 +463,7 @@ function Start-CheckStatus {
         Write-Log '   Everything is still in place. Nothing to do.' 'Green'
     }
 
-    try { [IO.File]::WriteAllLines($reportFile, $script:Report) ; Write-Host ''; Write-Host ('   Report saved: ' + (Split-Path -Leaf $reportFile)) -ForegroundColor DarkGray } catch { }
+    try { [IO.File]::WriteAllLines($reportFile, $script:Report) ; Remove-OldReports $script:RootDir | Out-Null ; Write-Host ''; Write-Host ('   Report saved: ' + (Split-Path -Leaf $reportFile)) -ForegroundColor DarkGray } catch { }
     return 0
 }
 

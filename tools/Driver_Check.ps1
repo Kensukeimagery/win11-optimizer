@@ -16,6 +16,7 @@ param(
 )
 
 $ErrorActionPreference = 'Continue'
+. (Join-Path $PSScriptRoot 'Report_Files.ps1')
 $script:Lines = New-Object System.Collections.Generic.List[string]
 $user = [string]$env:USERNAME
 
@@ -84,6 +85,14 @@ function Get-ResultText([int]$Code) {
         5 { return 'it was cancelled' }
         default { return ('Windows Update returned code ' + $Code) }
     }
+}
+
+function Test-FullCopyNeeded($Chosen) {
+    # A full copy of all drivers is worth it when something important is installed or many drivers at once.
+    # Fewer than 4 low-impact ("optional") drivers: the restore point is enough.
+    $list = @($Chosen)
+    if ($list.Count -ge 4) { return $true }
+    return (@($list | Where-Object { $_.Category -ne 'optional' }).Count -gt 0)
 }
 
 function Get-ProblemText([int]$Code) {
@@ -187,6 +196,11 @@ function Install-Offers($Session, $Chosen, [string]$RootDir) {
     Write-Log '   Step 2 of 3: saving a copy of your current drivers (about 1 to 5 GB and a few minutes)' 'White'
     $backup = ''
     if ($RootDir -ne '') { $backup = Join-Path $RootDir ('Backup\drivers_' + (Get-Date -Format 'yyyyMMdd_HHmmss')) }
+    if ($backup -ne '' -and -not (Test-FullCopyNeeded $Chosen)) {
+        # a few low-impact drivers: the restore point is enough, so the multi-GB copy is optional and off by default
+        $copy = Read-Answer '   Also save a full copy of your drivers (about 1 to 5 GB)? The restore point is already made. Y/N (Enter = N)' @('N', 'Y')
+        if ($copy -ne 'Y') { $backup = ''; Write-Log '   Skipped the full driver copy: the restore point covers these few low-impact drivers.' 'DarkGray' }
+    }
     if ($backup -ne '') {
         $freeGb = $null
         try { $freeGb = [math]::Round((New-Object IO.DriveInfo ([IO.Path]::GetPathRoot($backup))).AvailableFreeSpace / 1GB, 1) } catch { }
@@ -362,8 +376,9 @@ function Start-DriverCheck {
     # report file
     if ($rootDir -ne '') {
         try {
-            $file = Join-Path $rootDir ('DriverReport_' + (Get-Date -Format 'yyyyMMdd_HHmmss') + '.txt')
+            $file = New-ReportPath $rootDir 'DriverReport'
             [IO.File]::WriteAllLines($file, $script:Lines)
+            Remove-OldReports $rootDir | Out-Null
         } catch { }
     }
 
@@ -421,7 +436,7 @@ function Start-DriverCheck {
         Show-InstallSummary $res $vendorGpu
         Write-Log ('   Finished ' + (Get-Date -Format 'yyyy-MM-dd HH:mm')) 'DarkGray'
     }
-    if ($rootDir -ne '') { try { [IO.File]::WriteAllLines((Join-Path $rootDir ('DriverReport_' + (Get-Date -Format 'yyyyMMdd_HHmmss') + '_after.txt')), $script:Lines) } catch { } }
+    if ($rootDir -ne '') { try { [IO.File]::WriteAllLines((New-ReportPath $rootDir 'DriverReport' '_after'), $script:Lines); Remove-OldReports $rootDir | Out-Null } catch { } }
 }
 
 if ($MyInvocation.InvocationName -ne '.') {

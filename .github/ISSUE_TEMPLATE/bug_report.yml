@@ -40,7 +40,7 @@ body:
     id: logs
     attributes:
       label: Logs and screenshots / ไฟล์ log และภาพหน้าจอ
-      description: Drag files here. Useful ones are OptimizerLog_*.txt, CheckReport_*.txt, UpdateLog_*.txt and a screenshot of the window.
+      description: Drag files here. The easiest is one SupportBundle_*.txt (run 9_Support_Bundle.bat). Otherwise the files in the Logs folder (OptimizerLog_*.txt, CheckReport_*.txt, UpdateLog_*.txt) and a screenshot of the window.
   - type: checkboxes
     id: confirm
     attributes:

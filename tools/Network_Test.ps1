@@ -1,4 +1,4 @@
-# PC Optimizer v4.14 - Network test (read-only: changes nothing on your PC)
+# PC Optimizer v4.15 - Network test (read-only: changes nothing on your PC)
 # Pings your router, 1.1.1.1, 8.8.8.8 and an optional game server, then shows average ping,
 # jitter and packet loss, and says where a problem most likely is.
 param(
@@ -10,6 +10,7 @@ param(
 )
 
 $ErrorActionPreference = 'Continue'
+. (Join-Path $PSScriptRoot 'Report_Files.ps1')
 $script:Lines = New-Object System.Collections.Generic.List[string]
 
 function Write-Log([string]$Text, [string]$Color = 'Gray') {
@@ -148,7 +149,7 @@ if ($Count -lt 5) { $Count = 5 }
 if ($Count -gt 200) { $Count = 200 }
 
 Write-Log '==================================================================' 'Cyan'
-Write-Log '   PC OPTIMIZER v4.14 - NETWORK TEST (nothing is changed)' 'Cyan'
+Write-Log '   PC OPTIMIZER v4.15 - NETWORK TEST (nothing is changed)' 'Cyan'
 Write-Log ('   ' + (Get-Date -Format 'yyyy-MM-dd HH:mm')) 'Cyan'
 Write-Log '==================================================================' 'Cyan'
 Write-Log ''
@@ -356,8 +357,9 @@ if (-not $SkipDns) {
 
 if ($Root -ne '') {
     try {
-        $file = Join-Path (Resolve-Path -LiteralPath $Root).Path ('NetworkTest_' + (Get-Date -Format 'yyyyMMdd_HHmmss') + '.txt')
+        $file = New-ReportPath (Resolve-Path -LiteralPath $Root).Path 'NetworkTest'
         [IO.File]::WriteAllLines($file, $script:Lines)
+        Remove-OldReports (Resolve-Path -LiteralPath $Root).Path | Out-Null
         Write-Host ''
         Write-Host ('   Report saved: ' + (Split-Path -Leaf $file)) -ForegroundColor DarkGray
     } catch { }

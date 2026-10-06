@@ -1,4 +1,4 @@
-# PC Optimizer v4.14 - support bundle
+# PC Optimizer v4.15 - support bundle
 # Collects what is needed to find a problem into ONE text file: version, Windows build, Check Status, system report, PC health,
 # a driver scan, the latest logs and the saved choices. Read-only: nothing on the PC is changed and nothing is sent anywhere.
 # Private details are replaced: your user name, the computer name, home network addresses, hardware (MAC) addresses and e-mail addresses.
@@ -7,6 +7,7 @@
 param([string]$Root = '')
 
 $ErrorActionPreference = 'Continue'
+. (Join-Path $PSScriptRoot 'Report_Files.ps1')
 $user = [string]$env:USERNAME
 $pcName = [string]$env:COMPUTERNAME
 
@@ -38,7 +39,8 @@ function Invoke-Tool([string]$Script, [string[]]$ToolArgs) {
 }
 
 function Get-TailText([string]$Pattern, [int]$Lines) {
-    $f = Get-ChildItem -LiteralPath $script:RootDir -File -Filter $Pattern -ErrorAction SilentlyContinue | Sort-Object LastWriteTime -Descending | Select-Object -First 1
+    # the Logs folder first; reports from older versions may still be next to the scripts
+    $f = @(Get-ChildItem -LiteralPath (Get-LogsDir $script:RootDir) -File -Filter $Pattern -ErrorAction SilentlyContinue) + @(Get-ChildItem -LiteralPath $script:RootDir -File -Filter $Pattern -ErrorAction SilentlyContinue) | Sort-Object LastWriteTime -Descending | Select-Object -First 1
     if ($null -eq $f) { return '(none found)' }
     $all = @(Get-Content -LiteralPath $f.FullName -ErrorAction SilentlyContinue)
     $take = @($all | Select-Object -Last $Lines)
@@ -77,7 +79,7 @@ function Start-SupportBundle {
     try { $version = ([IO.File]::ReadAllText((Join-Path $script:RootDir 'VERSION'))).Trim() } catch { }
 
     Write-Host '==================================================================' -ForegroundColor Cyan
-    Write-Host '   PC OPTIMIZER v4.14 - SUPPORT BUNDLE (nothing is changed or sent)' -ForegroundColor Cyan
+    Write-Host '   PC OPTIMIZER v4.15 - SUPPORT BUNDLE (nothing is changed or sent)' -ForegroundColor Cyan
     Write-Host '==================================================================' -ForegroundColor Cyan
     Write-Host ''
     Write-Host '   Collecting everything into one file, about 30-60 seconds. No key press is needed...' -ForegroundColor DarkGray
@@ -115,7 +117,7 @@ function Start-SupportBundle {
     }
 
     $final = ConvertTo-Scrubbed $sb.ToString() $user $pcName
-    $file = Join-Path $script:RootDir ('SupportBundle_' + (Get-Date -Format 'yyyyMMdd_HHmmss') + '.txt')
+    $file = New-ReportPath $script:RootDir 'SupportBundle'
     try {
         [IO.File]::WriteAllText($file, $final, (New-Object Text.UTF8Encoding($false)))
     } catch {
@@ -127,6 +129,7 @@ function Start-SupportBundle {
     }
 
     Write-Host ''
+    try { Remove-OldReports $script:RootDir | Out-Null } catch { }
     Write-Host ('   [OK] Saved: ' + (Split-Path -Leaf $file) + '  (' + [math]::Round((Get-Item -LiteralPath $file).Length / 1KB) + ' KB)') -ForegroundColor Green
     Write-Host '   Open it and read it first. Remove anything you do not want to share.' -ForegroundColor White
     Write-Host '   To report a problem: https://github.com/Kensukeimagery/win11-optimizer/issues/new/choose and attach the file.' -ForegroundColor White

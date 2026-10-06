@@ -1,5 +1,13 @@
 # Changelog
 
+## v4.15
+- **Tidy folder: reports and logs go to a `Logs` folder.** Every tool saves its report there, and the main menu logs there too, so the folder next to the scripts stays clean. Reports saved next to the scripts by older versions are moved into `Logs` once (nothing is overwritten or removed).
+- **Old reports are removed automatically:** the newest 3 of each kind are kept (a support bundle keeps 5), checked when the menu opens and after each tool. Only files with exactly the names this program creates, inside `Logs`, are ever removed; `Backup` is never touched by this. A menu session in which nothing was run leaves no log at all.
+- **New: `L_Clean_Up.bat` / menu L.** Shows what is in `Logs` and `Backup` with sizes, lets you change how many reports are kept (0 = never remove), and lists older backups to remove ONLY after you say yes (default no). It keeps the newest full driver copy, the newest 2 driver-cleanup copies, the newest 2 earlier program versions and the newest 10 registry copies.
+- Driver check: for a few low-impact drivers (fewer than 4, none of them important) the multi-GB full driver copy is now optional and off by default, because the restore point is already made. Important drivers or 4 or more still get the copy.
+- Small fixes: the cable-speed note in PC specs starts with a capital letter; a stray comment in the PC specs source is cleaned up.
+- Tests for the report names, the keep rule, moving old reports, the safety checks and the backup rules, run on a temporary folder.
+
 ## v4.14
 - **New: PC specs on one page** (`S_PC_Specs.bat`, menu **S**, `tools\PC_Specs.ps1`). Read-only, in plain words, for people who do not know where to find their specs: computer and motherboard, Windows, processor (cores and threads), memory (size, type, speed, slots used), graphics card (video memory, NVIDIA driver number), every screen with resolution and refresh rate, every drive (SSD or HDD, size, free space, which one holds Windows), the network link, and Secure Boot and TPM. Short notes say what a number means; no serial numbers, MAC or IP addresses, so the page can be shared. It ends with a check-up: do the drivers and the settings fit together (every device has a working driver, a maker graphics driver, old network/graphics/sound/Bluetooth drivers, the optimizer settings still in place, screens at their highest refresh rate, RAM at its rated speed, cable at full speed). It is also a section of the support bundle.
 - The screen helper moved to `tools\Display_Info.ps1` and the shared hints (RAM speed, cable speed, refresh rate) to `tools\Check_Rules.ps1`, both used by PC health and PC specs.

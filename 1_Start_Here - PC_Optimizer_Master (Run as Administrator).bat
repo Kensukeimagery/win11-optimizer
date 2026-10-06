@@ -1,10 +1,10 @@
 @echo off
 setlocal EnableExtensions
-title PC Optimizer - Master Control v4.14
+title PC Optimizer - Master Control v4.15
 color 0B
 
 :: =====================================================================
-::  PC OPTIMIZER - MASTER CONTROL v4.14
+::  PC OPTIMIZER - MASTER CONTROL v4.15
 ::  Safety rules used in this file - they avoid the crashes seen in v3:
 ::   - no brackets inside ECHO text that sits inside IF or FOR blocks
 ::   - flat GOTO labels instead of nested IF / ELSE blocks
@@ -20,9 +20,12 @@ set "UNDOROOT=%SCRIPT_DIR%reg_undo"
 set "TOOLDIR=%SCRIPT_DIR%tools"
 set "TS=manual"
 for /f "usebackq delims=" %%t in (`powershell -NoProfile -Command "Get-Date -Format yyyyMMdd_HHmmss"`) do set "TS=%%t"
-set "LOGFILE=%SCRIPT_DIR%OptimizerLog_%TS%.txt"
+set "LOGDIR=%SCRIPT_DIR%Logs"
+if not exist "%LOGDIR%" mkdir "%LOGDIR%" >nul 2>&1
+set "LOGFILE=%LOGDIR%\OptimizerLog_%TS%.txt"
 set "BACKUPDIR=%SCRIPT_DIR%Backup\%TS%"
-echo PC Optimizer v4.14 Log - %date% %time% > "%LOGFILE%"
+echo PC Optimizer v4.15 Log - %date% %time% > "%LOGFILE%"
+if exist "%TOOLDIR%\Report_Maintain.ps1" powershell -NoProfile -ExecutionPolicy Bypass -File "%TOOLDIR%\Report_Maintain.ps1" -Root "%SCRIPT_DIR%." >nul 2>&1
 
 if not exist "%REGROOT%" goto NOREG
 if not exist "%UNDOROOT%" echo [WARN] reg_undo folder not found - option 7 will not work.
@@ -86,7 +89,7 @@ goto MENU
 :MENU
 cls
 echo ===================================================================
-echo    PC OPTIMIZER - MASTER CONTROL v4.14
+echo    PC OPTIMIZER - MASTER CONTROL v4.15
 echo    Log: OptimizerLog_%TS%.txt
 if "%ISLAPTOP%"=="1" echo    Laptop detected - tweaks 02 and 16 are not recommended on a laptop.
 if defined UPDMSG echo    %UPDMSG%
@@ -112,6 +115,7 @@ echo   [R] System report - CPU and RAM users, startup list, changes nothing
 echo   [S] PC specs - your PC on one page, in plain words
 echo   [H] PC health - crashes, drive health, screen refresh rate, RAM speed, cable speed
 echo   [B] Support bundle - one file to attach to a problem report
+echo   [L] Clean up - old reports and backups, you choose
 echo   [0] Exit
 echo.
 set "CHOICE="
@@ -138,6 +142,7 @@ if /i "%CHOICE%"=="R" goto DOREP
 if /i "%CHOICE%"=="S" goto DOSPECS
 if /i "%CHOICE%"=="H" goto DOHEALTH
 if /i "%CHOICE%"=="B" goto DOBUNDLE
+if /i "%CHOICE%"=="L" goto DOCLEAN
 if "%CHOICE%"=="0" goto END
 goto MENU
 
@@ -199,6 +204,10 @@ goto MENU
 
 :DOBUNDLE
 call :BUNDLERUN
+goto MENU
+
+:DOCLEAN
+call :CLEANRUN
 goto MENU
 
 :: ---------------------------------------------------------------------
@@ -762,6 +771,16 @@ echo [ERROR] tools\PC_Health.ps1 was not found next to this script.
 pause
 goto :eof
 
+:CLEANRUN
+if not exist "%TOOLDIR%\Clean_Up.ps1" goto CLEANMISSING
+powershell -NoProfile -ExecutionPolicy Bypass -File "%TOOLDIR%\Clean_Up.ps1" -Root "%SCRIPT_DIR%."
+pause
+goto :eof
+:CLEANMISSING
+echo [ERROR] tools\Clean_Up.ps1 was not found next to this script.
+pause
+goto :eof
+
 :BUNDLERUN
 if not exist "%TOOLDIR%\Support_Bundle.ps1" goto BUNDLEMISSING
 powershell -NoProfile -ExecutionPolicy Bypass -File "%TOOLDIR%\Support_Bundle.ps1" -Root "%SCRIPT_DIR%."
@@ -790,6 +809,8 @@ goto :eof
 
 :END
 echo.
-echo Log saved to: %LOGFILE%
+:: a log that holds only its first line (nothing was run) is not worth keeping
+if exist "%LOGFILE%" for %%A in ("%LOGFILE%") do if %%~zA LSS 150 del "%%~A" >nul 2>&1
+if exist "%LOGFILE%" echo Log saved to: %LOGFILE%
 timeout /t 2 >nul
 exit /b

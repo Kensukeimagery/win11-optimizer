@@ -1,11 +1,14 @@
-# PC Optimizer v4.14 - PC specs on one page
+# PC Optimizer v4.15 - PC specs on one page
 # Read-only. Shows your PC in plain words on one page: computer, Windows, processor, memory, graphics card, screens, drives,
 # network and the security features some games ask for. Meant for people who do not know where to look for the specs,
 # and for sharing when you ask for help or sell the PC. No serial numbers, MAC addresses or IP addresses are shown.
-# It ends with a short check-up: do the drivers fit the hardware (no device without a driver, a maker graphics driver) and do the settings fit\r\n# (the optimizer settings still in place, screens at their highest refresh rate, RAM at its rated speed, cable at full speed)?\r\n#   -Root <folder>  also save the page as PCSpecs_<time>.txt in that folder
+# It ends with a short check-up: do the drivers fit the hardware (no device without a driver, a maker graphics driver) and do the settings fit
+# (the optimizer settings still in place, screens at their highest refresh rate, RAM at its rated speed, cable at full speed)?
+#   -Root <folder>  also save the page as PCSpecs_<time>.txt in that folder
 param([string]$Root = '')
 
 $ErrorActionPreference = 'Continue'
+. (Join-Path $PSScriptRoot 'Report_Files.ps1')
 $script:Lines = New-Object System.Collections.Generic.List[string]
 $user = [string]$env:USERNAME
 $pcName = [string]$env:COMPUTERNAME
@@ -261,7 +264,7 @@ function Show-Network {
         Write-Row $(if ($first) { 'Network' } else { '' }) ($kind + ': ' + [string]$a.InterfaceDescription + ', link ' + $mbps + ' Mbps')
         $first = $false
         $note = $(if ($kind -eq 'Cable') { Get-LanHint ([string]$a.InterfaceDescription) $mbps } else { '' })
-        if ($note -ne '') { Write-Row '' $note }
+        if ($note -ne '') { Write-Row '' ($note.Substring(0, 1).ToUpper() + $note.Substring(1)) }
     }
 }
 
@@ -391,7 +394,7 @@ function Start-PcSpecs {
     $rootDir = ''
     if ($Root -ne '') { try { $rootDir = (Resolve-Path -LiteralPath $Root).Path } catch { } }
     Write-Log '==================================================================' 'Cyan'
-    Write-Log '   PC OPTIMIZER v4.14 - YOUR PC ON ONE PAGE (nothing is changed)' 'Cyan'
+    Write-Log '   PC OPTIMIZER v4.15 - YOUR PC ON ONE PAGE (nothing is changed)' 'Cyan'
     Write-Log ('   ' + (Get-Date -Format 'yyyy-MM-dd HH:mm')) 'Cyan'
     Write-Log '==================================================================' 'Cyan'
     Write-Log ''
@@ -417,7 +420,7 @@ function Start-PcSpecs {
     Write-Log '   The notes under each part are general guidelines, not verdicts: what counts as enough depends on the games you play.' 'DarkGray'
     Write-Log '   No serial numbers, MAC addresses or IP addresses are shown, so this page can be shared when you ask for help.' 'DarkGray'
     if ($rootDir -ne '') {
-        try { [IO.File]::WriteAllLines((Join-Path $rootDir ('PCSpecs_' + (Get-Date -Format 'yyyyMMdd_HHmmss') + '.txt')), $script:Lines) } catch { }
+        try { [IO.File]::WriteAllLines((New-ReportPath $rootDir 'PCSpecs'), $script:Lines); Remove-OldReports $rootDir | Out-Null } catch { }
     }
 }
 
