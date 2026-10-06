@@ -1,0 +1,147 @@
+<!doctype html>
+<html lang="th"><head><meta charset="utf-8"><title>คู่มือตั้งค่าไดรเวอร์การ์ดจอ NVIDIA สำหรับเล่นเกม</title>
+<link rel="stylesheet" href="style.css"></head><body>
+
+<!-- PAGE 1 -->
+<div class="page">
+<div class="banner cover"><div class="sub">คู่มือ</div><h1>ตั้งค่าไดรเวอร์ NVIDIA สำหรับเล่นเกม</h1><div class="sub">แต่ละค่าคืออะไร ค่าที่แนะนำ และเมื่อไหร่ควรเลือกอย่างอื่น</div></div>
+
+<div class="box red"><h3>อ่านก่อน</h3>
+<ul>
+<li>คู่มือนี้เกี่ยวกับ <b>NVIDIA Control Panel</b> เท่านั้น คือการตั้งค่าไดรเวอร์ที่ NVIDIA จัดไว้ให้เอง ไม่แตะไฟล์เกมใดๆ จึงไม่ใช่การแก้ไขเกม และระบบกันโกงไม่ถือว่าเป็นการโกง อย่าใช้ร่วมกับเครื่องมือที่แก้ไฟล์เกมหรือแทรกเข้าไปในเกม</li>
+<li>เขียนโดยยึด <b>GeForce GTX 1070</b> (Pascal) เป็นหลัก และใช้ได้กับการ์ด GTX 10, 16, RTX 20, 30, 40 และ 50 ส่วนใหญ่ ชื่อและค่าเริ่มต้นอาจต่างเล็กน้อยตามเวอร์ชันไดรเวอร์ ถ้าการ์ดของคุณไม่มีตัวเลือกไหน ให้ข้ามไป</li>
+<li><b>ความคาดหวังที่เป็นจริง:</b> ตัวเลือกส่วนใหญ่ด้านล่างเปลี่ยน FPS ราว 0-3% ที่มีผลจริงคือ <b>Power management mode, Low Latency Mode, V-Sync / G-SYNC / การจำกัดเฟรม</b> และ<b>รีเฟรชเรต</b> การตั้งค่าในเกมและตัวซีพียูมีผลมากกว่าทั้งหมดนี้</li>
+</ul></div>
+
+<div class="box blue"><h3>ก่อนเริ่ม (2 นาที)</h3>
+<ul>
+<li>เปิดโปรแกรม: คลิกขวาที่เดสก์ท็อป &gt; <i>NVIDIA Control Panel</i> (Windows 11: กด <i>Show more options</i> ก่อน) ถ้าไม่มี ให้ติดตั้ง <i>NVIDIA Control Panel</i> จาก Microsoft Store</li>
+<li>ถ่ายภาพหน้าจอของหน้าที่จะเปลี่ยนไว้ เผื่อย้อนกลับ ปุ่ม <b>Restore</b> ในแต่ละหน้าจะคืนค่าหน้านั้นเป็นค่าเริ่มต้นของ NVIDIA</li>
+<li>กดปุ่ม <b>Apply</b> มุมล่างขวาของแต่ละหน้า ยังไม่กดคือยังไม่บันทึก</li>
+</ul></div>
+
+<h2>Global Settings หรือ Program Settings?</h2>
+<p>หน้า <b>Manage 3D settings</b> มี 2 แท็บ <b>Global Settings</b> ใช้กับทุกเกมและโปรแกรม <b>Program Settings</b> ใช้กับโปรแกรมเดียวและทับค่า Global วิธีที่ดีคือตั้ง Global เป็นค่าปลอดภัยตามคู่มือนี้ แล้วใช้ Program Settings กับเกมหนึ่งสองเกมที่ต้องการค่าต่างออกไป (เช่น Low Latency Mode = Ultra ในเกมที่การ์ดจอทำงานหนัก)</p>
+
+<h2>ขั้นที่ 1: Adjust image settings with preview</h2>
+<div class="card"><div class="t"><span class="n">1</span>Use the advanced 3D image settings</div><ul>
+<li><b>คืออะไร:</b> หน้านี้มีแถบเลื่อน ("Use my preference emphasizing: Performance / Quality") กับตัวเลือก "advanced"</li>
+<li><b>แนะนำ: Use the advanced 3D image settings</b> แถบเลื่อนเป็นพรีเซ็ตที่เปลี่ยนค่าคุณภาพภาพให้โดยไม่บอก และทับสิ่งที่คุณตั้งใน Manage 3D settings ถ้าเลือก advanced ทุกค่าที่คุณตั้งเองจะถูกใช้ตามนั้น FPS ต่างกันไม่มาก (ราว 1-2%) แต่มีแค่ advanced ที่ทำให้คุณรู้ชัดว่าตั้งอะไรไว้</li></ul></div>
+</div>
+
+<!-- PAGE 2 -->
+<div class="page">
+<div class="banner"><h1>ขั้นที่ 2: Manage 3D settings</h1><p>Global Settings เรียงตามลำดับที่หน้าแสดง</p></div>
+<p class="small">Default = ค่าเริ่มต้นของ NVIDIA, แนะนำ = ค่าที่แนะนำสำหรับเล่นเกม</p>
+<table><tr><th style="width:17%">ค่า</th><th>คืออะไร และแต่ละตัวเลือกต่างกันอย่างไร</th><th style="width:16%">Default</th><th style="width:15%">แนะนำ</th></tr>
+<tr><td>Image Scaling</td><td>ตัวขยายภาพของ NVIDIA เอง (NIS) เรนเดอร์ที่ความละเอียดต่ำกว่าแล้วขยาย มีประโยชน์เมื่ออยากเล่นต่ำกว่าความละเอียดจริงของจอ ภาพนุ่มลง</td><td>Off</td><td>Off</td></tr>
+<tr><td>Ambient Occlusion</td><td>บังคับเพิ่มเงาในเกมที่รองรับ กิน FPS มาก และมีแค่เกมเก่าบางเกมที่มีโปรไฟล์รองรับ</td><td>Off</td><td>Off</td></tr>
+<tr><td>Anisotropic filtering</td><td>ทำให้พื้นผิวที่เอียง (พื้น ถนน) คมชัด "Application-controlled" ให้เกมเลือกเอง ตัวเลขคือบังคับระดับนั้น การบังคับ 16x กิน FPS ราว 0-3% บน GTX 1070 และช่วยเกมเก่าที่ไม่มีตัวเลือกนี้</td><td>Application-controlled</td><td>Application-controlled</td></tr>
+<tr><td>Antialiasing - FXAA</td><td>ตัวลดขอบหยักแบบเบลอที่ไดรเวอร์ทำให้ ภาพเบลอลง หลายเกมมีของตัวเองอยู่แล้ว</td><td>Off</td><td>Off</td></tr>
+<tr><td>Antialiasing - Gamma correction</td><td>มีผลเฉพาะ AA ที่ไดรเวอร์บังคับ ไม่มีผลต่อ FPS ที่วัดได้</td><td>On</td><td>On (ปล่อยไว้)</td></tr>
+<tr><td>Antialiasing - Mode</td><td>"Application-controlled" ให้เกมตัดสินใจ "Override" บังคับ AA จากไดรเวอร์ ซึ่งในเกมสมัยใหม่มักไม่มีผล</td><td>Application-controlled</td><td>Application-controlled</td></tr>
+<tr><td>Antialiasing - Transparency</td><td>ทำให้รั้วและใบไม้เรียบ โหมด supersample แพงมาก</td><td>Off</td><td>Off</td></tr>
+<tr><td>Background Application Max Frame Rate</td><td>จำกัดเฟรมของเกมที่อยู่เบื้องหลัง (สลับหน้าต่างออก) ตั้ง 20 ช่วยลดความร้อนและไฟ ไม่มีผลตอนกำลังเล่น</td><td>Off</td><td>Off (หรือ 20)</td></tr>
+<tr><td>CUDA - GPUs</td><td>การ์ดจอที่โปรแกรม CUDA ใช้ได้ ไม่เกี่ยวกับเกม</td><td>All</td><td>All</td></tr>
+<tr><td>DSR - Factors</td><td>เรนเดอร์ที่ความละเอียดสูงกว่าแล้วย่อลงให้ภาพคม จงใจลด FPS</td><td>Off</td><td>Off</td></tr>
+<tr><td>Low Latency Mode</td><td>จำกัดจำนวนเฟรมที่ซีพียูเตรียมไว้ล่วงหน้าก่อนส่งให้การ์ดจอ คิวสั้น = input lag ต่ำ <b>Off</b> ให้เกมตัดสินใจเอง <b>On</b> จำกัดคิว 1 เฟรม <b>Ultra</b> ส่งแต่ละเฟรมแบบพอดีจังหวะ ไม่มีคิว ใช้ได้กับ DirectX 9 และ 11 เท่านั้น DirectX 12, Vulkan และเกมที่มี NVIDIA Reflex จัดการเอง ดูหน้าถัดไป</td><td>Off</td><td>On (Ultra เป็นรายเกม)</td></tr>
+<tr><td>Max Frame Rate</td><td>จำกัดเฟรมจากไดรเวอร์ ดูโปรไฟล์ในหน้าถัดไป</td><td>Off</td><td>ดูโปรไฟล์</td></tr>
+<tr><td>Monitor Technology</td><td>G-SYNC Compatible ทำให้จอตามความเร็ว FPS ของคุณ (variable refresh rate) ไม่ฉีกภาพโดยไม่มีความหน่วงแบบ V-Sync ขึ้นเฉพาะเมื่อจอรองรับและเปิดไว้ในหน้า Set up G-SYNC</td><td>Fixed Refresh</td><td>G-SYNC Compatible (ถ้ามี)</td></tr>
+<tr><td>MFAA</td><td>AA แบบประหยัดกว่าที่ใช้ได้เมื่อเปิด MSAA เท่านั้น ใช้ประโยชน์น้อย</td><td>Off</td><td>Off</td></tr>
+</table>
+</div>
+
+<!-- PAGE 3 -->
+<div class="page">
+<table><tr><th style="width:17%">ค่า</th><th>คืออะไร และแต่ละตัวเลือกต่างกันอย่างไร</th><th style="width:16%">Default</th><th style="width:15%">แนะนำ</th></tr>
+<tr><td>OpenGL GDI compatibility</td><td>โหมดเข้ากันได้สำหรับโปรแกรม OpenGL เก่า</td><td>Auto</td><td>Auto</td></tr>
+<tr><td>OpenGL rendering GPU</td><td>การ์ดที่ใช้รันเกม OpenGL ในเครื่องที่มีการ์ด GeForce ใบเดียว การระบุชื่อการ์ดกันไม่ให้ไดรเวอร์เดา</td><td>Auto-select</td><td>การ์ด GeForce ของคุณ</td></tr>
+<tr><td>Power management mode</td><td>การ์ดจะรักษาความเร็วสัญญาณนาฬิกาสูงแค่ไหน <b>Optimal power</b> ลดความเร็วเมื่อคิดว่างานเบา อาจทำให้ FPS ตกในเกมที่โหลดเปลี่ยนไปมา <b>Adaptive</b> คล้ายกัน <b>Prefer maximum performance</b> ให้ความเร็วสูงไว้ขณะรันโปรแกรม 3D ทำให้ FPS สม่ำเสมอกว่า ราคาที่จ่ายคือร้อนและกินไฟขึ้นเล็กน้อย และบางเครื่องกินไฟตอนว่างมากขึ้น ถ้าเครื่องร้อนตอนว่าง ให้ตั้งเป็นรายเกมแทน Global</td><td>Optimal power</td><td>Prefer maximum performance</td></tr>
+<tr><td>Preferred refresh rate</td><td>รีเฟรชเรตที่เกมใช้ได้ "Highest available" กันไม่ให้เกมเลือก 60 Hz บนจอ 144 Hz แสดงแยกรายจอ</td><td>Application-controlled</td><td>Highest available</td></tr>
+<tr><td>Shader Cache Size</td><td>ไดรเวอร์ใช้ดิสก์เก็บ shader ที่คอมไพล์แล้วได้เท่าไร แคชใหญ่ = กระตุกน้อยลงเมื่อเกมกลับมาใช้ shader เดิม</td><td>Driver default</td><td>10 GB หรือ Unlimited</td></tr>
+<tr><td>Texture filtering - Anisotropic sample optimization</td><td>ใช้ตัวอย่างพื้นผิวน้อยลง เร็วขึ้นนิดเดียว ภาพเสียนิดเดียว</td><td>Off</td><td>On (ไม่บังคับ)</td></tr>
+<tr><td>Texture filtering - Negative LOD bias</td><td>Allow = คมกว่า แต่อาจสั่นระยิบเมื่อเกมขอ Clamp = ตัดอาการสั่น ไม่มีผลต่อ FPS</td><td>Allow</td><td>Clamp</td></tr>
+<tr><td>Texture filtering - Quality</td><td>Quality / Performance / High performance / High quality ตัวที่ต่ำลงประหยัดราว 1-3% และภาพด้อยลงเล็กน้อย เลือก High performance เมื่อต้องการเฟรมสุดท้ายจริงๆ</td><td>Quality</td><td>Quality (High performance สำหรับเกมแข่ง)</td></tr>
+<tr><td>Texture filtering - Trilinear optimization</td><td>วิธีผสมระดับพื้นผิวที่เร็วกว่า ภาพเสียนิดเดียว</td><td>On</td><td>On</td></tr>
+<tr><td>Threaded optimization</td><td>ให้ไดรเวอร์ใช้หลายคอร์ของซีพียู <b>Auto</b> ให้ไดรเวอร์ตัดสินใจรายเกม <b>On</b> บังคับใช้ อาจช่วยเกมที่ติดที่คอร์ซีพียูช้าคอร์เดียว (พบบ่อยในซีพียูหลายคอร์ความเร็วต่ำอย่าง Xeon) <b>Off</b> แก้เกมหายากที่แครชหรือกระตุกเมื่อเปิดไว้ ควรทดสอบรายเกม</td><td>Auto</td><td>Auto (ลอง On)</td></tr>
+<tr><td>Triple buffering</td><td>มีผลเฉพาะเกม OpenGL ที่ใช้ V-Sync</td><td>Off</td><td>Off</td></tr>
+<tr><td>Vertical sync</td><td>รอจังหวะรีเฟรชของจอก่อนแสดงเฟรม กันภาพฉีก แต่เพิ่ม input lag และอาจทำให้ FPS เหลือครึ่งเมื่อต่ำกว่ารีเฟรชเรต ดูโปรไฟล์ในหน้าถัดไป</td><td>Use the 3D application setting</td><td>ดูโปรไฟล์</td></tr>
+<tr><td>Virtual Reality pre-rendered frames</td><td>แนวคิดเดียวกับ Low Latency Mode สำหรับแว่น VR เท่านั้น</td><td>1</td><td>1</td></tr>
+<tr><td>Vulkan/OpenGL present method</td><td>"Prefer layered on DXGI swapchain" ทำให้ G-SYNC ทำงานในเกม Vulkan/OpenGL แบบหน้าต่าง ปล่อย Auto ไว้ถ้าไม่จำเป็น</td><td>Auto</td><td>Auto</td></tr>
+</table>
+<div class="box green"><h3>Configure Surround, PhysX</h3>
+<p>ตั้ง PhysX processor เป็นการ์ด GeForce ของคุณแทน Auto-select ปกติ Auto ก็เลือกการ์ดอยู่แล้ว การระบุชื่อแค่ตัดโอกาสที่งานจะไปตกที่ซีพียู</p></div>
+</div>
+
+<!-- PAGE 4 -->
+<div class="page">
+<div class="banner"><h1>เลือกสไตล์: 2 โปรไฟล์สำเร็จรูป</h1><p>V-Sync กับ Max Frame Rate กำหนดความรู้สึกมากกว่าตัวเลือกอื่น</p></div>
+
+<div class="card"><div class="t"><span class="n">A</span>FPS สูงสุด หน่วงต่ำสุด (เกมแข่ง: Valorant, CS2, Overwatch ฯลฯ)</div><ul>
+<li>Vertical sync = <b>Off</b>, Max Frame Rate = <b>Off</b> (หรือจำกัดไว้สูงกว่ารีเฟรชเรต)</li>
+<li>Low Latency Mode = On ใช้ Ultra เฉพาะเมื่อเกมทำให้การ์ดจอแตะ 95% ขึ้นไปตลอด</li>
+<li>ราคาที่จ่าย: ภาพฉีก (มีรอยแบ่งแนวนอน) บางเฟรม แลกกับความหน่วงต่ำสุด</li></ul></div>
+<div class="card"><div class="t"><span class="n">B</span>ภาพลื่น ไม่ฉีก หน่วงต่ำ (เกมเล่นคนเดียวและเกมส่วนใหญ่)</div><ul>
+<li>Set up G-SYNC: เปิด Vertical sync = <b>On</b> ใน NVIDIA Control Panel และ <b>Off</b> ในเกม</li>
+<li>Max Frame Rate = รีเฟรชเรตลบ 3 (เช่นจอ 144 Hz ตั้ง 141) อยู่ต่ำกว่ารีเฟรชเรตเล็กน้อยทำให้ G-SYNC ยังทำงาน V-Sync จึงไม่เพิ่มความหน่วงตามปกติ</li>
+<li>Low Latency Mode = On (Ultra จะคุม FPS ให้ต่ำกว่ารีเฟรชเรตเองเมื่อเปิด G-SYNC กับ V-Sync)</li>
+<li>ราคาที่จ่าย: FPS สูงกว่าเพดานที่ตั้งไม่ได้ ใช้ exclusive fullscreen ถ้าเกมมี</li></ul></div>
+
+<h2>Low Latency Mode: On หรือ Ultra?</h2>
+<table><tr><th style="width:20%">สถานการณ์</th><th>เลือก</th></tr>
+<tr><td>การ์ดจอเป็นตัวจำกัด (ใช้งาน 95-99%): เกมหนักภาพสวย</td><td><b>Ultra</b> เฉพาะเกมนั้น (Program Settings) ตัดคิวเรนเดอร์ ความหน่วงต่ำลง</td></tr>
+<tr><td>ซีพียูเป็นตัวจำกัด (การ์ดจอใช้งานต่ำกว่า 95% ชัดเจน): เกมแข่ง FPS สูงมาก</td><td><b>On</b> (Global) Ultra ได้ผลน้อยตรงนี้ และอาจเสีย FPS เล็กน้อยหรือกระตุกขึ้น</td></tr>
+<tr><td>เกมมี NVIDIA Reflex</td><td>เปิด <b>Reflex On</b> ในเกม และปล่อยไดรเวอร์ไว้ที่ On Reflex ทำหน้าที่เดียวกันได้ดีกว่า</td></tr>
+<tr><td>เกม DirectX 12 หรือ Vulkan</td><td>ค่าในไดรเวอร์ไม่มีผล เกมจัดการคิวเอง ใช้ Reflex ถ้ามี</td></tr>
+</table>
+<p class="small"><b>วิธีดูว่าอะไรเป็นตัวจำกัด:</b> เปิด Task Manager &gt; Performance &gt; GPU ขณะเล่น ไม่ต้องใช้ overlay และไม่มีอะไรแทรกเข้าไปในเกม ถ้า GPU ค้างที่ 95% ขึ้นไป การ์ดจอคือตัวจำกัด ถ้าต่ำกว่านั้นขณะที่ FPS ถูกจำกัดด้วยสิ่งอื่น ตัวจำกัดคือซีพียู (หรือตัวเกม)</p>
+
+<h2>Set up G-SYNC</h2>
+<ul>
+<li>ติ๊ก <b>Enable G-SYNC, G-SYNC Compatible</b> เลือก <b>Enable for full screen mode</b> (เหมาะกับเกมที่สุด) "Windowed and full screen" ใช้กับเกม borderless ได้ด้วย</li>
+<li>ถ้าจอขึ้น "not validated" ให้ติ๊ก <b>Enable settings for the selected display model</b> ถ้าเจอจอกะพริบหรือดับ ให้เอาติ๊กออก เพราะจอ FreeSync/VRR บางรุ่นเข้ากันได้ไม่สมบูรณ์</li>
+<li>เช็กด้วยว่า <i>Variable refresh rate</i> เปิดอยู่ใน Windows Settings &gt; System &gt; Display &gt; Graphics</li>
+<li>ถ้ามี 2 จอที่รีเฟรชเรตต่างกัน เกมบนจอหนึ่งอาจกระตุกเพราะอีกจอ ถ้าเจอ ให้ปิดวิดีโอและแอนิเมชันบนจอที่สองตอนเล่น</li></ul>
+
+<h2>Change resolution</h2>
+<ul>
+<li>Resolution = ความละเอียดจริงของจอ Refresh rate = ค่าสูงสุดที่จอมี (จอ 144 Hz ที่ค้างอยู่ที่ 60 Hz เป็นสาเหตุที่พบบ่อยมากของอาการ "FPS รู้สึกต่ำ")</li>
+<li>Output dynamic range = <b>Full</b> ถ้ามีตัวเลือกนี้ (HDMI บางทีตั้งเป็น Limited ทำให้ภาพซีด) จอคอมพิวเตอร์ปกติใช้ Full</li></ul>
+</div>
+
+<!-- PAGE 5 -->
+<div class="page">
+<div class="banner"><h1>ความปลอดภัย และวิธีเพิ่ม FPS เพิ่มเติม</h1><p>อะไรปลอดภัยกับระบบกันโกง อะไรควรเลี่ยง และอะไรอีกที่มีผล</p></div>
+
+<div class="box green"><h3>ปลอดภัย (ตั้งค่าไดรเวอร์และ Windows)</h3>
+<ul>
+<li>ทุกอย่างในตารางข้างบน การตั้งค่ากราฟิกของ Windows การตั้งค่าในเกมผ่านเมนูของเกมเอง และ launch options ที่ผู้ทำเกมระบุไว้</li>
+<li>การอัปเดตไดรเวอร์การ์ดจอจาก NVIDIA (เลือก <i>Custom</i> และติ๊ก <i>Perform a clean installation</i> เฉพาะเมื่อเคยมีปัญหา)</li></ul></div>
+<div class="box amber"><h3>ควรเลี่ยง (อาจทำให้บัญชีโดนแบน)</h3>
+<ul>
+<li>แก้หรือแทนที่ไฟล์เกม (.exe, .dll, ไฟล์ asset หรือ pak) การฉีด DLL ตัวแก้หน่วยความจำ และโปรแกรม "FPS unlocker" สำหรับเกมออนไลน์</li>
+<li>การปรับ config ที่ลบเท็กซ์เจอร์ เงา หรือเอฟเฟกต์ เพื่อให้เห็นศัตรูง่ายขึ้น หลายเกมถือว่าเป็นการได้เปรียบอย่างไม่ยุติธรรม</li>
+<li>overlay และเครื่องมือที่แทรกเข้าไปในเกม บางเกมอนุญาต บางเกมแบน อ่านกติกาของเกมนั้นก่อน</li>
+<li>โปรแกรมแก้โปรไฟล์ไดรเวอร์แบบซ่อน: ไม่ครอบคลุมในคู่มือนี้ NVIDIA ไม่รับรอง</li></ul></div>
+
+<h2>อะไรให้ FPS มากกว่าตัวเลือกไดรเวอร์</h2>
+<table><tr><th style="width:26%">ปัจจัย</th><th>เหตุผล</th></tr>
+<tr><td>รีเฟรชเรตของจอ</td><td>ให้เป็นค่าสูงสุดที่จอรองรับ (Windows Settings &gt; Display &gt; Advanced display และหน้า NVIDIA ข้างบน) เครื่องมือ PC Health (เมนู H) ตรวจให้</td></tr>
+<tr><td>ค่าในเกม</td><td>เงา volumetric effects ระยะมองเห็น และ render scale กินมากกว่าตัวเลือกไดรเวอร์ใดๆ มาก ลดตัวเหล่านี้ก่อน</td></tr>
+<tr><td>ขีดจำกัดของซีพียู</td><td>ซีพียูหลายคอร์แต่ความเร็วต่อคอร์ต่ำ เป็นตัวจำกัดเกมจำนวนมาก การลดความละเอียดไม่ช่วยในกรณีนี้ ลดระยะมองเห็น จำนวนฝูงชน และเอฟเฟกต์จึงจะช่วย</td></tr>
+<tr><td>ความร้อนและไฟ</td><td>การ์ดหรือซีพียูร้อนจะลดความเร็วเอง ทำความสะอาดฝุ่นและเช็กการระบายอากาศ</td></tr>
+<tr><td>แรมวิ่งตามความเร็วสเปก</td><td>เปิด XMP / EXPO ใน BIOS เครื่องมือ PC Health (เมนู H) แสดงว่าแรมวิ่งต่ำกว่าสเปกหรือไม่</td></tr>
+<tr><td>ค่าของ Windows</td><td>Hardware-accelerated GPU scheduling (tweak 08 ของโปรแกรมนี้) และ Game Mode ผลเล็กน้อยและต่างกันรายเครื่อง เปลี่ยนทีละอย่างแล้วเทียบ</td></tr>
+</table>
+
+<h2>ถ้ามีอะไรผิดปกติ</h2>
+<ul>
+<li>กระตุก ภาพกะพริบ หรือแครชหลังเปลี่ยน: กด <b>Restore</b> ในหน้านั้น หรือในหน้า Manage 3D settings กด Restore แล้วเปลี่ยนค่าทีละอย่าง</li>
+<li>เกมเดียวมีปัญหา: เลือกเกมนั้นใน <b>Program Settings</b> แล้วตั้งค่าที่เปลี่ยนกลับเป็น <i>Use global setting</i></li>
+<li>การเปรียบเทียบที่แฟร์: วัดฉากเดิมและค่าในเกมเดิมก่อนและหลัง และเปลี่ยนทีละค่า</li></ul>
+
+<h2>แหล่งอ้างอิง</h2>
+<p class="small">ชื่อค่า ตัวเลือก และค่าเริ่มต้น มาจาก NVIDIA Control Panel เอง (ข้อความช่วยเหลือในแต่ละหน้า) และเอกสารทั่วไปเรื่องการทำงานของมัน คำแนะนำเรื่อง G-SYNC และการจำกัดเฟรม (ต่ำกว่ารีเฟรชเรตราว 3 FPS) เป็นแนวทางที่ชุมชนทดสอบจาก Blur Busters (blurbusters.com, "G-SYNC 101") ไม่ใช่กฎของ NVIDIA NVIDIA Reflex อธิบายไว้ในหน้า Reflex ของ NVIDIA ผลต่างกันตามเกมและเครื่อง ให้ถือค่าที่แนะนำเป็นจุดเริ่มต้นที่ดี ไม่ใช่คำสัญญา</p>
+<div class="foot">win11-optimizer - github.com/Kensukeimagery/win11-optimizer - MIT License</div>
+</div>
+</body></html>

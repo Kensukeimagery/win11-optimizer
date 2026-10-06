@@ -41,6 +41,10 @@ foreach ($lang in 'EN', 'TH') {
     $src = Join-Path $root ('docs\src\manual_' + $lang.ToLower() + '.html')
     Assert (([IO.File]::ReadAllText($src)).Contains($tagText)) ('manual source ' + $lang + ' mentions ' + $tagText)
 }
+foreach ($lang in 'EN', 'TH') {
+    Assert (Test-Path -LiteralPath (Join-Path $root ('docs\GPU_Driver_Guide_' + $lang + '.pdf'))) ('GPU driver guide PDF exists for ' + $lang)
+    Assert (Test-Path -LiteralPath (Join-Path $root ('docs\src\gpu_guide_' + $lang.ToLower() + '.html'))) ('GPU driver guide source exists for ' + $lang)
+}
 $readme = [IO.File]::ReadAllText((Join-Path $root 'README.md'))
 Assert ($readme.Contains('Manual_EN_' + $tagText + '.pdf') -and $readme.Contains('Manual_TH_' + $tagText + '.pdf')) 'README links the current manuals'
 

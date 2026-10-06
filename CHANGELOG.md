@@ -1,5 +1,9 @@
 # Changelog
 
+## v4.13
+- **New: NVIDIA driver settings guide** (`docs/GPU_Driver_Guide_EN.pdf` and `GPU_Driver_Guide_TH.pdf`, 5 pages each). Every setting of NVIDIA Control Panel (Manage 3D settings, G-SYNC, resolution) with what it is, what each option does, the default and a recommended value; two ready profiles (maximum FPS / smooth with G-SYNC); Low Latency Mode On versus Ultra; how to tell a GPU limit from a CPU limit without any overlay; and a plain list of what is safe for anti-cheat and what to avoid. Written around a GTX 1070, valid for most GeForce cards. It only covers driver settings and never touches game files.
+- The main manuals point to the guide. Tests check that the guide files exist.
+
 ## v4.12
 - **Fix: Prefetcher is decided from the drive Windows is installed on.** The menu (option 3 and 5) and Check Status used "disk 0" to decide between SSD (Prefetcher off) and HDD (keep on). Disk 0 is not always the Windows drive: with an SSD as disk 0 and Windows on a hard drive, Prefetcher would have been switched off on the HDD, which slows start-up. Now the drive that holds C: is used; if it cannot be identified, Prefetcher is left alone.
 - **PC health:** a program that crashed 5 or more times is shown with its file location, how many days it crashed on and a plain-words error (for example "access violation"); hard drives no longer show a meaningless "0% worn"; the note about administrator rights only appears when you are not running as administrator.

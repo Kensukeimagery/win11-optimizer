@@ -1,4 +1,4 @@
-# PC Optimizer v4.12 - DNS helper (optional tweak 17)
+# PC Optimizer v4.13 - DNS helper (optional tweak 17)
 # Sets the IPv4 DNS servers of your active physical network adapters, or puts them back.
 # The DNS settings you had before are saved first, so Undo restores exactly those
 # (including "obtain automatically" if that is what you had).
