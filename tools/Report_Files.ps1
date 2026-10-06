@@ -3,7 +3,7 @@
 # Backups (<Root>\Backup) are never removed automatically: Clean_Up.ps1 lists them and asks first.
 # This file has no parameters on purpose: dot-source it, then call the functions.
 
-$script:ReportNameRegex = '^(?<p>OptimizerLog|CheckReport|NetworkTest|SystemReport|UpdateLog|DriverReport|DriverCleanReport|PCHealth|PCSpecs|SupportBundle)_(?<ts>\d{8}_\d{6})(?<after>_after)?\.txt$'
+$script:ReportNameRegex = '^(?<p>OptimizerLog|CheckReport|NetworkTest|SystemReport|UpdateLog|DriverReport|DriverCleanReport|PCHealth|PCSpecs|SupportBundle|EasySetup)_(?<ts>\d{8}_\d{6})(?<after>_after)?\.txt$'
 $script:KeepDefault = 3
 $script:SupportBundleExtra = 2   # a support bundle is made on purpose to be shared, so it is kept a little longer
 

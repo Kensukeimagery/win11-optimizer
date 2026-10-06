@@ -6,6 +6,14 @@
 
 <p align="center"><sub>The main menu (a preview, nothing to install to see it). / หน้าตาของเมนูหลัก</sub></p>
 
+### New Windows, first time, or not a computer person? Start here / เพิ่งลง Windows ใหม่ หรือไม่ถนัดคอม? เริ่มที่นี่
+
+**Double-click `0_Easy_Setup (Run as Administrator).bat`** (right-click > Run as administrator). One button: it asks the language (Thai or English), then does everything in the best order and shows a one-page summary: restore point, Windows Update (guided), drivers, safe speed settings. Nothing is deleted and everything can be undone.
+
+**ดับเบิลคลิก `0_Easy_Setup (Run as Administrator).bat`** (คลิกขวา > Run as administrator) ปุ่มเดียวจบ: เลือกภาษาไทยหรืออังกฤษ แล้วทำทุกอย่างตามลำดับที่ดีที่สุด และสรุปผลหน้าเดียว: จุดกู้คืน Windows Update (มีคนนำ) ไดรเวอร์ ตั้งค่าเพิ่มความเร็วแบบปลอดภัย ไม่มีอะไรถูกลบ และย้อนกลับได้ทั้งหมด
+
+Everyone else: `1_Start_Here` is the full menu. / คนที่คุ้นเคยแล้ว: `1_Start_Here` คือเมนูเต็ม
+
 ## Download / ดาวน์โหลด
 
 ### [Download the latest ZIP (click here) / ดาวน์โหลดไฟล์ ZIP ล่าสุด (กดที่นี่)](https://github.com/Kensukeimagery/win11-optimizer/releases/latest/download/win11-optimizer.zip)
@@ -54,6 +62,7 @@ Files downloaded from the internet carry a "from the internet" mark, so Windows 
 | Path | Purpose |
 |---|---|
 | `docs/` | Manuals (PDF, English and Thai): run order, what each .reg does, manual Windows settings, references; plus the NVIDIA driver settings guide (`GPU_Driver_Guide_EN.pdf` / `_TH.pdf`). HTML sources are in `docs/src/` |
+| `0_Easy_Setup ... .bat` | ONE BUTTON for a new Windows install and beginners (Thai or English): restore point, Windows Update (guided), drivers, safe settings, summary |
 | `1_Start_Here ... .bat` | Main menu |
 | `2_Revert_Everything ... .bat` | Restore to the `Before_PC_Optimizer` restore point |
 | `3_Check_Status ... .bat` | Check which tweaks are still applied |
@@ -72,13 +81,13 @@ Files downloaded from the internet carry a "from the internet" mark, so Windows 
 | `repair-tools/` | Deep clean, network reset, Bluetooth fix, DISM + SFC |
 
 ### Main menu
-`1` Recommended, `2` Optional 09-13, 15, 16 (one by one), `3` Base setup (power plan, services, SSD/HDD check, temp cleanup), `4` Power settings, `5` Everything, `6` Restore point only, `7` Revert one tweak, `8` Disk type, `9` Power Options, `C` Check status, `D` Drivers (beta), `U` Check for updates, `A` Automatic update check on/off, `N` Network test, `R` System report, `S` PC specs, `H` PC health, `B` Support bundle, `L` Clean up old reports and backups.
+`1` Recommended, `2` Optional 09-13, 15, 16 (one by one), `3` Base setup (power plan, services, SSD/HDD check, temp cleanup), `4` Power settings, `5` Everything, `6` Restore point only, `7` Revert one tweak, `8` Disk type, `9` Power Options, `C` Check status, `D` Drivers (beta), `U` Check for updates, `A` Automatic update check on/off, `N` Network test, `R` System report, `S` PC specs, `H` PC health, `B` Support bundle, `L` Clean up old reports and backups, `E` Easy Setup.
 
 ### Honest expectations
 These tweaks give small, situational gains. GPU driver updates, in-game settings, XMP/EXPO and cooling matter far more. Items without official Microsoft documentation are marked as community-sourced in the manual's References page.
 
 ### Requirements
-Windows 11 (build 22000 or newer), administrator rights. Built for desktops: on a laptop the menu advises against tweaks 02 and 16, and on older Windows it warns first. Manuals: [English](docs/Manual_EN_v4.15.pdf) and [Thai](docs/Manual_TH_v4.15.pdf). NVIDIA driver settings, explained one by one: [English](docs/GPU_Driver_Guide_EN.pdf) and [Thai](docs/GPU_Driver_Guide_TH.pdf). The scripts print English.
+Windows 11 (build 22000 or newer), administrator rights. Built for desktops: on a laptop the menu advises against tweaks 02 and 16, and on older Windows it warns first. Manuals: [English](docs/Manual_EN_v4.16.pdf) and [Thai](docs/Manual_TH_v4.16.pdf). NVIDIA driver settings, explained one by one: [English](docs/GPU_Driver_Guide_EN.pdf) and [Thai](docs/GPU_Driver_Guide_TH.pdf). The scripts print English.
 
 ### Problems or ideas
 Open an [issue](https://github.com/Kensukeimagery/win11-optimizer/issues/new/choose). The form asks for your version and Windows build and tells you which log files to attach (check them for anything private first).
@@ -110,7 +119,7 @@ MIT, see `LICENSE`.
 - เปิดอ่านสคริปต์ก่อน (เป็นข้อความธรรมดา) ถ้าไม่ไว้ใจไฟล์ไหน อย่ารัน
 - อย่าปิดแอนตี้ไวรัสเพื่อใช้เครื่องมือนี้
 
-รายละเอียดแต่ละไฟล์ ลำดับการรัน และการตั้งค่า Windows เพิ่มเติมอยู่ในคู่มือ PDF: [ภาษาไทย](docs/Manual_TH_v4.15.pdf) | [English](docs/Manual_EN_v4.15.pdf)
+รายละเอียดแต่ละไฟล์ ลำดับการรัน และการตั้งค่า Windows เพิ่มเติมอยู่ในคู่มือ PDF: [ภาษาไทย](docs/Manual_TH_v4.16.pdf) | [English](docs/Manual_EN_v4.16.pdf)
 
 คู่มือตั้งค่าไดรเวอร์การ์ดจอ NVIDIA ทีละข้อ (แต่ละค่าคืออะไร ค่าแนะนำ ผลต่างกันอย่างไร): [ภาษาไทย](docs/GPU_Driver_Guide_TH.pdf) | [English](docs/GPU_Driver_Guide_EN.pdf)
 

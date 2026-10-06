@@ -1,4 +1,4 @@
-# PC Optimizer v4.15 - PC health check
+# PC Optimizer v4.16 - PC health check
 # Read-only: it only reads the Windows event log, the drives, the battery, the memory and the displays. It changes nothing.
 # Shows: crashes and blue screens, drive health, battery wear (laptops), and three things that matter for games:
 # the screen refresh rate, whether the RAM runs at its rated speed, and the speed of the network cable link.
@@ -60,6 +60,12 @@ function Get-BugcheckInfo([string]$Code) {
         0x133 { return @{ Name = 'DPC_WATCHDOG_VIOLATION'; Hint = 'a driver or a drive firmware that hangs; update the SSD firmware and drivers' } }
         default { return @{ Name = 'code ' + ('0x{0:X}' -f $n); Hint = 'search this code together with the word bugcheck' } }
     }
+}
+
+function Get-CrashVerdict([int]$Count, [int]$LatestAgeDays, [bool]$FileExists) {
+    # A program that crashed many times is only worth a CHECK while it is still installed and crashed in the last 3 days.
+    if ($Count -ge 5 -and $FileExists -and $LatestAgeDays -le 3) { return 'check' }
+    return 'history'
 }
 
 function Get-ExceptionText([string]$Code) {
@@ -142,7 +148,15 @@ function Show-Crashes {
                 $path = ''; $exc = ''
                 try { $path = [string]$top.Group[0].Properties[10].Value; $exc = [string]$top.Group[0].Properties[6].Value } catch { }
                 $days = @($top.Group | ForEach-Object { $_.TimeCreated.ToString('yyyy-MM-dd') } | Select-Object -Unique).Count
-                Write-Check ('"' + $top.Name + '" crashed ' + $top.Count + ' times on ' + $days + ' different day(s). File: ' + $path + '. Error: ' + (Get-ExceptionText $exc) + '. A program that crashes this often is usually broken or out of date: update or reinstall it, or remove it if you do not need it.')
+                $latest = ($top.Group | Sort-Object TimeCreated -Descending | Select-Object -First 1).TimeCreated
+                $ageDays = [int]((Get-Date) - $latest).TotalDays
+                $exists = ($path -ne '' -and (Test-Path -LiteralPath $path))
+                $text = '"' + $top.Name + '" crashed ' + $top.Count + ' times on ' + $days + ' different day(s), the last time on ' + $latest.ToString('yyyy-MM-dd HH:mm') + '. File: ' + $path + '. Error: ' + (Get-ExceptionText $exc) + '.'
+                if ((Get-CrashVerdict $top.Count $ageDays $exists) -eq 'check') {
+                    Write-Check ($text + ' A program that crashes this often is usually broken or out of date: update or reinstall it, or remove it if you do not need it.')
+                } else {
+                    Write-Note ($text + $(if (-not $exists) { ' The program is no longer installed, so this is history and needs nothing from you.' } else { ' It has not crashed in the last 3 days, so this is probably history.' }))
+                }
             }
         }
     }
@@ -249,7 +263,7 @@ function Start-PcHealth {
     $rootDir = ''
     if ($Root -ne '') { try { $rootDir = (Resolve-Path -LiteralPath $Root).Path } catch { } }
     Write-Log '==================================================================' 'Cyan'
-    Write-Log '   PC OPTIMIZER v4.15 - PC HEALTH (nothing is changed)' 'Cyan'
+    Write-Log '   PC OPTIMIZER v4.16 - PC HEALTH (nothing is changed)' 'Cyan'
     Write-Log ('   ' + (Get-Date -Format 'yyyy-MM-dd HH:mm')) 'Cyan'
     Write-Log '==================================================================' 'Cyan'
     Write-Log ''

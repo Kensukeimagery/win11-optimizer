@@ -1,10 +1,10 @@
 @echo off
 setlocal EnableExtensions
-title PC Optimizer - Master Control v4.15
+title PC Optimizer - Master Control v4.16
 color 0B
 
 :: =====================================================================
-::  PC OPTIMIZER - MASTER CONTROL v4.15
+::  PC OPTIMIZER - MASTER CONTROL v4.16
 ::  Safety rules used in this file - they avoid the crashes seen in v3:
 ::   - no brackets inside ECHO text that sits inside IF or FOR blocks
 ::   - flat GOTO labels instead of nested IF / ELSE blocks
@@ -24,12 +24,13 @@ set "LOGDIR=%SCRIPT_DIR%Logs"
 if not exist "%LOGDIR%" mkdir "%LOGDIR%" >nul 2>&1
 set "LOGFILE=%LOGDIR%\OptimizerLog_%TS%.txt"
 set "BACKUPDIR=%SCRIPT_DIR%Backup\%TS%"
-echo PC Optimizer v4.15 Log - %date% %time% > "%LOGFILE%"
+echo PC Optimizer v4.16 Log - %date% %time% > "%LOGFILE%"
 if exist "%TOOLDIR%\Report_Maintain.ps1" powershell -NoProfile -ExecutionPolicy Bypass -File "%TOOLDIR%\Report_Maintain.ps1" -Root "%SCRIPT_DIR%." >nul 2>&1
 
 if not exist "%REGROOT%" goto NOREG
 if not exist "%UNDOROOT%" echo [WARN] reg_undo folder not found - option 7 will not work.
 if not exist "%TOOLDIR%\Check_Status.ps1" echo [WARN] tools folder not found - option C and the restore point time limit will not work.
+if /i "%~1"=="/easy" goto EASYSTART
 goto STARTUP
 
 :NOADMIN
@@ -89,12 +90,14 @@ goto MENU
 :MENU
 cls
 echo ===================================================================
-echo    PC OPTIMIZER - MASTER CONTROL v4.15
+echo    PC OPTIMIZER - MASTER CONTROL v4.16
 echo    Log: OptimizerLog_%TS%.txt
 if "%ISLAPTOP%"=="1" echo    Laptop detected - tweaks 02 and 16 are not recommended on a laptop.
 if defined UPDMSG echo    %UPDMSG%
 echo ===================================================================
 echo.
+echo   [E] EASY SETUP - one button for a new PC or first use (beginners start here)
+echo   -----------------------------------------------------------
 echo   [1] Recommended tweaks     - reg 01-08, safe for everyone
 echo   [2] Optional tweaks        - 09-13, 15, 16, asks you one by one
 echo   [3] Base system setup      - power plan, services, SSD check,
@@ -143,6 +146,7 @@ if /i "%CHOICE%"=="S" goto DOSPECS
 if /i "%CHOICE%"=="H" goto DOHEALTH
 if /i "%CHOICE%"=="B" goto DOBUNDLE
 if /i "%CHOICE%"=="L" goto DOCLEAN
+if /i "%CHOICE%"=="E" goto DOEASY
 if "%CHOICE%"=="0" goto END
 goto MENU
 
@@ -210,6 +214,10 @@ goto MENU
 call :CLEANRUN
 goto MENU
 
+:DOEASY
+call :EASYMENU
+goto MENU
+
 :: ---------------------------------------------------------------------
 ::  Helpers: apply a numbered reg file, backing up its keys first
 :: ---------------------------------------------------------------------
@@ -269,11 +277,12 @@ call :IMPORTNUM 08
 echo.
 echo   Note: tweak 08 GPU scheduling needs a restart and a supported GPU driver.
 echo [Done] Recommended tweaks applied.
-pause
+if not defined EASYMODE pause
 goto :eof
 
 :APPLY02
 if not "%ISLAPTOP%"=="1" goto RUN02
+if defined EASYMODE goto SKIP02EASY
 echo.
 echo   Laptop detected. Tweak 02 turns off power throttling and Fast Startup.
 echo   The battery drains faster and the laptop runs warmer. Skipping is recommended.
@@ -281,6 +290,10 @@ set "ans="
 set /p "ans=  Apply 02 anyway? Y/N: "
 if /i "%ans%"=="Y" goto RUN02
 echo   - Skipped 02
+call :SETCHOICE 02 N
+goto :eof
+:SKIP02EASY
+echo   - Laptop: 02 skipped (more heat and faster battery drain)
 call :SETCHOICE 02 N
 goto :eof
 :RUN02
@@ -385,7 +398,7 @@ call :CLEANOLD
 call :TEMPCLEAN
 echo.
 echo [Done] Base system setup complete.
-pause
+if not defined EASYMODE pause
 goto :eof
 
 :POWERPLAN
@@ -516,7 +529,7 @@ echo         USB selective suspend off, PCIe link power saving off.
 echo    Laptop battery settings are left unchanged.
 call :SETCHOICE POWER Y
 echo [Done] Power settings applied.
-pause
+if not defined EASYMODE pause
 goto :eof
 
 :: ---------------------------------------------------------------------
@@ -771,6 +784,17 @@ echo [ERROR] tools\PC_Health.ps1 was not found next to this script.
 pause
 goto :eof
 
+:EASYMENU
+if not exist "%TOOLDIR%\Easy_Setup.ps1" goto EASYMISSING
+chcp 65001 >nul 2>&1
+powershell -NoProfile -ExecutionPolicy Bypass -File "%TOOLDIR%\Easy_Setup.ps1" -Root "%SCRIPT_DIR%."
+pause
+goto :eof
+:EASYMISSING
+echo [ERROR] tools\Easy_Setup.ps1 was not found next to this script.
+pause
+goto :eof
+
 :CLEANRUN
 if not exist "%TOOLDIR%\Clean_Up.ps1" goto CLEANMISSING
 powershell -NoProfile -ExecutionPolicy Bypass -File "%TOOLDIR%\Clean_Up.ps1" -Root "%SCRIPT_DIR%."
@@ -807,6 +831,46 @@ start "" control.exe powercfg.cpl
 pause
 goto :eof
 
+:: ---------------------------------------------------------------------
+::  Easy Setup entry. tools\Easy_Setup.ps1 starts this file as:  /easy safe   or   /easy games
+::  No questions and no pauses. Recommended tweaks, base setup, power settings, and for "games" also 10, 11, 15 and 16 (15 and 16 not on laptops).
+:EASYSTART
+set "EASYMODE=1"
+set "EASYPROF=%~2"
+set "WINBUILD=0"
+set "ISLAPTOP=0"
+if exist "%TOOLDIR%\Env_Check.ps1" for /f "usebackq tokens=1,2" %%a in (`powershell -NoProfile -ExecutionPolicy Bypass -File "%TOOLDIR%\Env_Check.ps1"`) do call :SETENV %%a %%b
+echo.
+echo   [Easy Setup] Applying the settings, profile: %EASYPROF%
+call :CAT1
+call :BASE
+call :POWER
+call :EASYOPT
+echo.
+echo   [Easy Setup] The settings step is finished.
+goto END
+:EASYOPT
+call :SETCHOICE 09 N
+call :SETCHOICE 12 N
+call :SETCHOICE 13 N
+if /i "%EASYPROF%"=="games" goto EASYGAMES
+call :SETCHOICE 10 N
+call :SETCHOICE 11 N
+call :SETCHOICE 15 N
+call :SETCHOICE 16 N
+goto :eof
+:EASYGAMES
+call :IMPORTNUM 10
+call :IMPORTNUM 11
+if "%ISLAPTOP%"=="1" goto EASYGAMESLAPTOP
+call :IMPORTNUM 15
+call :BOOSTAPPLY
+goto :eof
+:EASYGAMESLAPTOP
+echo   - Laptop: 15 and 16 skipped (more heat and battery use)
+call :SETCHOICE 15 N
+call :SETCHOICE 16 N
+goto :eof
 :END
 echo.
 :: a log that holds only its first line (nothing was run) is not worth keeping

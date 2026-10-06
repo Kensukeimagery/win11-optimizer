@@ -1,4 +1,4 @@
-# PC Optimizer v4.15 - clean up old reports and backups
+# PC Optimizer v4.16 - clean up old reports and backups
 # Shows what is in the Logs and Backup folders and removes old files ONLY when you choose.
 #   Reports in Logs: the newest few of each kind are kept automatically (default 3). You can change that number here.
 #   Backups: listed with their size. Older ones are removed only after you say yes (default is no). The newest ones are always kept.
@@ -68,7 +68,7 @@ function Show-Summary {
 
 function Start-CleanUp {
     Write-Host '==================================================================' -ForegroundColor Cyan
-    Write-Host '   PC OPTIMIZER v4.15 - CLEAN UP OLD REPORTS AND BACKUPS' -ForegroundColor Cyan
+    Write-Host '   PC OPTIMIZER v4.16 - CLEAN UP OLD REPORTS AND BACKUPS' -ForegroundColor Cyan
     Write-Host '==================================================================' -ForegroundColor Cyan
     # the summary modes only look; moving reports from older versions into Logs happens in the normal interactive run and in the main menu's housekeeping
     if (-not $NoPrompt -and -not $DryRun) {

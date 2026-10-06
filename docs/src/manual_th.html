@@ -1,10 +1,10 @@
 <!doctype html>
-<html lang="th"><head><meta charset="utf-8"><title>คู่มือ Windows 11 Optimizer v4.15</title>
+<html lang="th"><head><meta charset="utf-8"><title>คู่มือ Windows 11 Optimizer v4.16</title>
 <link rel="stylesheet" href="style.css"></head><body>
 
 <!-- PAGE 1 -->
 <div class="page">
-<div class="banner cover"><div class="sub">คู่มือการใช้งาน v4.15</div><h1>Windows 11 Optimizer</h1><div class="sub">รวมทุกอย่างไว้ในเมนูเดียว พร้อมระบบสำรองและย้อนกลับรายข้อ</div></div>
+<div class="banner cover"><div class="sub">คู่มือการใช้งาน v4.16</div><h1>Windows 11 Optimizer</h1><div class="sub">รวมทุกอย่างไว้ในเมนูเดียว พร้อมระบบสำรองและย้อนกลับรายข้อ</div></div>
 
 <div class="box red"><h3>อ่านก่อนใช้</h3>
 <ul>
@@ -19,8 +19,35 @@
 <li>เก็บทุกโฟลเดอร์ไว้ข้างสคริปต์ อย่าแยกไฟล์ <span class="mono">.bat</span> ออกจากโฟลเดอร์</li>
 <li>เปิด System Protection (System Restore) ของไดรฟ์ระบบไว้ เพื่อให้สร้างจุดคืนค่าได้</li></ul>
 
+</div>
+
+<!-- PAGE EASY -->
+<div class="page">
+<div class="banner"><h1>Easy Setup (ปุ่มเดียวจบ)</h1><p>สำหรับเพิ่งลง Windows ใหม่ คนใช้ครั้งแรก และคนที่ไม่ถนัดคอม</p></div>
+<div class="box green"><h3>วิธีเริ่ม</h3><ul>
+<li>คลิกขวา <b>0_Easy_Setup (Run as Administrator).bat</b> &gt; <i>Run as administrator</i> (หรือกด <b>E</b> ในเมนูหลัก)</li>
+<li>เลือกภาษาไทยหรืออังกฤษ ตอบคำถามเดียว (เล่นเกมเป็นหลักไหม) อ่านแผนแล้วกด Enter โปรแกรมถามเท่าที่จำเป็น ใช้เวลาราว 20-40 นาที</li>
+<li>ถ้า Windows ขอรีสตาร์ท ให้รีสตาร์ทแล้วดับเบิลคลิกไฟล์เดิมอีกครั้ง โปรแกรมจะทำต่อจากที่ค้างไว้</li></ul></div>
+<table><tr><th style="width:26px">#</th><th style="width:22%">ขั้นตอน</th><th>ทำอะไร</th><th style="width:30%">ทำไมตอนนี้</th></tr>
+<tr><td>1</td><td>เวอร์ชันใหม่</td><td>ถามว่าจะตรวจไหม ถ้ามีเวอร์ชันใหม่ อัปเดตเครื่องมือนี้ได้</td><td>ใช้ตัวที่แก้ไขล่าสุดตั้งแต่แรก</td></tr>
+<tr><td>2</td><td>จุดกู้คืน</td><td>สร้าง System Restore ชื่อ <span class="mono">Before_PC_Optimizer</span></td><td>ทุกอย่างหลังจากนี้ย้อนกลับได้</td></tr>
+<tr><td>3</td><td>จดสถานะตอนนี้</td><td>นับการตั้งค่าความเร็วที่อยู่ครบ กับอุปกรณ์ที่ไม่มีไดรเวอร์ และเก็บสเปคเครื่อง</td><td>เพื่อแสดงก่อนและหลัง</td></tr>
+<tr><td>4</td><td>อินเทอร์เน็ต</td><td>ตรวจการเชื่อมต่อ ถ้าไม่มีจะอธิบายวิธีแก้ (ไดรเวอร์เครือข่ายจากผู้ผลิตเมนบอร์ดหรือโน้ตบุ๊ก คัดลอกด้วยแฟลชไดรฟ์)</td><td>การอัปเดตและไดรเวอร์ต้องใช้</td></tr>
+<tr><td>5</td><td>Windows Update</td><td>เปิด Windows Update คุณกด Check for updates ติดตั้งทั้งหมด และรีสตาร์ทถ้าขอ</td><td>อัปเดตอาจเปลี่ยนการตั้งค่า จึงทำก่อน</td></tr>
+<tr><td>6</td><td>ไดรเวอร์</td><td>ติดตั้งไดรเวอร์ที่แนะนำจาก Windows Update (เครือข่าย เสียง บลูทูธ chipset) ไม่สำรองไดรเวอร์ทั้งชุด เพราะมีจุดกู้คืนแล้ว ถ้าการ์ดจอมีแต่ไดรเวอร์พื้นฐาน จะเปิดหน้าดาวน์โหลดของผู้ผลิต</td><td>ระบบเดียวกับ 7_Driver_Check ที่ปลอดภัย</td></tr>
+<tr><td>7</td><td>รีสตาร์ท</td><td>เสนอเฉพาะเมื่อ Windows ต้องการ แล้วรันไฟล์เดิมเพื่อทำต่อ</td><td>ไดรเวอร์ใหม่ต้องใช้</td></tr>
+<tr><td>8</td><td>ตั้งค่าความเร็วแบบปลอดภัย</td><td>เมนู 1, 3 และ 4 คำตอบเรื่องเกมเพิ่มเมาส์ คีย์บอร์ด timer และ CPU boost โน้ตบุ๊กข้ามสิ่งที่ทำให้ร้อนหรือกินแบต</td><td>ทำท้ายสุด อัปเดตและไดรเวอร์จะได้ไม่ย้อนค่า</td></tr>
+<tr><td>9</td><td>DNS ที่เร็วกว่า</td><td>ทดสอบเครือข่ายและเลือก DNS เป็นตัวเลือก ค่าเริ่มต้นคือไม่</td><td>ผลน้อย ไม่บังคับ</td></tr>
+<tr><td>10</td><td>ตรวจผลและสรุป</td><td>การตั้งค่าที่ครบก่อน/หลัง อุปกรณ์ที่ไม่มีไดรเวอร์ เรื่องที่ควรดู วิธีย้อนกลับ และเตือนให้รีสตาร์ท</td><td>เห็นผลในหน้าเดียว</td></tr>
+</table>
+<div class="box amber"><h3>ไม่รวมโดยตั้งใจ</h3><p>tweak Memory Integrity, การล้างไดรเวอร์, การล้างไฟล์ขยะลึก, Network Reset, การเปลี่ยน DNS โดยไม่ถาม, การลบแอป Windows และการติดตั้งโปรแกรม เป็นของเฉพาะกรณี อยู่ในเมนูหลักและ repair-tools</p></div>
+<p class="small">เครื่องไม่หลับระหว่างทำงาน ทุกครั้งที่รันบันทึกเป็น <span class="mono">EasySetup_วันเวลา.txt</span> ในโฟลเดอร์ Logs ถ้าอยากดูแผนโดยไม่เปลี่ยนอะไร เปิดจากหน้าต่าง command ด้วย <span class="mono">-Preview</span></p>
+</div>
+
+<div class="page">
 <h2>โครงสร้างโฟลเดอร์</h2>
 <table><tr><th style="width:44%">ไฟล์ / โฟลเดอร์</th><th>ใช้ทำอะไร</th></tr>
+<tr><td>0_Easy_Setup (Run as Administrator).bat</td><td>ปุ่มเดียวจบ สำหรับเพิ่งลง Windows และมือใหม่: จุดกู้คืน ไดรเวอร์ Windows Update (แบบมีคนนำ) ตั้งค่าปลอดภัย สรุปผล ไทยหรืออังกฤษ</td></tr>
 <tr><td>1_Start_Here - PC_Optimizer_Master (Run as Administrator).bat</td><td>เมนูหลัก เริ่มที่ไฟล์นี้ ทุกอย่างเข้าถึงได้จากเมนู</td></tr>
 <tr><td>2_Revert_Everything - System_Restore (Run as Administrator).bat</td><td>ย้อนทั้งเครื่องด้วย System Restore (ใช้เมื่อมีปัญหาหนัก)</td></tr>
 <tr><td>3_Check_Status (Run as Administrator).bat</td><td>ตรวจว่าการตั้งค่ายังอยู่ครบไหม เช่นหลังอัปเดต Windows</td></tr>
@@ -38,47 +65,10 @@
 </table>
 </div>
 
+
 <!-- PAGE 2 -->
 <div class="page">
 <div class="banner"><h1>เริ่มใช้งานแบบเร็ว</h1><p>3 ขั้นตอนจบ</p></div>
-<div class="card"><div class="t"><span class="n">1</span>เปิด 1_Start_Here - PC_Optimizer_Master</div><ul><li>คลิกขวา แล้วเลือก <i>Run as administrator</i></li></ul></div>
-<div class="card"><div class="t"><span class="n">2</span>พิมพ์ 5 แล้วกด Enter</div><ul>
-<li>สคริปต์สร้างจุดคืนค่าให้ก่อน แล้วทำเมนู 1, 2, 3, 4 ต่อกันอัตโนมัติ</li>
-<li>เมนู 2 จะถามทีละข้อ ตอบตามการใช้งานของคุณ (ดูคำแนะนำของไฟล์ 09-13)</li>
-<li>ขั้นสร้างจุดคืนค่าปกติใช้ 1-5 นาที ถ้าเกิน 10 นาทีสคริปต์จะหยุดรอแล้วถามว่าจะทำต่อไหม</li></ul></div>
-<div class="card"><div class="t"><span class="n">3</span>รีสตาร์ทเครื่อง 1 ครั้ง</div><ul>
-<li>จำเป็นสำหรับ GPU Scheduling, Memory Integrity และค่าระดับระบบอื่นๆ</li>
-<li>จากนั้นทำรายการ "ตั้งค่า Windows เพิ่มเติม" ในคู่มือนี้ต่อ</li>
-<li>หลังอัปเดต Windows ครั้งใหญ่ หรือทุก 1-2 เดือน ให้รัน <b>3_Check_Status</b></li></ul></div>
-
-<h2>เมนูใน PC_Optimizer_Master</h2>
-<table><tr><th style="width:36px">ข้อ</th><th style="width:25%">ชื่อ</th><th>ทำอะไร</th></tr>
-<tr><td>1</td><td>Recommended tweaks</td><td>นำเข้าไฟล์ 01-08</td></tr>
-<tr><td>2</td><td>Optional tweaks</td><td>ถามทีละข้อ 09-13, 15 และ 16 ข้อ 13 ต้องพิมพ์ YES</td></tr>
-<tr><td>3</td><td>Base system setup</td><td>Power Plan, Services, เช็ค SSD/HDD ก่อนปรับ Prefetcher, ตั้งค่า TCP ทุก network adapter, ล้างค่าเก่าที่ไม่มีผล, ล้าง Temp</td></tr>
-<tr><td>4</td><td>Power settings</td><td>นำเข้าไฟล์ 14 แล้วตั้ง CPU ขั้นต่ำ 100%, ปิด core parking, ปิด USB suspend, ปิด PCIe power saving (เฉพาะตอนเสียบปลั๊ก)</td></tr>
-<tr><td>5</td><td>RUN EVERYTHING</td><td>จุดคืนค่า + 1 + 2 + 3 + 4 แนะนำสำหรับครั้งแรก</td></tr>
-<tr><td>6</td><td>Restore point only</td><td>สร้างจุดคืนค่าอย่างเดียว</td></tr>
-<tr><td>7</td><td>Revert ONE tweak</td><td>คืนค่าเริ่มต้นของ Windows ทีละข้อ: 1-14, T = network, P = power plans</td></tr>
-<tr><td>8</td><td>Check disk type</td><td>ดูว่าเป็น SSD หรือ HDD ไม่แก้อะไร</td></tr>
-<tr><td>9</td><td>Power Options</td><td>เปิดหน้าต่าง Power Options ไว้ตรวจค่า</td></tr>
-<tr><td>C</td><td>Check status</td><td>เหมือน 3_Check_Status</td></tr>
-<tr><td>N</td><td>Network test</td><td>เหมือน 4_Network_Test ไม่แก้อะไร ยกเว้นคุณเลือกเปลี่ยน DNS ตอนท้าย</td></tr>
-<tr><td>R</td><td>System report</td><td>เหมือน 5_System_Report ไม่แก้อะไร</td></tr>
-<tr><td>D</td><td>Drivers (เบต้า)</td><td>เหมือน 7_Driver_Check สแกนแล้วถามว่าจะติดตั้งอะไร</td></tr>
-<tr><td>S</td><td>PC specs</td><td>เหมือน S_PC_Specs ไม่แก้อะไร</td></tr>
-<tr><td>H</td><td>PC health</td><td>เหมือน 8_PC_Health ไม่แก้อะไร</td></tr>
-<tr><td>B</td><td>Support bundle</td><td>เหมือน 9_Support_Bundle ไม่แก้อะไร ไม่ส่งอะไรออกไป</td></tr>
-<tr><td>L</td><td>Clean up</td><td>เหมือน L_Clean_Up ลบรายงานและ backup เก่าเมื่อคุณเลือกเท่านั้น</td></tr>
-<tr><td>U</td><td>Check for updates</td><td>แสดงว่ามีอะไรใหม่ และอัปเดตเฉพาะเมื่อคุณตอบตกลง เหมือน 6_Check_For_Updates</td></tr>
-<tr><td>A</td><td>Automatic update check</td><td>เปิดหรือปิดการตรวจเวอร์ชันตอนเปิดเมนู</td></tr>
-<tr><td>0</td><td>Exit</td><td>ออก และแสดงตำแหน่งไฟล์ log</td></tr>
-</table>
-</div>
-
-<!-- PAGE 3 -->
-<div class="page">
-<div class="banner"><h1>ถ้ามีปัญหา: ย้อนกลับได้ 3 ระดับ</h1><p>เลือกระดับเล็กที่สุดที่แก้ปัญหาได้</p></div>
 <div class="card rep"><div class="t"><span class="n">A</span>ย้อนทีละข้อ - เมนู 7</div><ul>
 <li>เช่น เมาส์รู้สึกแปลกหลังใช้ไฟล์ 10 ให้พิมพ์ 7 แล้ว 10</li>
 <li>คืนเป็นค่าเริ่มต้นของ Windows จากโฟลเดอร์ <span class="mono">reg_undo</span> T = เอาค่า network ออก, P = รีเซ็ต Power Plan ทั้งหมด</li>
@@ -288,6 +278,6 @@
 <li>11 Keyboard Response Flags และ 12 ปัญหา RAM รั่วของ Ndu: มาจากรายงานผู้ใช้ ไม่ใช่เอกสาร Microsoft</li>
 <li>ค่าเริ่มต้นใน reg_undo ของรายการเหล่านี้ อ้างอิงจากค่ามาตรฐานของ Windows ที่พบทั่วไป ถ้าต้องการค่าเดิมที่แม่นยำให้ใช้ไฟล์ในโฟลเดอร์ Backup</li></ul>
 ผลลัพธ์ต่างกันไปตามเครื่อง และ Microsoft อาจเปลี่ยนพฤติกรรมของค่าเหล่านี้ใน Windows รุ่นถัดไปได้ ทุกรายการย้อนกลับได้ผ่านเมนู 7 หรือโฟลเดอร์ Backup</div>
-<div class="foot">win11-optimizer v4.15 - github.com/Kensukeimagery/win11-optimizer - MIT License</div>
+<div class="foot">win11-optimizer v4.16 - github.com/Kensukeimagery/win11-optimizer - MIT License</div>
 </div>
 </body></html>

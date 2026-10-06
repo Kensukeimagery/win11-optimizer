@@ -8,11 +8,17 @@
 #   -SkipUpdateSearch  scan only the PC itself (no internet, used for testing)
 #   -NoPrompt          print the report and stop
 #   -DryRun            show what would be installed and install nothing
+#   -Auto              (used by Easy Setup) install the recommended drivers without asking; no full driver copy; low-impact ones are skipped
+#   -NoRestorePoint    do not make another restore point (the caller already made one)
+#   -ResultFile <path> write the numbers of the run as JSON for the caller
 param(
     [string]$Root = '',
     [switch]$SkipUpdateSearch,
     [switch]$NoPrompt,
-    [switch]$DryRun
+    [switch]$DryRun,
+    [switch]$Auto,
+    [switch]$NoRestorePoint,
+    [string]$ResultFile = ''
 )
 
 $ErrorActionPreference = 'Continue'
@@ -182,11 +188,13 @@ function Install-Offers($Session, $Chosen, [string]$RootDir) {
     Write-Log '   Step 1 of 3: restore point (so you can go back)' 'White'
     $rp = Join-Path $PSScriptRoot 'Create_Restore_Point.ps1'
     $rpOk = $false
-    if (Test-Path -LiteralPath $rp) {
+    if ($NoRestorePoint) { $rpOk = $true }
+    elseif (Test-Path -LiteralPath $rp) {
         & powershell.exe -NoProfile -ExecutionPolicy Bypass -File $rp -TimeoutSeconds 600 -Description 'Before_Driver_Install' | Out-Host
         $rpOk = ($LASTEXITCODE -eq 0)
     }
-    if ($rpOk) { Write-Log '   [OK] Restore point created (named Before_Driver_Install).' 'Green' }
+    if ($rpOk -and $NoRestorePoint) { Write-Log '   [OK] The restore point made at the start of the setup covers this.' 'Green' }
+    elseif ($rpOk) { Write-Log '   [OK] Restore point created (named Before_Driver_Install).' 'Green' }
     else {
         Write-Log '   [WARNING] A restore point could not be created.' 'Yellow'
         $go = Read-Answer '   Install drivers without a restore point? Y/N (Enter = N)' @('N', 'Y')
@@ -196,6 +204,7 @@ function Install-Offers($Session, $Chosen, [string]$RootDir) {
     Write-Log '   Step 2 of 3: saving a copy of your current drivers (about 1 to 5 GB and a few minutes)' 'White'
     $backup = ''
     if ($RootDir -ne '') { $backup = Join-Path $RootDir ('Backup\drivers_' + (Get-Date -Format 'yyyyMMdd_HHmmss')) }
+    if ($Auto -and $backup -ne '') { $backup = ''; Write-Log '   Skipped the full driver copy: the restore point covers it.' 'DarkGray' }
     if ($backup -ne '' -and -not (Test-FullCopyNeeded $Chosen)) {
         # a few low-impact drivers: the restore point is enough, so the multi-GB copy is optional and off by default
         $copy = Read-Answer '   Also save a full copy of your drivers (about 1 to 5 GB)? The restore point is already made. Y/N (Enter = N)' @('N', 'Y')
@@ -280,10 +289,15 @@ function Show-InstallSummary($Result, [bool]$VendorGpu) {
     }
     foreach ($f in @($real) | Select-Object -First 10) { Write-Log ('     - ' + $f.Title) 'DarkYellow' }
     if ($Result.Ok -gt 0) { Write-Log '   Restart the PC now so the new drivers load. The tool never restarts it for you.' 'Yellow' }
+    $script:SummaryNumbers = @{ Ok = [int]$Result.Ok; Covered = [int]$covered; Real = @($real).Count; Left = $(if ($null -ne $left) { @($left).Count } else { -1 }); Reboot = [bool]$Result.Reboot }
     Write-Log '   If something stops working: Device Manager > the device > Properties > Driver > Roll Back Driver, or System Restore (Start, type Create a restore point, System Restore, pick Before_Driver_Install), or reinstall from the saved copy in Backup\drivers_* with: pnputil /add-driver "Backup\drivers_...\*.inf" /subdirs /install' 'DarkGray'
 }
 
 # ---------------------------------------------------------------- main
+function Save-Result {
+    if ($ResultFile -ne '' -and $null -ne $script:Result) { try { [IO.File]::WriteAllText($ResultFile, (ConvertTo-Json -InputObject $script:Result -Compress)) } catch { } }
+}
+
 function Start-DriverCheck {
     $rootDir = ''
     if ($Root -ne '') { try { $rootDir = (Resolve-Path -LiteralPath $Root).Path } catch { } }
@@ -382,6 +396,22 @@ function Start-DriverCheck {
         } catch { }
     }
 
+    $script:Result = @{ SearchOk = [bool]$searchOk; Problems = @($problems).Count; GpuBasic = (@($gpus | Where-Object { $_.Basic }).Count -gt 0); GpuVendors = @($gpuVendors); Recommended = @($rec).Count; Optional = @($opt).Count; Installed = 0; NotNeeded = 0; Failed = 0; Left = -1; Reboot = $false }
+    Save-Result
+    if ($Auto) {
+        if (-not $searchOk) { Write-Log '   Windows Update could not be searched, so no driver was installed.' 'Yellow'; return }
+        if (@($rec).Count -eq 0) { Write-Log '   No recommended driver is waiting. Nothing to install.' 'Green'; return }
+        Write-Log ('   Installing the ' + @($rec).Count + ' recommended driver(s).') 'White'
+        $ares = @(Install-Offers $session $rec $rootDir) | Where-Object { $_ -is [hashtable] } | Select-Object -Last 1
+        if ($null -ne $ares) {
+            $script:SummaryNumbers = $null
+            Show-InstallSummary $ares $vendorGpu
+            if ($null -ne $script:SummaryNumbers) { $script:Result.Installed = $script:SummaryNumbers.Ok; $script:Result.NotNeeded = $script:SummaryNumbers.Covered; $script:Result.Failed = $script:SummaryNumbers.Real; $script:Result.Left = $script:SummaryNumbers.Left; $script:Result.Reboot = $script:SummaryNumbers.Reboot }
+            Save-Result
+        }
+        if ($rootDir -ne '') { try { [IO.File]::WriteAllLines((New-ReportPath $rootDir 'DriverReport' '_after'), $script:Lines); Remove-OldReports $rootDir | Out-Null } catch { } }
+        return
+    }
     if ($NoPrompt) { return }
     Write-Log ''
     $choices = New-Object System.Collections.Generic.List[string]

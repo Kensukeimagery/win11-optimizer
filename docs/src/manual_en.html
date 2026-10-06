@@ -1,10 +1,10 @@
 <!doctype html>
-<html lang="en"><head><meta charset="utf-8"><title>Windows 11 Optimizer - User Manual v4.15</title>
+<html lang="en"><head><meta charset="utf-8"><title>Windows 11 Optimizer - User Manual v4.16</title>
 <link rel="stylesheet" href="style.css"></head><body>
 
 <!-- PAGE 1 -->
 <div class="page">
-<div class="banner cover"><div class="sub">User Manual v4.15</div><h1>Windows 11 Optimizer</h1><div class="sub">One menu for every tweak, with backups and one-by-one revert</div></div>
+<div class="banner cover"><div class="sub">User Manual v4.16</div><h1>Windows 11 Optimizer</h1><div class="sub">One menu for every tweak, with backups and one-by-one revert</div></div>
 
 <div class="box red"><h3>Read this first</h3>
 <ul>
@@ -19,8 +19,35 @@
 <li>Keep every folder next to the scripts. Do not move a <span class="mono">.bat</span> file out of the folder.</li>
 <li>System Protection (System Restore) turned on for the system drive, so the restore point can be created.</li></ul>
 
+</div>
+
+<!-- PAGE EASY -->
+<div class="page">
+<div class="banner"><h1>Easy Setup (one button)</h1><p>For a new Windows install, first-time users and people who do not know computers</p></div>
+<div class="box green"><h3>How to start</h3><ul>
+<li>Right-click <b>0_Easy_Setup (Run as Administrator).bat</b> &gt; <i>Run as administrator</i> (or press <b>E</b> in the main menu).</li>
+<li>Choose Thai or English, answer one question (do you mainly play games?), read the plan and press Enter. It asks only what it must. Allow about 20 to 40 minutes.</li>
+<li>If Windows asks for a restart, restart and double-click the same file again: it continues where it stopped.</li></ul></div>
+<table><tr><th style="width:26px">#</th><th style="width:22%">Step</th><th>What it does</th><th style="width:30%">Why at this point</th></tr>
+<tr><td>1</td><td>Newer version</td><td>Asks if you want to check; if a newer version exists you can update this tool.</td><td>You start with the latest fixes.</td></tr>
+<tr><td>2</td><td>Restore point</td><td>Creates the System Restore point <span class="mono">Before_PC_Optimizer</span>.</td><td>Everything after it can be undone.</td></tr>
+<tr><td>3</td><td>Remember now</td><td>Counts the speed settings in place and the devices without a driver, and saves the PC specs.</td><td>To show before and after.</td></tr>
+<tr><td>4</td><td>Internet</td><td>Checks the connection. If there is none, explains how to fix it (a network driver from the board or laptop maker, copied with a USB drive).</td><td>Updates and drivers need it.</td></tr>
+<tr><td>5</td><td>Windows Update</td><td>Opens Windows Update. You press Check for updates, install everything and restart if it asks.</td><td>Updates can change settings, so they come first.</td></tr>
+<tr><td>6</td><td>Drivers</td><td>Installs the recommended drivers from Windows Update (network, sound, Bluetooth, chipset). No full driver copy: the restore point covers it. If the graphics card only has the basic driver, opens the maker's download page.</td><td>The same safe system as 7_Driver_Check.</td></tr>
+<tr><td>7</td><td>Restart</td><td>Offered only when Windows needs it. Run the file again to continue.</td><td>New drivers need it.</td></tr>
+<tr><td>8</td><td>Safe speed settings</td><td>Menu 1, 3 and 4. The gaming answer adds mouse, keyboard, timer resolution and CPU boost. A laptop skips what makes it hotter or drains the battery.</td><td>Last, so updates and drivers cannot undo them.</td></tr>
+<tr><td>9</td><td>Faster DNS</td><td>Optional network test and DNS choice. The default is no.</td><td>Small effect, never forced.</td></tr>
+<tr><td>10</td><td>Check and summary</td><td>Settings in place before and after, devices without a driver, things worth a look, how to undo, and a restart reminder.</td><td>You see the result on one page.</td></tr>
+</table>
+<div class="box amber"><h3>Not included on purpose</h3><p>The Memory Integrity tweak, driver cleanup, deep file cleanup, network reset, changing DNS without asking, removing Windows apps and installing programs. They are for special cases and are in the main menu and repair-tools.</p></div>
+<p class="small">The PC is kept awake while it runs. Every run is saved as <span class="mono">EasySetup_date-time.txt</span> in the Logs folder. To see the plan without changing anything, start it from a command window with <span class="mono">-Preview</span>.</p>
+</div>
+
+<div class="page">
 <h2>Folder layout</h2>
 <table><tr><th style="width:44%">File / folder</th><th>Purpose</th></tr>
+<tr><td>0_Easy_Setup (Run as Administrator).bat</td><td>ONE BUTTON for a new Windows install and for beginners: restore point, drivers, Windows Update (guided), safe settings, summary. Thai or English.</td></tr>
 <tr><td>1_Start_Here - PC_Optimizer_Master (Run as Administrator).bat</td><td>Main menu. Start here; everything is reachable from it.</td></tr>
 <tr><td>2_Revert_Everything - System_Restore (Run as Administrator).bat</td><td>Roll the whole PC back with System Restore (serious problems only).</td></tr>
 <tr><td>3_Check_Status (Run as Administrator).bat</td><td>Check which tweaks are still applied, for example after a Windows update.</td></tr>
@@ -38,47 +65,12 @@
 <tr><td>Backup/ (created when you run)</td><td>Copy of every key before it is changed, in a dated folder.</td></tr>
 <tr><td>Logs/ (created when you run)</td><td>The log of every command and the report of every tool. The newest 3 of each kind are kept and older ones are removed automatically (menu L changes the number).</td></tr>
 </table>
-
-
-<div class="banner"><h1>Quick start</h1><p>Three steps</p></div>
-<div class="card"><div class="t"><span class="n">1</span>Open 1_Start_Here - PC_Optimizer_Master</div><ul><li>Right-click &gt; <i>Run as administrator</i>.</li></ul></div>
-<div class="card"><div class="t"><span class="n">2</span>Type 5 and press Enter</div><ul>
-<li>The script creates a restore point, then runs menus 1, 2, 3 and 4 in order.</li>
-<li>Menu 2 asks about each optional tweak. Answer for your own use (see the notes on files 09-13).</li>
-<li>A restore point normally takes 1-5 minutes. After 10 minutes the script stops waiting and asks whether to continue.</li></ul></div>
-<div class="card"><div class="t"><span class="n">3</span>Restart once</div><ul>
-<li>Needed for GPU scheduling, Memory Integrity and other system-level values.</li>
-<li>Then work through the manual Windows settings later in this guide.</li>
-<li>After a big Windows update, or every 1-2 months, run <b>3_Check_Status</b>.</li></ul></div>
-
-<h2>Menu of PC_Optimizer_Master</h2>
-<table><tr><th style="width:36px">Key</th><th style="width:25%">Name</th><th>What it does</th></tr>
-<tr><td>1</td><td>Recommended tweaks</td><td>Imports files 01-08.</td></tr>
-<tr><td>2</td><td>Optional tweaks</td><td>Asks about 09-13, 15 and 16 one by one. File 13 needs you to type YES.</td></tr>
-<tr><td>3</td><td>Base system setup</td><td>Power plan, services, SSD/HDD check before touching Prefetcher, TCP settings on every network adapter, cleanup of obsolete values, temp files.</td></tr>
-<tr><td>4</td><td>Power settings</td><td>Imports file 14, then sets processor minimum 100%, core parking off, USB selective suspend off, PCIe power saving off (plugged-in profile only).</td></tr>
-<tr><td>5</td><td>RUN EVERYTHING</td><td>Restore point + 1 + 2 + 3 + 4. Recommended the first time.</td></tr>
-<tr><td>6</td><td>Restore point only</td><td>Creates the restore point and nothing else.</td></tr>
-<tr><td>7</td><td>Revert ONE tweak</td><td>Back to the Windows default: 1-14, T = network values, P = power plans.</td></tr>
-<tr><td>8</td><td>Check disk type</td><td>Reports SSD or HDD. Changes nothing.</td></tr>
-<tr><td>9</td><td>Power Options</td><td>Opens the Power Options window to inspect values.</td></tr>
-<tr><td>C</td><td>Check status</td><td>Same as 3_Check_Status.</td></tr>
-<tr><td>N</td><td>Network test</td><td>Same as 4_Network_Test. Changes nothing unless you pick a DNS at the end.</td></tr>
-<tr><td>R</td><td>System report</td><td>Same as 5_System_Report. Changes nothing.</td></tr>
-<tr><td>D</td><td>Drivers (beta)</td><td>Same as 7_Driver_Check. Scans, then asks what to install.</td></tr>
-<tr><td>S</td><td>PC specs</td><td>Same as S_PC_Specs. Changes nothing.</td></tr>
-<tr><td>H</td><td>PC health</td><td>Same as 8_PC_Health. Changes nothing.</td></tr>
-<tr><td>B</td><td>Support bundle</td><td>Same as 9_Support_Bundle. Changes nothing, sends nothing.</td></tr>
-<tr><td>L</td><td>Clean up</td><td>Same as L_Clean_Up. Removes old reports and backups only when you choose.</td></tr>
-<tr><td>U</td><td>Check for updates</td><td>Shows what is new and updates only if you say yes. Same as 6_Check_For_Updates.</td></tr>
-<tr><td>A</td><td>Automatic update check</td><td>Turns the check at menu start on or off.</td></tr>
-<tr><td>0</td><td>Exit</td><td>Exits and shows where the log was saved.</td></tr>
-</table>
 </div>
 
-<!-- PAGE 3 -->
+
+
 <div class="page">
-<div class="banner"><h1>If something goes wrong</h1><p>Three levels of undo: pick the smallest one that fixes it</p></div>
+<div class="banner"><h1>Quick start</h1><p>Three steps</p></div>
 <div class="card rep"><div class="t"><span class="n">A</span>Revert one tweak: menu 7</div><ul>
 <li>Example: the mouse feels odd after file 10. Type 7, then 10.</li>
 <li>Restores the Windows default from <span class="mono">reg_undo</span>. T removes the network values, P resets all power plans.</li>
@@ -288,6 +280,6 @@
 <li>11 Keyboard Response flags and 12 Ndu memory leak: from user reports, not Microsoft.</li>
 <li>The defaults in reg_undo for these are typical Windows values. If you need your exact originals, use the Backup folder.</li></ul>
 Results differ between PCs and Microsoft may change how these values behave in a later Windows release. Every item can be reverted with menu 7 or the Backup folder.</div>
-<div class="foot">win11-optimizer v4.15 - github.com/Kensukeimagery/win11-optimizer - MIT License</div>
+<div class="foot">win11-optimizer v4.16 - github.com/Kensukeimagery/win11-optimizer - MIT License</div>
 </div>
 </body></html>

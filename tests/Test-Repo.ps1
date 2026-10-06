@@ -316,6 +316,63 @@ try {
     Fail ('reports and cleanup tests threw: ' + $_.Exception.Message)
 }
 Write-Host ''
+Write-Host '== Easy Setup (one button): messages, order, rules and the preview (nothing is changed)' -ForegroundColor Cyan
+try {
+    $easySrc = [IO.File]::ReadAllText((Join-Path $root 'tools\Easy_Setup.ps1'))
+    Assert (-not ($easySrc -match '[^\x00-\x7F]')) 'the Easy Setup script itself is plain ASCII (the Thai text lives in tools\lang)'
+    $enMap = @{}; $thMap = @{}
+    foreach ($pair in @(@('en', $enMap), @('th', $thMap))) {
+        foreach ($line in [IO.File]::ReadAllLines((Join-Path $root ('tools\lang\easy_' + $pair[0] + '.txt')), [Text.Encoding]::UTF8)) {
+            if ($line -match '^\s*#' -or $line.Trim() -eq '') { continue }
+            $i = $line.IndexOf('=')
+            if ($i -gt 0) { $pair[1][$line.Substring(0, $i).Trim()] = $line.Substring($i + 1) }
+        }
+    }
+    $used = @([regex]::Matches($easySrc, "(?:SayT|T|Read-Choice \(T) '([a-z0-9_]+)'") | ForEach-Object { $_.Groups[1].Value }) + @([regex]::Matches($easySrc, "'((?:plan|preview)_[a-z_]+)'") | ForEach-Object { $_.Groups[1].Value }) | Sort-Object -Unique
+    Assert (@($used | Where-Object { -not $enMap.ContainsKey($_) }).Count -eq 0) ('every message the script uses exists in English ' + (($used | Where-Object { -not $enMap.ContainsKey($_) }) -join ', '))
+    Assert (@($used | Where-Object { -not $thMap.ContainsKey($_) }).Count -eq 0) ('every message the script uses exists in Thai ' + (($used | Where-Object { -not $thMap.ContainsKey($_) }) -join ', '))
+    Assert (@($enMap.Keys | Where-Object { -not $thMap.ContainsKey($_) }).Count -eq 0 -and @($thMap.Keys | Where-Object { -not $enMap.ContainsKey($_) }).Count -eq 0) 'the English and Thai message files have exactly the same keys'
+    $badPh = @($enMap.Keys | Where-Object { $thMap.ContainsKey($_) -and ((@([regex]::Matches($enMap[$_], '\{\d\}') | ForEach-Object { $_.Value } | Sort-Object) -join ',') -ne (@([regex]::Matches($thMap[$_], '\{\d\}') | ForEach-Object { $_.Value } | Sort-Object) -join ',')) })
+    Assert ($badPh.Count -eq 0) ('the numbers filled into each message match in both languages ' + ($badPh -join ', '))
+    Assert (@($enMap.Keys + $thMap.Keys | Where-Object { (($enMap[$_] + $thMap[$_]) -replace '\{\d\}', '') -match '[{}]' }).Count -eq 0) 'no stray braces in the messages (they would break the formatting)'
+    Assert ((([IO.File]::ReadAllText((Join-Path $root 'tools\lang\easy_th.txt'), [Text.Encoding]::UTF8)).ToCharArray() | Where-Object { [int]$_ -ge 0x0E00 -and [int]$_ -le 0x0E7F }).Count -gt 50) 'the Thai file really contains Thai text'
+    & {
+        . (Join-Path $root 'tools\Easy_Setup.ps1') -Root $root -Preview -NoPrompt -Lang en
+        Assert ((Get-NextStep @()) -eq 'update' -and (Get-NextStep @('update', 'restore', 'before')) -eq 'network' -and (Get-NextStep $script:StepOrder) -eq '') 'the next step follows the order and stops at the end'
+        $order = $script:StepOrder
+        Assert (($order.IndexOf('restore') -lt $order.IndexOf('drivers')) -and ($order.IndexOf('winupdate') -lt $order.IndexOf('drivers')) -and ($order.IndexOf('drivers') -lt $order.IndexOf('tweaks')) -and ($order.IndexOf('tweaks') -lt $order.IndexOf('verify')) -and ($order.IndexOf('network') -lt $order.IndexOf('winupdate'))) 'restore point first, then internet, Windows Update and drivers, the settings last and the check at the very end'
+        Assert ((Get-TweakProfile 'Y') -eq 'games' -and (Get-TweakProfile 'N') -eq 'safe' -and (Get-TweakProfile '') -eq 'safe') 'only a clear yes selects the gaming profile'
+        Assert ((Test-RestartNeeded $true $null) -and (Test-RestartNeeded $false ([pscustomobject]@{ Reboot = $true })) -and -not (Test-RestartNeeded $false ([pscustomobject]@{ Reboot = $false })) -and -not (Test-RestartNeeded $false $null)) 'a restart is offered only when something needs it'
+        $snap = Get-SettingsSnapshot @([pscustomobject]@{ Status = 'OK'; Title = 'A' }, [pscustomobject]@{ Status = 'CHANGED'; Title = 'B' }, [pscustomobject]@{ Status = 'SKIPPED'; Title = 'C' }, [pscustomobject]@{ Status = 'MISSING'; Title = 'D' })
+        Assert ($snap.Ok -eq 1 -and $snap.Total -eq 3 -and ($snap.Bad -join ',') -eq 'B,D') 'the before/after counts leave out settings you chose to skip'
+        $att = @(Select-AttentionLines @('   [OK]    fine', '[CHECK] Cable is slow. Try another cable.', '[CHECK] Cable is slow. Try another cable please.', '[INFO] note', '[CHECK] Second thing') 6)
+        Assert ($att.Count -eq 2 -and $att[0] -like 'Cable is slow*' -and $att[1] -eq 'Second thing') 'only CHECK lines are shown in the summary and the same advice is not repeated'
+        $plan = @(Get-EasyPlan $true $false 'games'); $plan2 = @(Get-EasyPlan $false $true 'games'); $plan3 = @(Get-EasyPlan $false $true 'safe')
+        Assert (($plan -contains 'plan_network_off') -and ($plan -contains 'plan_tweaks_laptop') -and ($plan -notcontains 'plan_tweaks_games') -and ($plan2 -contains 'plan_tweaks_games') -and ($plan3 -contains 'plan_tweaks_safe') -and ($plan2 -contains 'plan_network_ok')) 'the plan changes for a laptop, for no internet and for the gaming profile'
+        Assert (@($plan | Where-Object { -not $enMap.ContainsKey($_) }).Count -eq 0) 'every plan line has a message'
+    }
+} catch {
+    Fail ('Easy Setup rules threw: ' + $_.Exception.Message)
+}
+try {
+    foreach ($lang in 'en', 'th') {
+        $prev = & powershell.exe -NoProfile -ExecutionPolicy Bypass -File (Join-Path $root 'tools\Easy_Setup.ps1') -Root $root -Preview -NoPrompt -Lang $lang 2>&1 | Out-String
+        $endMark = $(if ($lang -eq 'en') { 'PREVIEW finished' } else { [string]::Join('', [char[]](0x0E08, 0x0E1A, 0x0E42, 0x0E2B, 0x0E21, 0x0E14)) })
+        Assert ($LASTEXITCODE -eq 0 -and $prev.Contains($endMark) -and $prev -notmatch 'Exception') ('the preview runs to the end in ' + $lang + ' and exits cleanly')
+    }
+    Assert (-not (Test-Path -LiteralPath (Join-Path $root 'Logs\EasySetup*'))) 'the preview saves no report'
+} catch {
+    Fail ('Easy Setup preview threw: ' + $_.Exception.Message)
+}
+$mst2 = [IO.File]::ReadAllText((Join-Path $root '1_Start_Here - PC_Optimizer_Master (Run as Administrator).bat'))
+Assert ($mst2 -match 'if /i "%~1"=="/easy" goto EASYSTART' -and $mst2 -match ':EASYSTART' -and $mst2 -match 'if not defined EASYMODE pause' -and $mst2 -match 'goto SKIP02EASY') 'the main menu has an /easy entry with no questions and no pauses'
+Assert ($mst2 -match 'if /i "%CHOICE%"=="E" goto DOEASY') 'the main menu has the E key for Easy Setup'
+$drv = [IO.File]::ReadAllText((Join-Path $root 'tools\Driver_Check.ps1'))
+Assert ($drv -match '\[switch\]\$Auto' -and $drv -match '\[switch\]\$NoRestorePoint' -and $drv -match '\$ResultFile') 'the driver check has the automatic mode that Easy Setup uses'
+Assert ((Test-Path -LiteralPath (Join-Path $root '0_Easy_Setup (Run as Administrator).bat'))) 'the one-button file exists in the main folder'
+. (Join-Path $root 'tools\PC_Health.ps1') -Root $root
+Assert ((Get-CrashVerdict 50 0 $true) -eq 'check' -and (Get-CrashVerdict 50 10 $true) -eq 'history' -and (Get-CrashVerdict 50 0 $false) -eq 'history' -and (Get-CrashVerdict 3 0 $true) -eq 'history') 'a program that crashed often is a CHECK only while it is installed and crashed in the last 3 days'
+Write-Host ''
 Write-Host '== Updater release notes are shown as plain text' -ForegroundColor Cyan
 try {
     $ast = [System.Management.Automation.Language.Parser]::ParseFile((Join-Path $root 'tools\Update.ps1'), [ref]$null, [ref]$null)

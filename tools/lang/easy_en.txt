@@ -1,0 +1,107 @@
+# Easy Setup messages, English. Format: key=text   (\n = new line, {0} {1} = numbers or words filled in by the program, no other braces)
+title=   PC OPTIMIZER - EASY SETUP
+preview_banner=   PREVIEW: this only shows the plan and what would be done. Nothing is changed.
+need_admin=   Easy Setup must run as administrator. Close this window, right-click 0_Easy_Setup and choose Run as administrator.
+old_windows=   [WARNING] This tool is made for Windows 11. Your Windows build is {0}. Some settings may not work.
+ask_continue=   Continue anyway? Y/N (Enter = N)
+low_space=   [WARNING] Only {0} GB are free on the Windows drive. Free some space first for the best result.
+fresh_windows=   This looks like a fresh Windows install (less than 30 days old). Good: this setup was made for that.
+laptop_note=   This is a laptop: settings that make it hotter or drain the battery faster are skipped automatically.
+resume_found=   An earlier Easy Setup was started on this PC and not finished.
+ask_resume=   Continue where it stopped? Y = continue, N = start again (Enter = continue)
+ask_games_intro=   One question so that the settings fit you:
+ask_games=   Do you mainly play games on this PC? Y/N (Enter = N)
+games_laptop_note=   (On a laptop the gaming extras that need more power are skipped.)
+plan_title=   What will happen (about 20 to 40 minutes; Windows may ask for one restart):
+plan_update=Check if a newer version of this tool exists (you decide).
+plan_restore=Make a safety point (System Restore) so you can always go back.
+plan_before=Remember how the PC is now, to show before and after.
+plan_network_ok=Internet: connected.
+plan_network_off=Internet: NOT connected. You will be shown how to fix it first.
+plan_winupdate=Windows Update: we open it and you press install (we guide you).
+plan_drivers=Find and install the important drivers (network, sound, Bluetooth, chipset). The graphics driver page is opened if it is missing.
+plan_restart=Restart if Windows needs it, then start this again to finish.
+plan_tweaks_safe=Apply the safe speed settings (the recommended ones only).
+plan_tweaks_games=Apply the safe speed settings plus the gaming extras (mouse, keyboard, timer, CPU boost).
+plan_tweaks_laptop=Apply the safe speed settings (laptop version: nothing that makes it hotter).
+plan_dns=Optional: test the internet and pick a faster DNS (skipped unless you say yes).
+plan_verify=Check everything again and show a one-page summary.
+plan_footer=   Nothing is deleted and every change can be undone. A restore point is made first.
+ask_start=   Start now? Y = start, Q = quit (Enter = start)
+quit_now=   OK, nothing was changed.
+step_header=--- Step {0} of {1} ---
+step_update_title=Newer version of this tool
+step_restore_title=Safety point (System Restore)
+step_before_title=Remember how the PC is now
+step_network_title=Internet
+step_winupdate_title=Windows Update
+step_drivers_title=Drivers
+step_restart_title=Restart if needed
+step_tweaks_title=Safe speed settings
+step_dns_title=Faster DNS (optional)
+step_verify_title=Check and summary
+skipped=   Skipped.
+skip_offline=   Skipped because there is no internet.
+ask_update=   Check for a newer version of this tool now? Y/N (Enter = Y)
+update_none=   You already have the newest version.
+ask_update_now=   Update now? (recommended) Y/N (Enter = Y)
+update_started=   The update finishes in a new window. When it is done, double-click 0_Easy_Setup again.
+restore_wait=   Making the safety point. This takes 1 to 5 minutes. Please wait...
+restore_ok=   [OK] Safety point made (named Before_PC_Optimizer).
+restore_fail=   [WARNING] The safety point could not be made.
+ask_continue_no_restore=   Continue without it? Y/N (Enter = N)
+before_done=   [OK] Saved how the PC is now: {0} of {1} speed settings are in place.
+network_ok=   [OK] The internet works.
+network_off=   [!] No internet. Plug in the cable or connect Wi-Fi. If the PC has no network driver, get it from your motherboard or laptop maker's website on another PC and copy it with a USB drive.
+ask_network_retry=   R = try again, S = skip the steps that need internet (Enter = skip)
+network_skipped=   Continuing without internet: updates and drivers are skipped.
+winupdate_explain=   Windows Update brings fixes and many drivers. It is best to finish it BEFORE the speed settings, because updates can change settings.
+ask_winupdate=   O = open Windows Update now, S = skip (Enter = open)
+winupdate_wait=   In the Windows Update window press Check for updates and install everything. Restart if it asks. When it is finished, come back here.
+press_enter_done=   Press Enter when you are done
+drivers_offline=   No internet: the PC is only checked, nothing can be downloaded.
+drivers_noresult=   The driver step gave no result. Skipped.
+drivers_numbers=   [OK] Drivers installed: {0}. Not needed (already covered): {1}. Could not install: {2}. Devices still without a driver: {3}.
+drivers_preview_numbers=   Would install {0} recommended driver(s). Devices without a driver now: {1}.
+gpu_basic=   [!] The graphics card uses the basic Windows driver. Games will be slow until you install the maker's driver (NVIDIA / AMD / Intel).
+ask_open_gpu=   Open the maker's download page now? Y/N (Enter = Y)
+restart_not_needed=   No restart is needed now.
+restart_needed=   Windows needs a restart before the next step (new drivers or updates).
+ask_restart_now=   R = restart now (then double-click 0_Easy_Setup again to finish), C = continue without restarting (Enter = restart)
+restart_later=   OK, continuing without a restart.
+restarting=   Restarting in 20 seconds. To cancel, open a command window and type  shutdown /a
+tweaks_running=   Applying the settings. A restore point and a backup of every changed value are already made.
+tweaks_done=   [OK] The settings step finished.
+tweaks_missing=   [ERROR] The main menu file was not found, so the settings were not applied.
+ask_dns=   Test the internet speed and pick a faster DNS? It takes about 1 minute. Y/N (Enter = N)
+summary_title=================== SUMMARY ===================
+summary_settings_ba=   Speed settings in place: {0} of {1} before, {2} of {3} now.
+summary_settings=   Speed settings in place: {0} of {1}.
+summary_settings_bad=   Not in place: {0}. Press C in the main menu (1_Start_Here) to fix them.
+summary_devices_ba=   Devices without a working driver: {0} before, {1} now.
+summary_devices=   Devices without a working driver: {0}.
+summary_drivers=   Drivers installed by this setup: {0}.
+summary_attention_none=   Nothing else needs your attention.
+summary_attention=   Things worth a look (hints, not faults):
+some_failed=   [!] These steps did not finish: {0}. You can run Easy Setup again.
+final_undo=   To go back: run 2_Revert_Everything, or use Windows System Restore and pick Before_PC_Optimizer.
+final_gpu_guide=   Graphics card settings for games: see {0}
+ask_bundle=   Make one file with all reports to send to someone for help? Y/N (Enter = N)
+final_restart=   Please restart the PC so every setting takes full effect.
+ask_restart_final=   L = I will restart later, R = restart now (Enter = later)
+all_done=   All done. Enjoy your PC!
+stopped_here=   Stopped here. Run 0_Easy_Setup again to continue.
+type_one_of=   Please type one of: {0}
+preview_update=   [PREVIEW] Would ask if you want to check for a newer version.
+preview_restore=   [PREVIEW] Would make a System Restore point named Before_PC_Optimizer.
+preview_before=   [PREVIEW] Would save how the PC is now (speed settings and devices without a driver).
+preview_network_ok=   [PREVIEW] The internet works.
+preview_network_off=   [PREVIEW] No internet: would show how to fix it.
+preview_winupdate=   [PREVIEW] Would open Windows Update and wait for you.
+preview_drivers=   [PREVIEW] Checking what drivers are missing (nothing is installed)...
+preview_restart=   [PREVIEW] Would offer a restart only if Windows needs one.
+preview_tweaks=   [PREVIEW] Would apply the {0} settings profile.
+preview_tweaks_laptop=   [PREVIEW] Laptop: would apply the {0} settings profile without the hot or battery-hungry ones.
+preview_dns=   [PREVIEW] Would ask if you want to test the internet and pick a faster DNS (default: no).
+preview_verify=   [PREVIEW] Would check everything again and show the summary.
+preview_end=   PREVIEW finished. Nothing was changed. Start 0_Easy_Setup normally to do it for real.
