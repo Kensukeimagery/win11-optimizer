@@ -216,6 +216,34 @@ Assert ($csText -match 'Get-Partition -DriveLetter' -and $csText -notmatch 'Sort
 Assert ($masterText -match 'if not defined MEDIATYPE set \"MEDIATYPE=Unknown\"') 'an unreadable drive type leaves Prefetcher alone'
 
 Write-Host ''
+Write-Host '== PC specs page rules (read-only tool, nothing is changed)' -ForegroundColor Cyan
+try {
+    . (Join-Path $root 'tools\PC_Specs.ps1') -Root $root
+    Assert ((Get-RamMemoryType 26) -eq 'DDR4' -and (Get-RamMemoryType 34) -eq 'DDR5' -and (Get-RamMemoryType 0) -eq '') 'RAM type codes are turned into DDR names'
+    Assert ((Get-RamNote 8) -match 'tight' -and (Get-RamNote 12) -match 'lighter' -and (Get-RamNote 16) -match 'Good' -and (Get-RamNote 32) -match 'Plenty') 'RAM notes follow the size tiers'
+    Assert ((Get-VramNote 2) -match 'Low' -and (Get-VramNote 6) -match '1080p' -and (Get-VramNote 8) -match 'Plenty' -and (Get-VramNote 0) -eq '') 'video memory notes follow the size tiers'
+    Assert (@(Get-StorageNote 'HDD' 50).Count -eq 1 -and @(Get-StorageNote 'SSD' 10).Count -eq 1 -and @(Get-StorageNote 'HDD' 10).Count -eq 2 -and @(Get-StorageNote 'SSD' 50).Count -eq 0 -and @(Get-StorageNote 'SSD' -1).Count -eq 0) 'drive notes: HDD, nearly full, both, neither, unknown free space'
+    Assert ((Get-NvidiaDriverNumber '32.0.15.8266') -eq '582.66' -and (Get-NvidiaDriverNumber '31.0.15.4601') -eq '546.01' -and (Get-NvidiaDriverNumber '10.0.1') -eq '') 'the Windows driver number is turned into the NVIDIA driver number'
+    Assert ((Test-PlaceholderText 'To be filled by O.E.M.') -and (Test-PlaceholderText 'System Product Name') -and (Test-PlaceholderText '') -and -not (Test-PlaceholderText 'HUANANZHI X99-4MF PLUS')) 'placeholder board and model names are ignored'
+    Assert ($null -ne (Get-Command Get-LanHint -ErrorAction SilentlyContinue)) 'the specs page uses the shared cable-speed rule'
+    $now = Get-Date '2026-10-06'
+    Assert ((Test-OldThirdPartyDriver 'NET' 'Realtek' (Get-Date '2020-01-01') $now) -and -not (Test-OldThirdPartyDriver 'NET' 'Realtek' (Get-Date '2025-06-01') $now) -and -not (Test-OldThirdPartyDriver 'NET' 'Microsoft' (Get-Date '2006-06-21') $now) -and -not (Test-OldThirdPartyDriver 'SYSTEM' 'Intel' (Get-Date '2016-10-03') $now)) 'only old maker drivers of network, graphics, sound and Bluetooth are mentioned'
+    $it = @(
+        [pscustomobject]@{ Key = 'REG01'; Kind = 'auto'; Status = 'OK'; Title = 'A' },
+        [pscustomobject]@{ Key = 'REG02'; Kind = 'auto'; Status = 'CHANGED'; Title = 'B' },
+        [pscustomobject]@{ Key = 'REG13'; Kind = 'ask'; Status = 'SKIPPED'; Title = 'C' },
+        [pscustomobject]@{ Key = 'PREF'; Kind = 'auto'; Status = 'MISSING'; Title = 'D' }
+    )
+    $sum = Get-OptimizerSummary $it
+    Assert ($sum.Ok -eq 1 -and $sum.Bad.Count -eq 2 -and $sum.Skipped -eq 1 -and -not $sum.NotApplied) 'the optimizer summary counts OK, changed and skipped settings'
+    $none = Get-OptimizerSummary @([pscustomobject]@{ Key = 'REG01'; Kind = 'auto'; Status = 'MISSING'; Title = 'A' }, [pscustomobject]@{ Key = 'REG02'; Kind = 'auto'; Status = 'MISSING'; Title = 'B' })
+    Assert ($none.NotApplied) 'a PC where none of the optimizer settings are present is reported as not applied, not as broken'
+    $once = & powershell.exe -NoProfile -ExecutionPolicy Bypass -File (Join-Path $root 'tools\PC_Specs.ps1') 2>&1 | Out-String
+    Assert ($once -match 'Processor' -and $once -match 'Memory \(RAM\)' -and $once -match 'Graphics card' -and $once -match 'Drives' -and $once -match 'Check-up' -and $once -notmatch 'Exception') 'the page runs and shows the main parts'
+} catch {
+    Fail ('PC specs rules threw: ' + $_.Exception.Message)
+}
+Write-Host ''
 Write-Host '== Updater release notes are shown as plain text' -ForegroundColor Cyan
 try {
     $ast = [System.Management.Automation.Language.Parser]::ParseFile((Join-Path $root 'tools\Update.ps1'), [ref]$null, [ref]$null)

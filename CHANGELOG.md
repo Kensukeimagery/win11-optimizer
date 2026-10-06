@@ -1,5 +1,10 @@
 # Changelog
 
+## v4.14
+- **New: PC specs on one page** (`S_PC_Specs.bat`, menu **S**, `tools\PC_Specs.ps1`). Read-only, in plain words, for people who do not know where to find their specs: computer and motherboard, Windows, processor (cores and threads), memory (size, type, speed, slots used), graphics card (video memory, NVIDIA driver number), every screen with resolution and refresh rate, every drive (SSD or HDD, size, free space, which one holds Windows), the network link, and Secure Boot and TPM. Short notes say what a number means; no serial numbers, MAC or IP addresses, so the page can be shared. It ends with a check-up: do the drivers and the settings fit together (every device has a working driver, a maker graphics driver, old network/graphics/sound/Bluetooth drivers, the optimizer settings still in place, screens at their highest refresh rate, RAM at its rated speed, cable at full speed). It is also a section of the support bundle.
+- The screen helper moved to `tools\Display_Info.ps1` and the shared hints (RAM speed, cable speed, refresh rate) to `tools\Check_Rules.ps1`, both used by PC health and PC specs.
+- Tests for the new rules and a CI step, and the main menu test now also runs S.
+
 ## v4.13
 - **New: NVIDIA driver settings guide** (`docs/GPU_Driver_Guide_EN.pdf` and `GPU_Driver_Guide_TH.pdf`, 5 pages each). Every setting of NVIDIA Control Panel (Manage 3D settings, G-SYNC, resolution) with what it is, what each option does, the default and a recommended value; two ready profiles (maximum FPS / smooth with G-SYNC); Low Latency Mode On versus Ultra; how to tell a GPU limit from a CPU limit without any overlay; and a plain list of what is safe for anti-cheat and what to avoid. Written around a GTX 1070, valid for most GeForce cards. It only covers driver settings and never touches game files.
 - The main manuals point to the guide. Tests check that the guide files exist.

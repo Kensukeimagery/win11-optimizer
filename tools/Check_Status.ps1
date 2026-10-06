@@ -1,4 +1,4 @@
-# PC Optimizer v4.13 - Check Status
+# PC Optimizer v4.14 - Check Status
 # Compares the current PC settings with what the optimizer applies,
 # then offers to re-apply only the items that are missing or changed.
 param([string]$Root = '')
@@ -407,7 +407,7 @@ function Start-CheckStatus {
     $reportFile = Join-Path $script:RootDir ('CheckReport_' + $stamp + '.txt')
 
     Write-Log '==================================================================' 'Cyan'
-    Write-Log '   PC OPTIMIZER v4.13 - CHECK STATUS' 'Cyan'
+    Write-Log '   PC OPTIMIZER v4.14 - CHECK STATUS' 'Cyan'
     Write-Log ('   ' + (Get-Date -Format 'yyyy-MM-dd HH:mm') + '   Windows build ' + [Environment]::OSVersion.Version.ToString()) 'Cyan'
     Write-Log '==================================================================' 'Cyan'
     Write-Log ''

@@ -1,4 +1,4 @@
-# PC Optimizer v4.13 - support bundle
+# PC Optimizer v4.14 - support bundle
 # Collects what is needed to find a problem into ONE text file: version, Windows build, Check Status, system report, PC health,
 # a driver scan, the latest logs and the saved choices. Read-only: nothing on the PC is changed and nothing is sent anywhere.
 # Private details are replaced: your user name, the computer name, home network addresses, hardware (MAC) addresses and e-mail addresses.
@@ -77,7 +77,7 @@ function Start-SupportBundle {
     try { $version = ([IO.File]::ReadAllText((Join-Path $script:RootDir 'VERSION'))).Trim() } catch { }
 
     Write-Host '==================================================================' -ForegroundColor Cyan
-    Write-Host '   PC OPTIMIZER v4.13 - SUPPORT BUNDLE (nothing is changed or sent)' -ForegroundColor Cyan
+    Write-Host '   PC OPTIMIZER v4.14 - SUPPORT BUNDLE (nothing is changed or sent)' -ForegroundColor Cyan
     Write-Host '==================================================================' -ForegroundColor Cyan
     Write-Host ''
     Write-Host '   Collecting everything into one file, about 30-60 seconds. No key press is needed...' -ForegroundColor DarkGray
@@ -85,6 +85,7 @@ function Start-SupportBundle {
     $sections = @(
         @{ Title = 'Environment'; Block = { Invoke-Tool 'Env_Check.ps1' @('-Human') } },
         @{ Title = 'Check Status (settings still in place)'; Block = { Get-CheckStatusText } },
+        @{ Title = 'PC specs'; Block = { Invoke-Tool 'PC_Specs.ps1' @() } },
         @{ Title = 'PC health'; Block = { Invoke-Tool 'PC_Health.ps1' @() } },
         @{ Title = 'System report'; Block = { Invoke-Tool 'System_Report.ps1' @() } },
         @{ Title = 'Driver scan (this PC only, nothing installed)'; Block = { Invoke-Tool 'Driver_Check.ps1' @('-SkipUpdateSearch', '-NoPrompt') } },

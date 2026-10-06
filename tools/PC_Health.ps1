@@ -1,4 +1,4 @@
-# PC Optimizer v4.13 - PC health check
+# PC Optimizer v4.14 - PC health check
 # Read-only: it only reads the Windows event log, the drives, the battery, the memory and the displays. It changes nothing.
 # Shows: crashes and blue screens, drive health, battery wear (laptops), and three things that matter for games:
 # the screen refresh rate, whether the RAM runs at its rated speed, and the speed of the network cable link.
@@ -88,30 +88,6 @@ function Get-DiskHints($Disk) {
     if ($null -ne $Disk.WriteErrors) { $errs += [int64]$Disk.WriteErrors }
     if ($errs -gt 0) { $out += ('the drive has logged ' + $errs + ' read/write errors') }
     return $out
-}
-
-function Get-RamHint([int]$RunningMhz, [int]$RatedMhz, [int]$Modules) {
-    $out = @()
-    if ($RatedMhz -gt 0 -and $RunningMhz -gt 0 -and $RunningMhz -lt ($RatedMhz * 0.9)) {
-        $out += ('the RAM runs at ' + $RunningMhz + ' MT/s but the modules are rated for ' + $RatedMhz + '. XMP / EXPO is probably off in the BIOS; turning it on is free speed for games')
-    }
-    if ($Modules -eq 1) { $out += 'only one RAM module is installed (single channel). Two matching modules usually give more memory bandwidth' }
-    return $out
-}
-
-function Get-LanHint([string]$Description, [double]$Mbps) {
-    # An adapter that says Gigabit but links at 100 Mbps or less: cable, port or router.
-    if ($Description -match 'GbE|Gigabit|1000|2\.5G|2\.5 G' -and $Mbps -gt 0 -and $Mbps -le 100) {
-        return ('the adapter supports Gigabit but the link is only ' + $Mbps + ' Mbps. Try another cable (Cat5e or better) or another router port')
-    }
-    return ''
-}
-
-function Get-RefreshHint([int]$Current, [int]$Max) {
-    if ($Max -gt 0 -and $Current -gt 0 -and $Current -lt ($Max - 1)) {
-        return ('Windows uses ' + $Current + ' Hz but this screen supports ' + $Max + ' Hz at this resolution. Settings > System > Display > Advanced display (some laptops lower it on purpose to save battery)')
-    }
-    return ''
 }
 
 function Get-BatteryHealthPercent($Design, $Full) {
@@ -217,58 +193,9 @@ function Show-Battery {
     else { Write-Good $text }
 }
 
-function Initialize-DisplayApi {
-    if ('PCOptDisplay' -as [type]) { return }
-    Add-Type -TypeDefinition @'
-using System;
-using System.Runtime.InteropServices;
-public class PCOptDisplay {
-    [StructLayout(LayoutKind.Sequential, CharSet = CharSet.Ansi)]
-    public struct DEVMODE {
-        [MarshalAs(UnmanagedType.ByValTStr, SizeConst = 32)] public string dmDeviceName;
-        public short dmSpecVersion; public short dmDriverVersion; public short dmSize; public short dmDriverExtra;
-        public int dmFields; public int dmPositionX; public int dmPositionY; public int dmDisplayOrientation; public int dmDisplayFixedOutput;
-        public short dmColor; public short dmDuplex; public short dmYResolution; public short dmTTOption; public short dmCollate;
-        [MarshalAs(UnmanagedType.ByValTStr, SizeConst = 32)] public string dmFormName;
-        public short dmLogPixels; public int dmBitsPerPel; public int dmPelsWidth; public int dmPelsHeight; public int dmDisplayFlags;
-        public int dmDisplayFrequency; public int dmICMMethod; public int dmICMIntent; public int dmMediaType; public int dmDitherType;
-        public int dmReserved1; public int dmReserved2; public int dmPanningWidth; public int dmPanningHeight;
-    }
-    [StructLayout(LayoutKind.Sequential, CharSet = CharSet.Ansi)]
-    public struct DISPLAY_DEVICE {
-        public int cb;
-        [MarshalAs(UnmanagedType.ByValTStr, SizeConst = 32)] public string DeviceName;
-        [MarshalAs(UnmanagedType.ByValTStr, SizeConst = 128)] public string DeviceString;
-        public int StateFlags;
-        [MarshalAs(UnmanagedType.ByValTStr, SizeConst = 128)] public string DeviceID;
-        [MarshalAs(UnmanagedType.ByValTStr, SizeConst = 128)] public string DeviceKey;
-    }
-    [DllImport("user32.dll", CharSet = CharSet.Ansi)] public static extern bool EnumDisplaySettings(string deviceName, int modeNum, ref DEVMODE devMode);
-    [DllImport("user32.dll", CharSet = CharSet.Ansi)] public static extern bool EnumDisplayDevices(string lpDevice, uint iDevNum, ref DISPLAY_DEVICE lpDisplayDevice, uint dwFlags);
-    public static string[] Describe() {
-        var rows = new System.Collections.Generic.List<string>();
-        for (uint i = 0; i < 16; i++) {
-            DISPLAY_DEVICE dd = new DISPLAY_DEVICE(); dd.cb = Marshal.SizeOf(dd);
-            if (!EnumDisplayDevices(null, i, ref dd, 0)) break;
-            if ((dd.StateFlags & 1) == 0) continue;   // not attached to the desktop
-            DEVMODE cur = new DEVMODE(); cur.dmSize = (short)Marshal.SizeOf(cur);
-            if (!EnumDisplaySettings(dd.DeviceName, -1, ref cur)) continue;
-            int max = cur.dmDisplayFrequency;
-            for (int m = 0; m < 4000; m++) {
-                DEVMODE dm = new DEVMODE(); dm.dmSize = (short)Marshal.SizeOf(dm);
-                if (!EnumDisplaySettings(dd.DeviceName, m, ref dm)) break;
-                if (dm.dmPelsWidth == cur.dmPelsWidth && dm.dmPelsHeight == cur.dmPelsHeight && dm.dmDisplayFrequency > max) max = dm.dmDisplayFrequency;
-            }
-            DISPLAY_DEVICE mon = new DISPLAY_DEVICE(); mon.cb = Marshal.SizeOf(mon);
-            string name = "";
-            if (EnumDisplayDevices(dd.DeviceName, 0, ref mon, 0)) name = mon.DeviceString;
-            rows.Add(name + "|" + cur.dmPelsWidth + "|" + cur.dmPelsHeight + "|" + cur.dmDisplayFrequency + "|" + max);
-        }
-        return rows.ToArray();
-    }
-}
-'@
-}
+# the screen helper is shared with PC_Specs.ps1
+. (Join-Path $PSScriptRoot 'Display_Info.ps1')
+. (Join-Path $PSScriptRoot 'Check_Rules.ps1')
 
 function Show-GamingChecks {
     Write-Log ''
@@ -321,7 +248,7 @@ function Start-PcHealth {
     $rootDir = ''
     if ($Root -ne '') { try { $rootDir = (Resolve-Path -LiteralPath $Root).Path } catch { } }
     Write-Log '==================================================================' 'Cyan'
-    Write-Log '   PC OPTIMIZER v4.13 - PC HEALTH (nothing is changed)' 'Cyan'
+    Write-Log '   PC OPTIMIZER v4.14 - PC HEALTH (nothing is changed)' 'Cyan'
     Write-Log ('   ' + (Get-Date -Format 'yyyy-MM-dd HH:mm')) 'Cyan'
     Write-Log '==================================================================' 'Cyan'
     Write-Log ''
