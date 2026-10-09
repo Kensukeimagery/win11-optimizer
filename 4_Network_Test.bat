@@ -1,5 +1,5 @@
 @echo off
-title PC Optimizer - Network Test v4.16
+title PC Optimizer - Network Test v4.17
 color 0B
 
 :: Read-only. Pings your router, 1.1.1.1, 8.8.8.8 and an optional game server,

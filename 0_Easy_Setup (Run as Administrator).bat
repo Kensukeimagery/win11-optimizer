@@ -1,5 +1,5 @@
 @echo off
-title PC Optimizer - Easy Setup v4.16
+title PC Optimizer - Easy Setup v4.17
 color 0B
 chcp 65001 >nul 2>&1
 

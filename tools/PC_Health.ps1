@@ -1,4 +1,4 @@
-# PC Optimizer v4.16 - PC health check
+# PC Optimizer v4.17 - PC health check
 # Read-only: it only reads the Windows event log, the drives, the battery, the memory and the displays. It changes nothing.
 # Shows: crashes and blue screens, drive health, battery wear (laptops), and three things that matter for games:
 # the screen refresh rate, whether the RAM runs at its rated speed, and the speed of the network cable link.
@@ -263,7 +263,7 @@ function Start-PcHealth {
     $rootDir = ''
     if ($Root -ne '') { try { $rootDir = (Resolve-Path -LiteralPath $Root).Path } catch { } }
     Write-Log '==================================================================' 'Cyan'
-    Write-Log '   PC OPTIMIZER v4.16 - PC HEALTH (nothing is changed)' 'Cyan'
+    Write-Log '   PC OPTIMIZER v4.17 - PC HEALTH (nothing is changed)' 'Cyan'
     Write-Log ('   ' + (Get-Date -Format 'yyyy-MM-dd HH:mm')) 'Cyan'
     Write-Log '==================================================================' 'Cyan'
     Write-Log ''

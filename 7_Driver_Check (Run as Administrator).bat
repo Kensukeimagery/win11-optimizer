@@ -1,5 +1,5 @@
 @echo off
-title PC Optimizer - Driver Check v4.16
+title PC Optimizer - Driver Check v4.17
 color 0B
 
 :: Scans for missing or outdated drivers and offers Windows Update drivers.

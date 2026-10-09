@@ -105,3 +105,5 @@ preview_tweaks_laptop=   [PREVIEW] Laptop: would apply the {0} settings profile 
 preview_dns=   [PREVIEW] Would ask if you want to test the internet and pick a faster DNS (default: no).
 preview_verify=   [PREVIEW] Would check everything again and show the summary.
 preview_end=   PREVIEW finished. Nothing was changed. Start 0_Easy_Setup normally to do it for real.
+profile_games=   Your answer: you mainly play games (the gaming extras are included).
+profile_safe=   Your answer: not mainly games (the safe settings only).

@@ -1,4 +1,4 @@
-# PC Optimizer v4.16 - PC specs on one page
+# PC Optimizer v4.17 - PC specs on one page
 # Read-only. Shows your PC in plain words on one page: computer, Windows, processor, memory, graphics card, screens, drives,
 # network and the security features some games ask for. Meant for people who do not know where to look for the specs,
 # and for sharing when you ask for help or sell the PC. No serial numbers, MAC addresses or IP addresses are shown.
@@ -295,8 +295,21 @@ function Write-Mark([string]$Kind, [string]$Text) {
     else { Write-Log ('   [INFO]  ' + $Text) 'Gray' }
 }
 
+function ConvertTo-RealDate($Date, [datetime]$Now) {
+    # some PCs (Thai regional format) return a driver date 543 years too early; put it back, or give up (null) when it is not plausible
+    if ($null -eq $Date) { return $null }
+    try { $d = [datetime]$Date } catch { return $null }
+    if ($d.Year -ge 1990 -and $d -le $Now.AddDays(2)) { return $d }
+    if ($d.Year -lt 1990) {
+        $fixed = $d.AddYears(543)
+        if ($fixed.Year -ge 1990 -and $fixed -le $Now.AddDays(2)) { return $fixed }
+    }
+    return $null
+}
+
 function Test-OldThirdPartyDriver([string]$Class, [string]$Maker, $Date, [datetime]$Now) {
     # a maker driver for network, graphics, sound or Bluetooth that is more than 4 years old
+    $Date = ConvertTo-RealDate $Date $Now
     if ($null -eq $Date) { return $false }
     if (@('NET', 'DISPLAY', 'MEDIA', 'BLUETOOTH') -notcontains $Class.ToUpper()) { return $false }
     if ($Maker -match 'Microsoft') { return $false }
@@ -340,7 +353,7 @@ function Show-Consistency {
     try {
         $now = Get-Date
         foreach ($d in @(Get-Cim 'Win32_PnPSignedDriver')) {
-            if ([string]$d.DeviceName -ne '' -and (Test-OldThirdPartyDriver ([string]$d.DeviceClass) ([string]$d.Manufacturer) $d.DriverDate $now)) { $old += ([string]$d.DeviceName + ' (' + ([datetime]$d.DriverDate).Year + ')') }
+            if ([string]$d.DeviceName -ne '' -and (Test-OldThirdPartyDriver ([string]$d.DeviceClass) ([string]$d.Manufacturer) $d.DriverDate $now)) { $old += ([string]$d.DeviceName + ' (' + (ConvertTo-RealDate $d.DriverDate $now).Year + ')') }
         }
     } catch { }
     $old = @($old | Select-Object -Unique)
@@ -394,7 +407,7 @@ function Start-PcSpecs {
     $rootDir = ''
     if ($Root -ne '') { try { $rootDir = (Resolve-Path -LiteralPath $Root).Path } catch { } }
     Write-Log '==================================================================' 'Cyan'
-    Write-Log '   PC OPTIMIZER v4.16 - YOUR PC ON ONE PAGE (nothing is changed)' 'Cyan'
+    Write-Log '   PC OPTIMIZER v4.17 - YOUR PC ON ONE PAGE (nothing is changed)' 'Cyan'
     Write-Log ('   ' + (Get-Date -Format 'yyyy-MM-dd HH:mm')) 'Cyan'
     Write-Log '==================================================================' 'Cyan'
     Write-Log ''

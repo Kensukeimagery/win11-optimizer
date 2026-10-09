@@ -1,10 +1,10 @@
 @echo off
 setlocal EnableExtensions
-title PC Optimizer - Master Control v4.16
+title PC Optimizer - Master Control v4.17
 color 0B
 
 :: =====================================================================
-::  PC OPTIMIZER - MASTER CONTROL v4.16
+::  PC OPTIMIZER - MASTER CONTROL v4.17
 ::  Safety rules used in this file - they avoid the crashes seen in v3:
 ::   - no brackets inside ECHO text that sits inside IF or FOR blocks
 ::   - flat GOTO labels instead of nested IF / ELSE blocks
@@ -24,7 +24,7 @@ set "LOGDIR=%SCRIPT_DIR%Logs"
 if not exist "%LOGDIR%" mkdir "%LOGDIR%" >nul 2>&1
 set "LOGFILE=%LOGDIR%\OptimizerLog_%TS%.txt"
 set "BACKUPDIR=%SCRIPT_DIR%Backup\%TS%"
-echo PC Optimizer v4.16 Log - %date% %time% > "%LOGFILE%"
+echo PC Optimizer v4.17 Log - %date% %time% > "%LOGFILE%"
 if exist "%TOOLDIR%\Report_Maintain.ps1" powershell -NoProfile -ExecutionPolicy Bypass -File "%TOOLDIR%\Report_Maintain.ps1" -Root "%SCRIPT_DIR%." >nul 2>&1
 
 if not exist "%REGROOT%" goto NOREG
@@ -90,7 +90,7 @@ goto MENU
 :MENU
 cls
 echo ===================================================================
-echo    PC OPTIMIZER - MASTER CONTROL v4.16
+echo    PC OPTIMIZER - MASTER CONTROL v4.17
 echo    Log: OptimizerLog_%TS%.txt
 if "%ISLAPTOP%"=="1" echo    Laptop detected - tweaks 02 and 16 are not recommended on a laptop.
 if defined UPDMSG echo    %UPDMSG%
@@ -442,9 +442,9 @@ goto :eof
 :SERVICES
 echo  - Services: Search and Print on, telemetry off...
 sc config WSearch start= delayed-auto >> "%LOGFILE%" 2>&1
-sc start WSearch >> "%LOGFILE%" 2>&1
+sc query WSearch | find "RUNNING" >nul 2>&1 || sc start WSearch >> "%LOGFILE%" 2>&1
 sc config Spooler start= auto >> "%LOGFILE%" 2>&1
-sc start Spooler >> "%LOGFILE%" 2>&1
+sc query Spooler | find "RUNNING" >nul 2>&1 || sc start Spooler >> "%LOGFILE%" 2>&1
 sc config DiagTrack start= disabled >> "%LOGFILE%" 2>&1
 sc config dmwappushservice start= disabled >> "%LOGFILE%" 2>&1
 echo    [OK] Services updated. Already running is normal and not an error.

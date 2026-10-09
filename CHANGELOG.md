@@ -1,5 +1,10 @@
 # Changelog
 
+## v4.17
+- Found by the first Easy Setup run on a company PC (Thai regional date format). **PC specs: wrong "older than 4 years" list fixed.** That PC returned driver dates 543 years too early (the Buddhist-era shift), so every network, graphics, sound and Bluetooth driver, even a 2026 graphics driver, was listed as old. The date is now put back when it is clearly shifted, and a driver whose date cannot be trusted is not listed at all. A test covers it.
+- The main menu no longer logs "StartService FAILED 1056 ... already running" for Search and Print: the service is started only when it is not running yet.
+- The Easy Setup report now says your answer to the one question (gaming or not), in Thai and English.
+
 ## v4.16
 - **New: Easy Setup, one button** (`0_Easy_Setup (Run as Administrator).bat`, or **E** in the main menu, `tools\Easy_Setup.ps1`). For a new Windows install, first-time users and people who do not know computers. It asks the language (Thai or English) and one question (do you mainly play games?), shows the plan, then runs everything in the best order: check for a newer version, restore point, remember how the PC is now, internet check, Windows Update (guided: it opens the page, you press install), recommended drivers (the graphics driver page opens if it is missing), restart if needed (run it again to continue where it stopped), safe speed settings, optional faster DNS (default no), and a one-page before/after summary with things worth a look. Drivers and updates come first and the settings last, because updates and drivers can change settings. A laptop skips the settings that make it hotter. Nothing is deleted. The PC is kept awake while it runs. `-Preview` shows the plan and changes nothing.
 - Not included on purpose: the Memory Integrity tweak, driver and file cleanup, network reset, and changing DNS without asking.

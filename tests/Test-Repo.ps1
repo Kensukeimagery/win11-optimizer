@@ -228,6 +228,9 @@ try {
     Assert ($null -ne (Get-Command Get-LanHint -ErrorAction SilentlyContinue)) 'the specs page uses the shared cable-speed rule'
     $now = Get-Date '2026-10-06'
     Assert ((Test-OldThirdPartyDriver 'NET' 'Realtek' (Get-Date '2020-01-01') $now) -and -not (Test-OldThirdPartyDriver 'NET' 'Realtek' (Get-Date '2025-06-01') $now) -and -not (Test-OldThirdPartyDriver 'NET' 'Microsoft' (Get-Date '2006-06-21') $now) -and -not (Test-OldThirdPartyDriver 'SYSTEM' 'Intel' (Get-Date '2016-10-03') $now)) 'only old maker drivers of network, graphics, sound and Bluetooth are mentioned'
+    Assert ((ConvertTo-RealDate (Get-Date '1483-07-22') $now).Year -eq 2026) 'a driver date 543 years too early (Thai regional format) is put back'
+    Assert (-not (Test-OldThirdPartyDriver 'DISPLAY' 'NVIDIA' (Get-Date '1483-07-22') $now) -and (Test-OldThirdPartyDriver 'NET' 'Realtek' (Get-Date '1479-01-01') $now)) 'a shifted 2026 graphics driver is not old, a shifted 2022 network driver still is'
+    Assert ($null -eq (ConvertTo-RealDate (Get-Date '0100-01-01') $now)) 'an implausible driver date is ignored'
     $it = @(
         [pscustomobject]@{ Key = 'REG01'; Kind = 'auto'; Status = 'OK'; Title = 'A' },
         [pscustomobject]@{ Key = 'REG02'; Kind = 'auto'; Status = 'CHANGED'; Title = 'B' },
