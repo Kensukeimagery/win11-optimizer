@@ -167,6 +167,16 @@ try {
     Assert (@($ids2 | Where-Object { $_ -in 'oem20.inf', 'oem21.inf' }).Count -eq 0) 'packages from Microsoft are never candidates'
     Assert (@($ids2 | Where-Object { $_ -in 'oem30.inf', 'oem31.inf' }).Count -eq 0) 'a group where version and date disagree is left alone'
     Assert (@($script:SkippedGroups).Count -eq 2) 'the skipped groups are reported'
+    $now2 = Get-Date '2026-10-10'
+    $cc = @(Get-StaleCandidates $set @())
+    $k1 = Get-PackageKey $cc[0].Package
+    $sp = Split-RefusedCandidates $cc @{ $k1 = (Get-Date '2026-10-01') } $now2
+    Assert (@($sp.Known).Count -eq 1 -and @($sp.Fresh).Count -eq ($cc.Count - 1)) 'a package Windows refused a few days ago is not offered again'
+    $sp2 = Split-RefusedCandidates $cc @{ $k1 = (Get-Date '2026-08-01') } $now2
+    Assert (@($sp2.Known).Count -eq 0 -and @($sp2.Fresh).Count -eq $cc.Count) 'a package refused more than 30 days ago is offered again'
+    $sp3 = Split-RefusedCandidates $cc @{ 'oem99.inf|x.inf|maker|1.0|20200101' = (Get-Date '2026-10-09') } $now2
+    Assert (@($sp3.Known).Count -eq 0) 'a refusal of another package changes nothing'
+    Assert ((Get-PackageKey (Pk 'OEM5.inf' 'A.inf' 'Maker' 'Net' '1.2' '2025-03-04' $false)) -eq 'oem5.inf|a.inf|maker|1.2|20250304') 'the remembered key is stable and lower case'
     Assert ((Test-GhostBluetooth 'BTHENUM\DEV_001122334455\7&1&0&BLUETOOTHDEVICE_001122334455') -and (Test-GhostBluetooth 'HID\{00001124-0000-1000-8000-00805f9b34fb}_DEV_VID&0201\8&1') -and -not (Test-GhostBluetooth 'USB\VID_046D&PID_C52B\5&1')) 'Bluetooth entries are recognised and a USB one is not'
     Assert (((Format-Mb $null) -eq '?') -and ((Format-Mb 0.02) -eq '<0.1') -and ((Format-Mb 3.4) -eq '3.4')) 'unknown and tiny sizes are shown honestly'
     Remove-OldPackages $c '' 6>$null

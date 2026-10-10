@@ -87,7 +87,7 @@ Files downloaded from the internet carry a "from the internet" mark, so Windows 
 These tweaks give small, situational gains. GPU driver updates, in-game settings, XMP/EXPO and cooling matter far more. Items without official Microsoft documentation are marked as community-sourced in the manual's References page.
 
 ### Requirements
-Windows 11 (build 22000 or newer), administrator rights. Built for desktops: on a laptop the menu advises against tweaks 02 and 16, and on older Windows it warns first. Manuals: [English](docs/Manual_EN_v4.17.pdf) and [Thai](docs/Manual_TH_v4.17.pdf). NVIDIA driver settings, explained one by one: [English](docs/GPU_Driver_Guide_EN.pdf) and [Thai](docs/GPU_Driver_Guide_TH.pdf). The scripts print English.
+Windows 11 (build 22000 or newer), administrator rights. Built for desktops: on a laptop the menu advises against tweaks 02 and 16, and on older Windows it warns first. Manuals: [English](docs/Manual_EN_v4.18.pdf) and [Thai](docs/Manual_TH_v4.18.pdf). NVIDIA driver settings, explained one by one: [English](docs/GPU_Driver_Guide_EN.pdf) and [Thai](docs/GPU_Driver_Guide_TH.pdf). The scripts print English.
 
 ### Problems or ideas
 Open an [issue](https://github.com/Kensukeimagery/win11-optimizer/issues/new/choose). The form asks for your version and Windows build and tells you which log files to attach (check them for anything private first).
@@ -119,7 +119,7 @@ MIT, see `LICENSE`.
 - เปิดอ่านสคริปต์ก่อน (เป็นข้อความธรรมดา) ถ้าไม่ไว้ใจไฟล์ไหน อย่ารัน
 - อย่าปิดแอนตี้ไวรัสเพื่อใช้เครื่องมือนี้
 
-รายละเอียดแต่ละไฟล์ ลำดับการรัน และการตั้งค่า Windows เพิ่มเติมอยู่ในคู่มือ PDF: [ภาษาไทย](docs/Manual_TH_v4.17.pdf) | [English](docs/Manual_EN_v4.17.pdf)
+รายละเอียดแต่ละไฟล์ ลำดับการรัน และการตั้งค่า Windows เพิ่มเติมอยู่ในคู่มือ PDF: [ภาษาไทย](docs/Manual_TH_v4.18.pdf) | [English](docs/Manual_EN_v4.18.pdf)
 
 คู่มือตั้งค่าไดรเวอร์การ์ดจอ NVIDIA ทีละข้อ (แต่ละค่าคืออะไร ค่าแนะนำ ผลต่างกันอย่างไร): [ภาษาไทย](docs/GPU_Driver_Guide_TH.pdf) | [English](docs/GPU_Driver_Guide_EN.pdf)
 

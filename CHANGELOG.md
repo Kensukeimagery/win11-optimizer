@@ -1,5 +1,9 @@
 # Changelog
 
+## v4.18
+- **Driver cleanup no longer repeats work for a package Windows refuses to remove.** Some packages (for example a driver extension) answer "still needed" every time. They are now remembered (per package and version, in the registry value `CleanKept`) and left out of the offer for 30 days, so cleanup does not make another restore point and another copy for nothing; after 30 days it tries once more. The scan lists them as "left out", and the check after a cleanup says so. Found on a company PC where the same AVerMedia extension was offered again on the next day.
+- Tests for the remembering rule (recent, old and unrelated refusals, stable key); the registry write and read were also checked once in a throwaway key.
+
 ## v4.17
 - Found by the first Easy Setup run on a company PC (Thai regional date format). **PC specs: wrong "older than 4 years" list fixed.** That PC returned driver dates 543 years too early (the Buddhist-era shift), so every network, graphics, sound and Bluetooth driver, even a 2026 graphics driver, was listed as old. The date is now put back when it is clearly shifted, and a driver whose date cannot be trusted is not listed at all. A test covers it.
 - The main menu no longer logs "StartService FAILED 1056 ... already running" for Search and Print: the service is started only when it is not running yet.

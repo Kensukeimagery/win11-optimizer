@@ -94,6 +94,55 @@ function Get-StaleCandidates($Packages, $InUseInfs) {
     return $out
 }
 
+# ---------------------------------------------------------------- packages Windows refused to remove
+# Windows sometimes says a package is "still needed" (for example a driver extension). Offering it again every time would make a
+# restore point and a copy for nothing, so a refused package is remembered and left out for 30 days, then tried once more.
+$script:StateKey = 'HKCU:\Software\PCOptimizer'
+$script:KeptValueName = 'CleanKept'
+$script:KeptDays = 30
+
+function Get-PackageKey($P) {
+    $d = ([datetime]$P.Date).ToString('yyyyMMdd', [Globalization.CultureInfo]::InvariantCulture)
+    return (([string]$P.Inf + '|' + [string]$P.Original + '|' + [string]$P.Provider + '|' + [string]$P.Version + '|' + $d).ToLower())
+}
+
+function Split-RefusedCandidates($Cands, $Kept, [datetime]$Now) {
+    # Kept: hashtable key -> the day Windows refused. Fresh = offer now, Known = refused within the last KeptDays days.
+    $fresh = @(); $known = @()
+    foreach ($c in @($Cands)) {
+        $k = Get-PackageKey $c.Package
+        if ($Kept.ContainsKey($k) -and (($Now - [datetime]$Kept[$k]).TotalDays -lt $script:KeptDays)) { $known += $c } else { $fresh += $c }
+    }
+    return @{ Fresh = $fresh; Known = $known }
+}
+
+function Get-RefusedMap {
+    $map = @{}
+    try {
+        $v = (Get-ItemProperty -Path $script:StateKey -Name $script:KeptValueName -ErrorAction Stop).($script:KeptValueName)
+        foreach ($line in @($v)) {
+            $parts = ([string]$line) -split "`t"
+            if ($parts.Count -eq 2) { try { $map[$parts[0]] = [datetime]::ParseExact($parts[1], 'yyyyMMdd', [Globalization.CultureInfo]::InvariantCulture) } catch { } }
+        }
+    } catch { }
+    return $map
+}
+
+function Save-RefusedPackages($Refused) {
+    if (@($Refused).Count -eq 0) { return }
+    $now = Get-Date
+    $map = Get-RefusedMap
+    foreach ($c in @($Refused)) { $map[(Get-PackageKey $c.Package)] = $now }
+    $lines = @()
+    foreach ($k in @($map.Keys)) {
+        if (($now - [datetime]$map[$k]).TotalDays -lt $script:KeptDays) { $lines += ($k + "`t" + ([datetime]$map[$k]).ToString('yyyyMMdd', [Globalization.CultureInfo]::InvariantCulture)) }
+    }
+    try {
+        if (-not (Test-Path $script:StateKey)) { New-Item -Path $script:StateKey -Force | Out-Null }
+        Set-ItemProperty -Path $script:StateKey -Name $script:KeptValueName -Value ([string[]]$lines) -Type MultiString
+    } catch { }
+}
+
 # ---------------------------------------------------------------- scanning
 function Get-DriverPackages {
     $list = @()
@@ -193,14 +242,15 @@ function Remove-OldPackages($Chosen, [string]$RootDir) {
     }
     Write-Log ''
     Write-Log ('   Step 3 of 3: removing ' + $toRemove.Count + ' old package(s)') 'White'
-    $ok = 0; $kept = @($Chosen).Count - $toRemove.Count; $freed = 0.0
+    $ok = 0; $kept = @($Chosen).Count - $toRemove.Count; $freed = 0.0; $refused = @()
     foreach ($c in $toRemove) {
         $p = $c.Package
         $label = $p.Provider + ' ' + $p.Class + ' ' + $p.Version + ' (' + $p.Inf + ')'
         & pnputil.exe /delete-driver $p.Inf | Out-Null
         if ($LASTEXITCODE -eq 0) { $ok++; if ($null -ne $c.SizeMb) { $freed += [double]$c.SizeMb }; Write-Log ('   [OK] removed ' + $label) 'Green' }
-        else { $kept++; Write-Log ('   [KEPT] ' + $label + ': Windows says it is still needed') 'Yellow' }
+        else { $kept++; $refused += $c; Write-Log ('   [KEPT] ' + $label + ': Windows says it is still needed') 'Yellow' }
     }
+    Save-RefusedPackages $refused
     Write-Log ''
     Write-Log ('   Done: ' + $ok + ' removed (about ' + [math]::Round($freed / 1024, 2) + ' GB), ' + $kept + ' left in place.') 'White'
     if ($dest -ne '') { Write-Log '   The copies are in Backup\drivers_removed_*. Delete that folder when you are sure everything works. To put a package back: pnputil /add-driver "Backup\drivers_removed_...\*.inf" /subdirs /install' 'DarkGray' }
@@ -209,7 +259,10 @@ function Remove-OldPackages($Chosen, [string]$RootDir) {
     Write-Log '   Checking again what is left...' 'DarkGray'
     try {
         $left = @(Get-StaleCandidates (Get-DriverPackages) (Get-InUseInfs))
-        if ($left.Count -eq 0) { Write-Log '   No old driver versions are left.' 'Green' }
+        $leftSplit = Split-RefusedCandidates $left (Get-RefusedMap) (Get-Date)
+        $left = @($leftSplit.Fresh)
+        if ($left.Count -eq 0 -and @($leftSplit.Known).Count -gt 0) { Write-Log ('   Nothing more can be removed now. ' + @($leftSplit.Known).Count + ' package(s) that Windows refused are not offered again for ' + $script:KeptDays + ' days.') 'Green' }
+        elseif ($left.Count -eq 0) { Write-Log '   No old driver versions are left.' 'Green' }
         else { Write-Log ('   ' + $left.Count + ' old package(s) are still there (Windows kept them). Restart and run this again if you like.') 'Yellow' }
     } catch { Write-Log ('   Could not check again: ' + $_.Exception.Message) 'Yellow' }
 }
@@ -255,8 +308,12 @@ function Start-DriverClean {
     $scanOk = $true
     try { $pkgs = @(Get-DriverPackages) } catch { $scanOk = $false; Write-Log ('   Could not read the driver store: ' + $_.Exception.Message) 'Yellow' }
     $cands = @()
+    $refusedBefore = @()
     if ($scanOk) {
         $cands = @(Get-StaleCandidates $pkgs (Get-InUseInfs))
+        $split = Split-RefusedCandidates $cands (Get-RefusedMap) (Get-Date)
+        $cands = @($split.Fresh)
+        $refusedBefore = @($split.Known)
         foreach ($c in $cands) { Add-Member -InputObject $c -NotePropertyName SizeMb -NotePropertyValue (Get-FolderMb $c.Package.Dir) -Force }
     }
 
@@ -264,13 +321,15 @@ function Start-DriverClean {
     Write-Log '   A. Old versions of drivers you still use' 'White'
     $totalMb = 0.0
     foreach ($c in $cands) { if ($null -ne $c.SizeMb) { $totalMb += [double]$c.SizeMb } }
-    if ($scanOk -and $cands.Count -eq 0) { Write-Log '     None. Windows keeps only the current versions.' 'Green' }
+    if ($scanOk -and $cands.Count -eq 0 -and $refusedBefore.Count -eq 0) { Write-Log '     None. Windows keeps only the current versions.' 'Green' }
+    elseif ($scanOk -and $cands.Count -eq 0) { Write-Log '     None that can be removed now.' 'Green' }
     foreach ($grp in @($cands | Group-Object { $_.Package.Provider + ' / ' + $_.Package.Class + ' / ' + $_.Package.Original })) {
         $keep = $grp.Group[0]
         Write-Log ('     ' + $grp.Name + '  (newest, kept: ' + $keep.KeepVersion + ')') 'Gray'
         foreach ($c in $grp.Group) { Write-Log ('       old: ' + $c.Package.Version + ' ' + $c.Package.Date.ToString('yyyy-MM-dd') + ' [' + $c.Package.Inf + '] ' + (Format-Mb $c.SizeMb) + ' MB') 'DarkGray' }
     }
     if ($cands.Count -gt 0) { Write-Log ('     Total: ' + $cands.Count + ' old package(s), about ' + [math]::Round($totalMb / 1024, 2) + ' GB.') 'Yellow' }
+    if ($refusedBefore.Count -gt 0) { Write-Log ('     Left out (' + $refusedBefore.Count + '): Windows refused to remove ' + (($refusedBefore | ForEach-Object { $_.Package.Provider + ' ' + $_.Package.Class + ' ' + $_.Package.Version }) -join ', ') + ' earlier, so it is not offered again for ' + $script:KeptDays + ' days.') 'DarkGray' }
     if (@($script:SkippedGroups).Count -gt 0) { Write-Log ('     Left alone on purpose (' + @($script:SkippedGroups).Count + '): ' + ($script:SkippedGroups -join ', ')) 'DarkGray' }
 
     $allGhosts = @(Get-GhostDevices)

@@ -1,4 +1,4 @@
-# PC Optimizer v4.17 - PC specs on one page
+# PC Optimizer v4.18 - PC specs on one page
 # Read-only. Shows your PC in plain words on one page: computer, Windows, processor, memory, graphics card, screens, drives,
 # network and the security features some games ask for. Meant for people who do not know where to look for the specs,
 # and for sharing when you ask for help or sell the PC. No serial numbers, MAC addresses or IP addresses are shown.
@@ -407,7 +407,7 @@ function Start-PcSpecs {
     $rootDir = ''
     if ($Root -ne '') { try { $rootDir = (Resolve-Path -LiteralPath $Root).Path } catch { } }
     Write-Log '==================================================================' 'Cyan'
-    Write-Log '   PC OPTIMIZER v4.17 - YOUR PC ON ONE PAGE (nothing is changed)' 'Cyan'
+    Write-Log '   PC OPTIMIZER v4.18 - YOUR PC ON ONE PAGE (nothing is changed)' 'Cyan'
     Write-Log ('   ' + (Get-Date -Format 'yyyy-MM-dd HH:mm')) 'Cyan'
     Write-Log '==================================================================' 'Cyan'
     Write-Log ''

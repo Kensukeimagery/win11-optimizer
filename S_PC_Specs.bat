@@ -1,5 +1,5 @@
 @echo off
-title PC Optimizer - PC Specs v4.17
+title PC Optimizer - PC Specs v4.18
 color 0B
 
 :: Read-only. Shows your PC on one page in plain words: processor, memory, graphics card,

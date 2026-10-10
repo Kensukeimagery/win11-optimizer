@@ -1,5 +1,5 @@
 @echo off
-title PC Optimizer - Support Bundle v4.17
+title PC Optimizer - Support Bundle v4.18
 color 0B
 
 :: Read-only. Collects the version, Windows build, Check Status, system report, PC health,

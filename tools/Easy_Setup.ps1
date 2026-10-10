@@ -1,4 +1,4 @@
-# PC Optimizer v4.17 - Easy Setup (one button)
+# PC Optimizer v4.18 - Easy Setup (one button)
 # For a new Windows install, for people who never used an optimizer, and for people who do not know computers.
 # It walks through everything in the best order, in plain words (Thai or English), and asks only what it must:
 #   check for a newer version -> restore point -> remember how the PC is now -> internet -> Windows Update (guided)
