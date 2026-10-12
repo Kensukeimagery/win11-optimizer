@@ -124,3 +124,25 @@ jobs:
         if: always()
         shell: cmd
         run: if exist easy_out.txt type easy_out.txt
+
+      - name: Easy Setup whole flow (real run, no questions) on this disposable machine
+        shell: cmd
+        timeout-minutes: 15
+        continue-on-error: true
+        run: |
+          powershell -NoProfile -ExecutionPolicy Bypass -File tools\Easy_Setup.ps1 -Yes -NoPrompt -Lang en -Mode safe > easyfull_out.txt 2>&1 < nul
+          type easyfull_out.txt
+          findstr /c:"SUMMARY" easyfull_out.txt
+          if errorlevel 1 exit /b 1
+
+      - name: The Easy Setup report was written while it ran
+        if: always()
+        shell: powershell
+        continue-on-error: true
+        run: |
+          $f = @(Get-ChildItem -Path 'Logs' -Filter 'EasySetup_*.txt' -ErrorAction SilentlyContinue | Sort-Object LastWriteTime -Descending)
+          Write-Host ('Easy Setup reports in Logs: ' + $f.Count)
+          if ($f.Count -eq 0) { Write-Host 'no report was written'; exit 1 }
+          Get-Content -LiteralPath $f[0].FullName
+          $t = Get-Content -LiteralPath $f[0].FullName -Raw
+          if ($t -notmatch 'Step 1 of 10') { Write-Host 'the report has no first step'; exit 1 }

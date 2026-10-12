@@ -1,4 +1,4 @@
-# PC Optimizer v4.18 - Easy Setup (one button)
+# PC Optimizer v4.19 - Easy Setup (one button)
 # For a new Windows install, for people who never used an optimizer, and for people who do not know computers.
 # It walks through everything in the best order, in plain words (Thai or English), and asks only what it must:
 #   check for a newer version -> restore point -> remember how the PC is now -> internet -> Windows Update (guided)
@@ -28,6 +28,7 @@ $script:EasyLines = New-Object System.Collections.Generic.List[string]
 $script:Strings = @{}
 $script:StringsEn = @{}
 $script:EasyUser = [string]$env:USERNAME
+$script:ReportPath = ''
 $script:StepOrder = @('update', 'restore', 'before', 'network', 'winupdate', 'drivers', 'restart', 'tweaks', 'dns', 'verify')
 
 # ---------------------------------------------------------------- messages
@@ -53,11 +54,22 @@ function T([string]$Key, [object[]]$Values = @()) {
     return $s
 }
 
+function Write-ReportLine([string]$Text) {
+    # The report grows line by line while the setup runs, so closing the window half way does not lose what was done.
+    # Nothing is written in the preview. The file is always inside the Logs folder (New-ReportPath).
+    if ($Preview) { return }
+    try {
+        if ($script:ReportPath -eq '') { $script:ReportPath = New-ReportPath $EasyRoot 'EasySetup' }
+        [IO.File]::AppendAllText($script:ReportPath, $Text + "`r`n", (New-Object System.Text.UTF8Encoding($false)))
+    } catch { }
+}
+
 function Say([string]$Text, [string]$Color = 'Gray') {
     $safe = $Text
     if ($script:EasyUser -ne '') { $safe = $safe -replace ('(?<![A-Za-z0-9])' + [regex]::Escape($script:EasyUser) + '(?![A-Za-z0-9])'), '<user>' }
     Write-Host $safe -ForegroundColor $Color
     $script:EasyLines.Add($safe)
+    Write-ReportLine $safe
 }
 function SayT([string]$Key, [object[]]$Values = @(), [string]$Color = 'Gray') { Say (T $Key $Values) $Color }
 
@@ -69,7 +81,7 @@ function Read-Choice([string]$Prompt, [string[]]$Allowed) {
         if ($null -eq $raw) { break }
         $a = ([string]$raw).Trim().ToUpper()
         if ($a -eq '') { $a = $Allowed[0] }
-        if ($Allowed -contains $a) { return $a }
+        if ($Allowed -contains $a) { Write-ReportLine ('   > ' + $Prompt.Trim() + '  ->  ' + $a); return $a }
         Say (T 'type_one_of' @(($Allowed -join ', '))) 'DarkYellow'
     }
     return $Allowed[0]
@@ -99,6 +111,14 @@ function Get-SettingsSnapshot($Items) {
     $ok = @($all | Where-Object { $_.Status -eq 'OK' }).Count
     $bad = @($all | Where-Object { $_.Status -eq 'CHANGED' -or $_.Status -eq 'MISSING' })
     return @{ Ok = $ok; Total = ($ok + $bad.Count); Bad = @($bad | ForEach-Object { [string]$_.Title }) }
+}
+
+function Get-BeforeAfterNumbers($Before, $Snap) {
+    # "before" is shown against the same total as "now", so the two numbers can be compared (a PC that was never set up has
+    # settings that are not counted yet, which made "0 of 16 before, 22 of 22 now").
+    $total = [int]$Snap.Total
+    $b = [math]::Max(0, [math]::Min([int]$Before.Ok, $total))
+    return @{ BeforeOk = $b; NowOk = [int]$Snap.Ok; Total = $total }
 }
 
 function Select-AttentionLines($Lines, [int]$Max = 6) {
@@ -375,7 +395,7 @@ function Step-Verify {
     $b = $script:Before
     Say '' 'Gray'
     SayT 'summary_title' @() 'Cyan'
-    if ($null -ne $b) { SayT 'summary_settings_ba' @($b.Ok, $b.Total, $snap.Ok, $snap.Total) 'White' } else { SayT 'summary_settings' @($snap.Ok, $snap.Total) 'White' }
+    if ($null -ne $b) { $nums = Get-BeforeAfterNumbers $b $snap; SayT 'summary_settings_ba' @($nums.BeforeOk, $nums.Total, $nums.NowOk, $nums.Total) 'White' } else { SayT 'summary_settings' @($snap.Ok, $snap.Total) 'White' }
     if ($snap.Bad.Count -gt 0) { SayT 'summary_settings_bad' @(($snap.Bad -join ', ')) 'Yellow' }
     if ($devices -ge 0) {
         if ($null -ne $b -and $b.Devices -ge 0) { SayT 'summary_devices_ba' @($b.Devices, $devices) 'White' } else { SayT 'summary_devices' @($devices) 'White' }
@@ -408,12 +428,12 @@ function Start-EasySetup {
             Write-Host '   Language / ' -NoNewline
             $thaiName = [string]::Join('', [char[]](0x0E20, 0x0E32, 0x0E29, 0x0E32))
             Write-Host $thaiName -NoNewline
-            Write-Host ':   T = ' -NoNewline
+            Write-Host ':   T = Thai (' -NoNewline
             Write-Host ([string]::Join('', [char[]](0x0E44, 0x0E17, 0x0E22))) -NoNewline
-            Write-Host '   E = English'
-            $def = @('E', 'T')
-            if ($env:WT_SESSION) { $def = @('T', 'E') }   # Windows Terminal shows Thai correctly
-            if ($st.Lang -eq 'th') { $def = @('T', 'E') } elseif ($st.Lang -eq 'en') { $def = @('E', 'T') }
+            Write-Host ')   E = English'
+            Write-Host '   (If the Thai letters look broken on your screen, choose E.)' -ForegroundColor DarkGray
+            $def = @('E', 'T')   # English is the default: the old console cannot show Thai
+            if ($st.Lang -eq 'th') { $def = @('T', 'E') }
             $a = Read-Choice '   > ' $def
             $code = $(if ($a -eq 'T') { 'th' } else { 'en' })
         }
@@ -532,10 +552,7 @@ function Start-EasySetup {
     } finally {
         Set-KeepAwake $false
         try {
-            if ($script:EasyLines.Count -gt 0 -and -not $Preview) {
-                [IO.File]::WriteAllLines((New-ReportPath $EasyRoot 'EasySetup'), $script:EasyLines)
-                Remove-OldReports $EasyRoot | Out-Null
-            }
+            if ($script:ReportPath -ne '' -and -not $Preview) { Remove-OldReports $EasyRoot | Out-Null }
         } catch { }
     }
 }

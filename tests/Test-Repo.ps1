@@ -358,6 +358,19 @@ try {
         Assert ((Test-RestartNeeded $true $null) -and (Test-RestartNeeded $false ([pscustomobject]@{ Reboot = $true })) -and -not (Test-RestartNeeded $false ([pscustomobject]@{ Reboot = $false })) -and -not (Test-RestartNeeded $false $null)) 'a restart is offered only when something needs it'
         $snap = Get-SettingsSnapshot @([pscustomobject]@{ Status = 'OK'; Title = 'A' }, [pscustomobject]@{ Status = 'CHANGED'; Title = 'B' }, [pscustomobject]@{ Status = 'SKIPPED'; Title = 'C' }, [pscustomobject]@{ Status = 'MISSING'; Title = 'D' })
         Assert ($snap.Ok -eq 1 -and $snap.Total -eq 3 -and ($snap.Bad -join ',') -eq 'B,D') 'the before/after counts leave out settings you chose to skip'
+        $bn = Get-BeforeAfterNumbers @{ Ok = 0; Total = 16 } @{ Ok = 21; Total = 21 }
+        Assert ($bn.BeforeOk -eq 0 -and $bn.Total -eq 21 -and $bn.NowOk -eq 21) 'before and now are shown against the same total'
+        $bn2 = Get-BeforeAfterNumbers @{ Ok = 30; Total = 30 } @{ Ok = 18; Total = 18 }
+        Assert ($bn2.BeforeOk -eq 18) 'the before number can never be higher than the total'
+        $tmpRep = Join-Path ([IO.Path]::GetTempPath()) ('pcopt_rep_' + [guid]::NewGuid().ToString('N') + '.txt')
+        $script:ReportPath = $tmpRep; $Preview = $false
+        Write-ReportLine 'first line'; Write-ReportLine 'second line'
+        $repBack = [IO.File]::ReadAllLines($tmpRep)
+        Assert ($repBack.Count -eq 2 -and $repBack[0] -eq 'first line' -and $repBack[1] -eq 'second line') 'the report is written line by line while the setup runs'
+        [IO.File]::Delete($tmpRep)
+        $script:ReportPath = ''; $Preview = $true
+        Write-ReportLine 'must not be written'
+        Assert ($script:ReportPath -eq '') 'the preview writes no report'
         $att = @(Select-AttentionLines @('   [OK]    fine', '[CHECK] Cable is slow. Try another cable.', '[CHECK] Cable is slow. Try another cable please.', '[INFO] note', '[CHECK] Second thing') 6)
         Assert ($att.Count -eq 2 -and $att[0] -like 'Cable is slow*' -and $att[1] -eq 'Second thing') 'only CHECK lines are shown in the summary and the same advice is not repeated'
         $plan = @(Get-EasyPlan $true $false 'games'); $plan2 = @(Get-EasyPlan $false $true 'games'); $plan3 = @(Get-EasyPlan $false $true 'safe')

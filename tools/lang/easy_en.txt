@@ -50,7 +50,7 @@ restore_wait=   Making the safety point. This takes 1 to 5 minutes. Please wait.
 restore_ok=   [OK] Safety point made (named Before_PC_Optimizer).
 restore_fail=   [WARNING] The safety point could not be made.
 ask_continue_no_restore=   Continue without it? Y/N (Enter = N)
-before_done=   [OK] Saved how the PC is now: {0} of {1} speed settings are in place.
+before_done=   [OK] Saved how the PC is now ({0} speed settings in place).
 network_ok=   [OK] The internet works.
 network_off=   [!] No internet. Plug in the cable or connect Wi-Fi. If the PC has no network driver, get it from your motherboard or laptop maker's website on another PC and copy it with a USB drive.
 ask_network_retry=   R = try again, S = skip the steps that need internet (Enter = skip)

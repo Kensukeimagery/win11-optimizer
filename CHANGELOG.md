@@ -1,5 +1,14 @@
 # Changelog
 
+## v4.19
+- Found in the VirtualBox test of v4.18 on a clean Windows 11 (build 26300). No setting or driver logic changed.
+- **Easy Setup summary:** "before" and "now" are shown against the same total (it said "0 of 16 before, 21 of 21 now" because settings that were never set up were not counted before). The line after step 3 now says how many settings are in place without a total.
+- **Easy Setup report is written while it runs**, line by line, so closing the window half way no longer loses the first part. The letters you typed as answers (Y, N, S, R, ...) are saved in the report too. The preview still writes nothing, and the file is always in the Logs folder.
+- **Language prompt:** it shows "T = Thai" in plain letters (the Thai word showed as ??? in the old console), says to choose E if Thai looks broken, and English is now the default everywhere (Thai only when you chose it before).
+- PC specs: the hint for a PC without the optimizer settings now points to E (Easy Setup) in the main menu.
+- Tests for the new summary numbers and for the report that is written line by line.
+- Not changed on purpose: remembering which steps were skipped for lack of internet and offering only those later (a bigger change to the flow, kept for a later version).
+
 ## v4.18
 - **Driver cleanup no longer repeats work for a package Windows refuses to remove.** Some packages (for example a driver extension) answer "still needed" every time. They are now remembered (per package and version, in the registry value `CleanKept`) and left out of the offer for 30 days, so cleanup does not make another restore point and another copy for nothing; after 30 days it tries once more. The scan lists them as "left out", and the check after a cleanup says so. Found on a company PC where the same AVerMedia extension was offered again on the next day.
 - Tests for the remembering rule (recent, old and unrelated refusals, stable key); the registry write and read were also checked once in a throwaway key.

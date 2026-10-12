@@ -1,4 +1,4 @@
-# PC Optimizer v4.18 - PC specs on one page
+# PC Optimizer v4.19 - PC specs on one page
 # Read-only. Shows your PC in plain words on one page: computer, Windows, processor, memory, graphics card, screens, drives,
 # network and the security features some games ask for. Meant for people who do not know where to look for the specs,
 # and for sharing when you ask for help or sell the PC. No serial numbers, MAC addresses or IP addresses are shown.
@@ -375,7 +375,7 @@ function Show-Consistency {
     if ($null -eq $items) { Write-Mark 'INFO' 'The optimizer settings could not be checked here.' }
     else {
         $s = Get-OptimizerSummary $items
-        if ($s.NotApplied) { Write-Mark 'INFO' 'The optimizer settings have not been applied on this PC yet (main menu option 5). Nothing is wrong; they are optional.' }
+        if ($s.NotApplied) { Write-Mark 'INFO' 'The optimizer settings have not been applied on this PC yet. Press E in the main menu (Easy Setup) to apply them. Nothing is wrong; they are optional.' }
         elseif ($s.Bad.Count -eq 0) { Write-Mark 'OK' ('All ' + $s.Ok + ' optimizer settings that apply are in place.') }
         else { Write-Mark 'CHECK' ($s.Bad.Count.ToString() + ' optimizer setting(s) changed back (Windows updates can do that): ' + ((@($s.Bad | ForEach-Object { [string]$_.Title }) | Select-Object -First 5) -join ', ') + '. Press C in the main menu to put them back.') }
     }
@@ -407,7 +407,7 @@ function Start-PcSpecs {
     $rootDir = ''
     if ($Root -ne '') { try { $rootDir = (Resolve-Path -LiteralPath $Root).Path } catch { } }
     Write-Log '==================================================================' 'Cyan'
-    Write-Log '   PC OPTIMIZER v4.18 - YOUR PC ON ONE PAGE (nothing is changed)' 'Cyan'
+    Write-Log '   PC OPTIMIZER v4.19 - YOUR PC ON ONE PAGE (nothing is changed)' 'Cyan'
     Write-Log ('   ' + (Get-Date -Format 'yyyy-MM-dd HH:mm')) 'Cyan'
     Write-Log '==================================================================' 'Cyan'
     Write-Log ''
