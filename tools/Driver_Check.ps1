@@ -181,7 +181,7 @@ function Install-Offers($Session, $Chosen, [string]$RootDir) {
         return
     }
     if (-not (Test-IsAdmin)) {
-        Write-Log '   [ERROR] Installing drivers needs administrator rights. Run 7_Driver_Check as administrator. Nothing was changed.' 'Red'
+        Write-Log '   [ERROR] Installing drivers needs administrator rights. Run 7_Driver_Check (in the More Tools folder) as administrator. Nothing was changed.' 'Red'
         return
     }
     Write-Log ''

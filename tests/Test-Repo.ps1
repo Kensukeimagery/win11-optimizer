@@ -396,6 +396,23 @@ Assert ($mst2 -match 'if /i "%CHOICE%"=="E" goto DOEASY') 'the main menu has the
 $drv = [IO.File]::ReadAllText((Join-Path $root 'tools\Driver_Check.ps1'))
 Assert ($drv -match '\[switch\]\$Auto' -and $drv -match '\[switch\]\$NoRestorePoint' -and $drv -match '\$ResultFile') 'the driver check has the automatic mode that Easy Setup uses'
 Assert ((Test-Path -LiteralPath (Join-Path $root '0_Easy_Setup (Run as Administrator).bat'))) 'the one-button file exists in the main folder'
+
+Write-Host '== Folder layout: three files to click in the main folder, the other tools in More Tools' -ForegroundColor Cyan
+$rootBats = @(Get-ChildItem -LiteralPath $root -File -Filter '*.bat' | ForEach-Object { $_.Name })
+Assert ($rootBats.Count -eq 3 -and @($rootBats | Where-Object { $_ -like '0_Easy_Setup*' }).Count -eq 1 -and @($rootBats | Where-Object { $_ -like '1_Start_Here*' }).Count -eq 1 -and @($rootBats | Where-Object { $_ -like '2_Revert_Everything*' }).Count -eq 1) ('the main folder holds only the three files to click ' + ($rootBats -join ' | '))
+Assert (@(Get-ChildItem -LiteralPath $root -File -Filter '1_Start_Here*.bat').Count -eq 1) 'the main menu keeps its 1_Start_Here name (the updater of older versions looks for it)'
+$moreDir = Join-Path $root 'More Tools'
+$moreBats = @(Get-ChildItem -LiteralPath $moreDir -File -Filter '*.bat' -ErrorAction SilentlyContinue)
+Assert ($moreBats.Count -eq 9) 'More Tools holds the nine extra tools'
+foreach ($mb in $moreBats) {
+    $mt = [IO.File]::ReadAllText($mb.FullName)
+    Assert ($mt.Contains('for %%I in ("%~dp0..") do set "ROOTDIR=%%~fI"') -and -not $mt.Contains('%~dp0tools') -and -not $mt.Contains('-Root "%~dp0."')) ($mb.Name + ' finds the main folder one level up')
+    $ref = [regex]::Match($mt, '%ROOTDIR%\\tools\\([A-Za-z_]+\.ps1)')
+    Assert ($ref.Success -and (Test-Path -LiteralPath (Join-Path $root ('tools\' + $ref.Groups[1].Value)))) ($mb.Name + ' points at a tool script that exists')
+}
+Assert ([IO.File]::ReadAllText((Join-Path $root 'tools\Update.ps1')).Contains("'More Tools'")) 'the updater manages the More Tools folder'
+Assert ([IO.File]::ReadAllText((Join-Path $root 'README.md')).Contains('More Tools')) 'the README explains the More Tools folder'
+Assert (Test-Path -LiteralPath (Join-Path $moreDir 'About these tools.txt')) 'More Tools has a short guide'
 . (Join-Path $root 'tools\PC_Health.ps1') -Root $root
 Assert ((Get-CrashVerdict 50 0 $true) -eq 'check' -and (Get-CrashVerdict 50 10 $true) -eq 'history' -and (Get-CrashVerdict 50 0 $false) -eq 'history' -and (Get-CrashVerdict 3 0 $true) -eq 'history') 'a program that crashed often is a CHECK only while it is installed and crashed in the last 3 days'
 Write-Host ''

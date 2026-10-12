@@ -26,7 +26,7 @@ $Repo = 'Kensukeimagery/win11-optimizer'
 $ApiUrl = 'https://api.github.com/repos/' + $Repo + '/releases/latest'
 $AllowedPrefix = 'https://github.com/' + $Repo + '/releases/download/'
 $StateKey = 'HKCU:\Software\PCOptimizer'
-$ManagedDirs = @('reg', 'reg_undo', 'tools', 'docs', 'repair-tools')
+$ManagedDirs = @('reg', 'reg_undo', 'tools', 'docs', 'repair-tools', 'More Tools')
 $ManagedFiles = @('README.md', 'CHANGELOG.md', 'LICENSE', 'VERSION')
 
 if ($Root -eq '') { $Root = Split-Path -Parent $PSScriptRoot }

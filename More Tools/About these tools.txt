@@ -1,0 +1,15 @@
+MORE TOOLS
+==========
+These are the extra tools of PC Optimizer. You do not need to open them one by one:
+every one of them can also be started from the main menu (1_Start_Here), and Easy Setup (0_Easy_Setup) does the usual work for you.
+Keep this folder next to the "tools" folder and the three main files. Reports are saved in the "Logs" folder of the main folder.
+
+3_Check_Status ........ (administrator) find settings that Windows Update changed back; main menu: C
+4_Network_Test ........ ping, jitter, packet loss and DNS speed; changes nothing unless you pick a DNS
+5_System_Report ....... what uses CPU and RAM, startup programs, disk space, GPU driver age; read-only
+6_Check_For_Updates ... looks for a newer version, installs only if you say yes; main menu: U
+7_Driver_Check ........ (administrator) missing and old drivers, Windows Update drivers, cleanup; main menu: D
+8_PC_Health ........... crashes, drive health, battery, refresh rate, RAM and cable speed; read-only; main menu: H
+9_Support_Bundle ...... ONE file for a problem report, private details replaced; main menu: B
+S_PC_Specs ............ your PC on one page in plain words; read-only; main menu: S
+L_Clean_Up ............ old reports and backups, removed only when you choose; main menu: L

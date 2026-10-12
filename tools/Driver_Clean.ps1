@@ -299,7 +299,7 @@ function Start-DriverClean {
     Write-Log '==================================================================' 'Cyan'
     Write-Log ''
     if (-not (Test-IsAdmin)) {
-        Write-Log '   This needs administrator rights to read the driver store. Run 7_Driver_Check as administrator.' 'Yellow'
+        Write-Log '   This needs administrator rights to read the driver store. Run 7_Driver_Check (in the More Tools folder) as administrator.' 'Yellow'
         return
     }
     Write-Log '   Scanning, please wait. No key press is needed...' 'DarkGray'
