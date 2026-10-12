@@ -1,5 +1,10 @@
 # Changelog
 
+## v4.21
+- The download ZIP no longer contains the `.gitignore` file (it is only for the GitHub repository). The main folder now shows just the three files to click, the README, CHANGELOG, LICENSE and VERSION. If you updated from an older version, an old `.gitignore` stays in your folder; you can delete it, nothing uses it.
+- The README picture of the main menu is the current one (v4.20 layout).
+- Nothing else changed in how the tools work. A test checks that the ZIP leaves out the repository-only files.
+
 ## v4.20
 - **Tidier main folder.** Only three files are left to double-click: `0_Easy_Setup`, `1_Start_Here` (main menu) and `2_Revert_Everything`. The nine extra tools (`3_Check_Status`, `4_Network_Test`, `5_System_Report`, `6_Check_For_Updates`, `7_Driver_Check`, `8_PC_Health`, `9_Support_Bundle`, `S_PC_Specs`, `L_Clean_Up`) moved into the new `More Tools` folder, with a short guide (`About these tools.txt`). Every one of them is still reachable from the main menu, and their reports still go to the `Logs` folder of the main folder.
 - The main menu keeps the name `1_Start_Here ...` on purpose, so the updater of older versions (which looks for that name) can install this version. An update from v4.19 moves the old launchers into the backup folder and installs the new layout; a test runs exactly that with the real v4.19 updater.

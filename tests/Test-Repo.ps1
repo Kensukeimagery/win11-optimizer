@@ -412,6 +412,8 @@ foreach ($mb in $moreBats) {
 }
 Assert ([IO.File]::ReadAllText((Join-Path $root 'tools\Update.ps1')).Contains("'More Tools'")) 'the updater manages the More Tools folder'
 Assert ([IO.File]::ReadAllText((Join-Path $root 'README.md')).Contains('More Tools')) 'the README explains the More Tools folder'
+$ga = [IO.File]::ReadAllText((Join-Path $root '.gitattributes'))
+Assert ($ga.Contains('/.gitignore export-ignore') -and $ga.Contains('/.github export-ignore') -and $ga.Contains('/tests export-ignore')) 'the download ZIP leaves out the repository-only files (.gitignore, .github, tests)'
 Assert (Test-Path -LiteralPath (Join-Path $moreDir 'About these tools.txt')) 'More Tools has a short guide'
 . (Join-Path $root 'tools\PC_Health.ps1') -Root $root
 Assert ((Get-CrashVerdict 50 0 $true) -eq 'check' -and (Get-CrashVerdict 50 10 $true) -eq 'history' -and (Get-CrashVerdict 50 0 $false) -eq 'history' -and (Get-CrashVerdict 3 0 $true) -eq 'history') 'a program that crashed often is a CHECK only while it is installed and crashed in the last 3 days'
