@@ -56,18 +56,19 @@ Check (Test-Path -LiteralPath (Join-Path $inst 'Logs\CheckReport_20260101_000000
 Check ((-not (Test-Path -LiteralPath (Join-Path $inst 'More Tools\old_tool_removed_later.bat'))) -and (Test-Path -LiteralPath (Join-Path $bk2 'More Tools\old_tool_removed_later.bat'))) 'a tool removed from More Tools by the new version is gone and kept in the backup'
 Check (@(Get-ChildItem -LiteralPath (Join-Path $inst 'More Tools') -File -Filter '*.bat').Count -ge 9) 'the More Tools folder is installed with its tools'
 
-Write-Host '== update from the OLD layout (v4.20: every launcher in the main folder) with the OLD updater'
+Write-Host '== update from the OLD layout (v4.19: every launcher in the main folder) with the OLD updater'
 $tagOk = $false
-try { & git -C $repo rev-parse -q --verify 'refs/tags/v4.20' *> $null; $tagOk = ($LASTEXITCODE -eq 0) } catch { }
+try { & git -C $repo rev-parse -q --verify 'refs/tags/v4.19' *> $null; $tagOk = ($LASTEXITCODE -eq 0) } catch { }
 if (-not $tagOk) {
-    Write-Host '  (skipped: the v4.20 tag is not in this checkout)' -ForegroundColor DarkGray
+    Write-Host '  (skipped: the v4.19 tag is not in this checkout)' -ForegroundColor DarkGray
+    if ($env:CI -eq 'true') { Check $false 'the v4.19 tag must be available in CI (checkout with fetch-depth 0)' }
 } else {
     $oldZip = Join-Path $tmp 'old419.zip'
     $oldInst = Join-Path $tmp 'Old Layout (test)'
-    & git -C $repo archive --format=zip -o $oldZip v4.20
+    & git -C $repo archive --format=zip -o $oldZip v4.19
     Expand-Archive -LiteralPath $oldZip -DestinationPath $oldInst -Force
     $oldUpd = Join-Path $tmp 'old_updater.ps1'
-    (& git -C $repo show 'v4.20:tools/Update.ps1') | Set-Content -LiteralPath $oldUpd -Encoding UTF8
+    (& git -C $repo show 'v4.19:tools/Update.ps1') | Set-Content -LiteralPath $oldUpd -Encoding UTF8
     New-Item -ItemType Directory -Force -Path (Join-Path $oldInst 'Logs') | Out-Null
     Set-Content -LiteralPath (Join-Path $oldInst 'Logs\CheckReport_20260101_000000.txt') -Value 'user report'
     $stg2 = Join-Path $tmp 'staged_new'
