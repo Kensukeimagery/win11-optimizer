@@ -412,6 +412,26 @@ foreach ($mb in $moreBats) {
 }
 Assert ([IO.File]::ReadAllText((Join-Path $root 'tools\Update.ps1')).Contains("'More Tools'")) 'the updater manages the More Tools folder'
 Assert ([IO.File]::ReadAllText((Join-Path $root 'README.md')).Contains('More Tools')) 'the README explains the More Tools folder'
+Write-Host '== Front page: English and Thai README, banner, images and links' -ForegroundColor Cyan
+$rdEn = [IO.File]::ReadAllText((Join-Path $root 'README.md'), [Text.Encoding]::UTF8)
+$rdTh = [IO.File]::ReadAllText((Join-Path $root 'README.th.md'), [Text.Encoding]::UTF8)
+Assert ($rdEn.Contains('](README.th.md)') -or $rdEn.Contains('href="README.th.md"')) 'the English README links to the Thai one'
+Assert ($rdTh.Contains('href="README.md"') -or $rdTh.Contains('](README.md)')) 'the Thai README links to the English one'
+Assert ($rdTh.Contains('Manual_EN_' + $tagText + '.pdf') -and $rdTh.Contains('Manual_TH_' + $tagText + '.pdf')) 'the Thai README links the current manuals'
+Assert (($rdTh.ToCharArray() | Where-Object { [int]$_ -ge 0x0E00 -and [int]$_ -le 0x0E7F }).Count -gt 500) 'the Thai README really contains Thai text'
+foreach ($pair in @(@('README.md', $rdEn), @('README.th.md', $rdTh))) {
+    $missing = @()
+    foreach ($m in [regex]::Matches($pair[1], '(?:src|href)="([^"#]+)"|\]\(([^)#\s]+)\)')) {
+        $p = $(if ($m.Groups[1].Success) { $m.Groups[1].Value } else { $m.Groups[2].Value })
+        if ($p -match '^(https?:|mailto:)') { continue }
+        if (-not (Test-Path -LiteralPath (Join-Path $root ($p -replace '/', '\')))) { $missing += $p }
+    }
+    Assert ($missing.Count -eq 0) ($pair[0] + ': every file or image it points to exists ' + ($missing -join ', '))
+    Assert (-not $pair[1].Contains([string][char]0x2014)) ($pair[0] + ' has no long dashes')
+}
+try { $svgDoc = New-Object System.Xml.XmlDocument; $svgDoc.Load((Join-Path $root 'docs\img\banner.svg')); Assert ($svgDoc.DocumentElement.Name -eq 'svg') 'the banner is a valid SVG file' } catch { Fail ('the banner SVG is not valid: ' + $_.Exception.Message) }
+Assert (Test-Path -LiteralPath (Join-Path $root 'SECURITY.md')) 'the repository has a security policy'
+Assert ((Get-Item -LiteralPath (Join-Path $root 'docs\img\social-preview.png')).Length -gt 20000) 'the social preview image exists'
 $ga = [IO.File]::ReadAllText((Join-Path $root '.gitattributes'))
 Assert ($ga.Contains('/.gitignore export-ignore') -and $ga.Contains('/.github export-ignore') -and $ga.Contains('/tests export-ignore')) 'the download ZIP leaves out the repository-only files (.gitignore, .github, tests)'
 Assert (Test-Path -LiteralPath (Join-Path $moreDir 'About these tools.txt')) 'More Tools has a short guide'
