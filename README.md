@@ -61,13 +61,7 @@
 
 ## How Easy Setup works
 
-```mermaid
-flowchart LR
-  A[Update check] --> B[Restore point] --> C[Save current state] --> D[Internet check] --> E[Windows Update] --> F[Drivers] --> G{Restart needed?}
-  G -- yes --> H[Restart, run again, it continues] --> I[Safe settings]
-  G -- no --> I
-  I --> J[Optional DNS] --> K[Before and after summary]
-```
+<p align="center"><img src="docs/img/easy-setup-flow.png" alt="Easy Setup steps in order: update check, restore point, save the current state, internet check, Windows Update, drivers, restart if needed, safe settings, optional DNS, before and after summary" width="100%"></p>
 
 Settings come last on purpose: updates and drivers can change settings. With no internet, the online steps are skipped and the rest still runs. On a laptop, tweaks that raise heat and battery use are skipped.
 
