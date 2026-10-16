@@ -355,6 +355,9 @@ try {
         $order = $script:StepOrder
         Assert (($order.IndexOf('restore') -lt $order.IndexOf('drivers')) -and ($order.IndexOf('winupdate') -lt $order.IndexOf('drivers')) -and ($order.IndexOf('drivers') -lt $order.IndexOf('tweaks')) -and ($order.IndexOf('tweaks') -lt $order.IndexOf('verify')) -and ($order.IndexOf('network') -lt $order.IndexOf('winupdate'))) 'restore point first, then internet, Windows Update and drivers, the settings last and the check at the very end'
         Assert ((Get-TweakProfile 'Y') -eq 'games' -and (Get-TweakProfile 'N') -eq 'safe' -and (Get-TweakProfile '') -eq 'safe') 'only a clear yes selects the gaming profile'
+        Assert ((Get-TweakProfile 'Y' 'Y' 'YES') -eq 'max13' -and (Get-TweakProfile 'Y' 'Y' 'N') -eq 'max' -and (Get-TweakProfile 'Y' 'Y') -eq 'max' -and (Get-TweakProfile 'Y' 'Y' 'Y') -eq 'max' -and (Get-TweakProfile 'Y' 'N' 'YES') -eq 'games' -and (Get-TweakProfile 'N' 'Y' 'YES') -eq 'safe') 'Maximum is offered only to gamers, and Memory Integrity off needs a typed YES'
+        $pm = @(Get-EasyPlan $false $true 'max'); $pm13 = @(Get-EasyPlan $false $true 'max13'); $pml = @(Get-EasyPlan $true $true 'max13')
+        Assert (($pm -contains 'plan_tweaks_max') -and ($pm13 -contains 'plan_tweaks_max13') -and ($pml -contains 'plan_tweaks_max_laptop') -and (@($pm + $pm13 + $pml | Where-Object { -not $enMap.ContainsKey($_) }).Count -eq 0)) 'the plan has its own lines for Maximum and each has a message'
         Assert ((Test-RestartNeeded $true $null) -and (Test-RestartNeeded $false ([pscustomobject]@{ Reboot = $true })) -and -not (Test-RestartNeeded $false ([pscustomobject]@{ Reboot = $false })) -and -not (Test-RestartNeeded $false $null)) 'a restart is offered only when something needs it'
         $snap = Get-SettingsSnapshot @([pscustomobject]@{ Status = 'OK'; Title = 'A' }, [pscustomobject]@{ Status = 'CHANGED'; Title = 'B' }, [pscustomobject]@{ Status = 'SKIPPED'; Title = 'C' }, [pscustomobject]@{ Status = 'MISSING'; Title = 'D' })
         Assert ($snap.Ok -eq 1 -and $snap.Total -eq 3 -and ($snap.Bad -join ',') -eq 'B,D') 'the before/after counts leave out settings you chose to skip'
@@ -386,6 +389,10 @@ try {
         $endMark = $(if ($lang -eq 'en') { 'PREVIEW finished' } else { [string]::Join('', [char[]](0x0E08, 0x0E1A, 0x0E42, 0x0E2B, 0x0E21, 0x0E14)) })
         Assert ($LASTEXITCODE -eq 0 -and $prev.Contains($endMark) -and $prev -notmatch 'Exception') ('the preview runs to the end in ' + $lang + ' and exits cleanly')
     }
+    foreach ($m in 'max', 'max13') {
+        $pv = & powershell.exe -NoProfile -ExecutionPolicy Bypass -File (Join-Path $root 'tools\Easy_Setup.ps1') -Root $root -Preview -NoPrompt -Lang en -Mode $m 2>&1 | Out-String
+        Assert ($LASTEXITCODE -eq 0 -and $pv.Contains('PREVIEW finished') -and $pv -notmatch 'Exception' -and $pv.Contains('maximum')) ('the preview of the ' + $m + ' profile runs to the end and names it')
+    }
     Assert (-not (Test-Path -LiteralPath (Join-Path $root 'Logs\EasySetup*'))) 'the preview saves no report'
 } catch {
     Fail ('Easy Setup preview threw: ' + $_.Exception.Message)
@@ -393,6 +400,7 @@ try {
 $mst2 = [IO.File]::ReadAllText((Join-Path $root '1_Start_Here - PC_Optimizer_Master (Run as Administrator).bat'))
 Assert ($mst2 -match 'if /i "%~1"=="/easy" goto EASYSTART' -and $mst2 -match ':EASYSTART' -and $mst2 -match 'if not defined EASYMODE pause' -and $mst2 -match 'goto SKIP02EASY') 'the main menu has an /easy entry with no questions and no pauses'
 Assert ($mst2 -match 'if /i "%CHOICE%"=="E" goto DOEASY') 'the main menu has the E key for Easy Setup'
+Assert ($mst2 -match ':EASYMAX' -and $mst2 -match 'if /i "%EASYPROF%"=="max13" call :IMPORTNUM 13' -and $mst2 -match 'if /i not "%EASYPROF%"=="max13" call :SETCHOICE 13 N' -and $mst2 -match 'EASYPROF%"=="max" goto EASYMAX') 'the Maximum profile applies Memory Integrity off (13) only for max13'
 $drv = [IO.File]::ReadAllText((Join-Path $root 'tools\Driver_Check.ps1'))
 Assert ($drv -match '\[switch\]\$Auto' -and $drv -match '\[switch\]\$NoRestorePoint' -and $drv -match '\$ResultFile') 'the driver check has the automatic mode that Easy Setup uses'
 Assert ((Test-Path -LiteralPath (Join-Path $root '0_Easy_Setup (Run as Administrator).bat'))) 'the one-button file exists in the main folder'

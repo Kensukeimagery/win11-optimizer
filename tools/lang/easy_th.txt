@@ -107,3 +107,16 @@ preview_verify=   [ตัวอย่าง] จะตรวจทุกอย�
 preview_end=   จบโหมดตัวอย่าง ไม่ได้เปลี่ยนอะไร เปิด 0_Easy_Setup ตามปกติเพื่อทำจริง
 profile_games=   คำตอบของคุณ: ใช้เครื่องนี้เล่นเกมเป็นหลัก (รวมส่วนเสริมสำหรับเล่นเกมด้วย)
 profile_safe=   คำตอบของคุณ: ไม่ได้เล่นเกมเป็นหลัก (ใช้เฉพาะการตั้งค่าที่ปลอดภัย)
+ask_max_intro=   ตัวเลือกสำหรับคนเล่นเกม: ใส่ "ทุกค่าเสริม" (Maximum) ได้เลย ได้แก่ Fullscreen Exclusive (09), Ndu (12), เมาส์ (10), คีย์บอร์ด (11), Timer (15) และ CPU boost (16) ผลต่อ FPS ยังเล็กน้อยและขึ้นกับเกม
+ask_max=   ใส่ทุกค่าเสริมเลยไหม Y/N (กด Enter = ไม่)
+ask_mem13_intro=   อีกข้อที่ลดความปลอดภัย: การปิด Memory Integrity (13) อาจช่วย FPS ในบางเครื่อง แต่ Windows จะป้องกันมัลแวร์ระดับเคอร์เนลได้น้อยลง และต้องรีสตาร์ท
+ask_mem13=   พิมพ์ YES เพื่อปิด Memory Integrity ด้วย หรือ N เพื่อข้าม (กด Enter = N)
+profile_max=   คำตอบของคุณ: เล่นเกม และใส่ทุกค่าเสริม ยกเว้น Memory Integrity
+profile_max13=   คำตอบของคุณ: เล่นเกม และใส่ทุกค่าเสริม รวมถึงปิด Memory Integrity
+plan_tweaks_max=ตั้งค่าที่ปลอดภัย บวกทุกค่าเสริม ยกเว้น Memory Integrity (Fullscreen, เมาส์, คีย์บอร์ด, Ndu, Timer, CPU boost)
+plan_tweaks_max13=ตั้งค่าที่ปลอดภัย บวก "ทุก" ค่าเสริม รวมถึงปิด Memory Integrity
+plan_tweaks_max_laptop=ตั้งค่าที่ปลอดภัย บวกค่าเสริมที่ไม่เพิ่มความร้อน (โน้ตบุ๊ก: ไม่ใส่ Timer และ CPU boost; Memory Integrity เฉพาะถ้าคุณพิมพ์ YES)
+profilename_safe=ปลอดภัย
+profilename_games=เล่นเกม
+profilename_max=สูงสุด
+profilename_max13=สูงสุดรวมปิด Memory Integrity

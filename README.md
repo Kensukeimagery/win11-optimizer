@@ -110,7 +110,7 @@ The main folder holds only three files to double-click (0, 1 and 2). Everything 
 <details>
 <summary><b>Manuals and guides</b></summary>
 
-- Manual: [English](docs/Manual_EN_v4.21.pdf) | [ภาษาไทย](docs/Manual_TH_v4.21.pdf)
+- Manual: [English](docs/Manual_EN_v4.22.pdf) | [ภาษาไทย](docs/Manual_TH_v4.22.pdf)
 - NVIDIA driver settings, explained one by one: [English](docs/GPU_Driver_Guide_EN.pdf) | [ภาษาไทย](docs/GPU_Driver_Guide_TH.pdf)
 - [Changelog](CHANGELOG.md)
 
@@ -129,6 +129,8 @@ Windows 11 (build 22000 or newer) and administrator rights. The tool targets des
 <summary><b>Questions and answers</b></summary>
 
 **Will it raise my FPS?** Slightly, and only in some games. Treat any promise of big gains from software tweaks with suspicion. Start with your GPU driver settings and in-game settings.
+
+**What does Maximum do?** If you say you mainly play games, Easy Setup asks a second question. Maximum applies every optional tweak in one go: fullscreen exclusive (09), mouse (10), keyboard (11), Ndu fix (12), timer (15) and CPU boost (16). Turning Memory Integrity off (13) needs its own typed YES because it lowers protection. On a laptop, timer and CPU boost are skipped. Main menu `5` still lets you choose each tweak yourself.
 
 **Can I undo everything?** Yes. `2_Revert_Everything` returns the whole PC to the `Before_PC_Optimizer` restore point. Menu `7` reverts one tweak. The `reg_undo` folder holds one undo file per tweak.
 

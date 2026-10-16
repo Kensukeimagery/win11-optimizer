@@ -127,6 +127,45 @@ jobs:
         shell: cmd
         run: if exist easy_out.txt type easy_out.txt
 
+      - name: Easy Setup Maximum (/easy max) on this disposable machine
+        shell: cmd
+        timeout-minutes: 8
+        run: |
+          call "1_Start_Here - PC_Optimizer_Master (Run as Administrator).bat" /easy max > easy_max_out.txt 2>&1 < nul
+          type easy_max_out.txt
+          findstr /c:"The settings step is finished" easy_max_out.txt
+          if errorlevel 1 exit /b 1
+
+      - name: Maximum applied every optional tweak except Memory Integrity (read-only check)
+        shell: powershell
+        run: |
+          $root = (Get-Location).Path
+          $items = & { . (Join-Path $root 'tools\Check_Status.ps1') -Root $root; Invoke-Checks (Join-Path $root 'reg') (Join-Path $env:TEMP 'pcopt_ci_unused_max'); $script:Items }
+          $bad = @()
+          foreach ($id in '09', '10', '11', '12', '15') { $i = @($items | Where-Object { $_.Id -eq $id }) | Select-Object -First 1; Write-Host ($id + ': ' + $i.Status); if ($null -eq $i -or $i.Status -ne 'OK') { $bad += $id } }
+          $i13 = @($items | Where-Object { $_.Id -eq '13' }) | Select-Object -First 1
+          Write-Host ('13: ' + $i13.Status + ' (must NOT be applied by max)')
+          if ($null -ne $i13 -and $i13.Status -eq 'OK') { $bad += '13 was applied without max13' }
+          if ($bad.Count -gt 0) { Write-Host ('problem: ' + ($bad -join ', ')); exit 1 }
+
+      - name: Easy Setup Maximum with Memory Integrity off (/easy max13) on this disposable machine
+        shell: cmd
+        timeout-minutes: 8
+        run: |
+          call "1_Start_Here - PC_Optimizer_Master (Run as Administrator).bat" /easy max13 > easy_max13_out.txt 2>&1 < nul
+          type easy_max13_out.txt
+          findstr /c:"The settings step is finished" easy_max13_out.txt
+          if errorlevel 1 exit /b 1
+
+      - name: Memory Integrity off (13) is in place after max13 (read-only check)
+        shell: powershell
+        run: |
+          $root = (Get-Location).Path
+          $items = & { . (Join-Path $root 'tools\Check_Status.ps1') -Root $root; Invoke-Checks (Join-Path $root 'reg') (Join-Path $env:TEMP 'pcopt_ci_unused_max13'); $script:Items }
+          $i13 = @($items | Where-Object { $_.Id -eq '13' }) | Select-Object -First 1
+          Write-Host ('13: ' + $i13.Status)
+          if ($null -eq $i13 -or $i13.Status -ne 'OK') { exit 1 }
+
       - name: Easy Setup whole flow (real run, no questions) on this disposable machine
         shell: cmd
         timeout-minutes: 15

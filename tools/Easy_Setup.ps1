@@ -1,4 +1,4 @@
-# PC Optimizer v4.21 - Easy Setup (one button)
+# PC Optimizer v4.22 - Easy Setup (one button)
 # For a new Windows install, for people who never used an optimizer, and for people who do not know computers.
 # It walks through everything in the best order, in plain words (Thai or English), and asks only what it must:
 #   check for a newer version -> restore point -> remember how the PC is now -> internet -> Windows Update (guided)
@@ -7,7 +7,7 @@
 #   -Preview    show the plan and what would be done, change NOTHING
 #   -Yes        do not ask the first confirmation (tests)
 #   -NoPrompt   never wait for the keyboard: every question takes its default (tests)
-#   -Lang th|en|ask   -Mode safe|games|ask   (safe = recommended settings only; games = also mouse, keyboard, timer and CPU boost)
+#   -Lang th|en|ask   -Mode safe|games|max|max13|ask   (safe = recommended settings only; games = also mouse, keyboard, timer and CPU boost; max = every optional tweak except Memory Integrity; max13 = max plus Memory Integrity off)
 # The messages are in tools\lang\easy_en.txt and easy_th.txt (UTF-8). This file itself is plain ASCII.
 param(
     [string]$Root = '',
@@ -15,7 +15,7 @@ param(
     [switch]$Yes,
     [switch]$NoPrompt,
     [ValidateSet('ask', 'th', 'en')][string]$Lang = 'ask',
-    [ValidateSet('ask', 'safe', 'games')][string]$Mode = 'ask'
+    [ValidateSet('ask', 'safe', 'games', 'max', 'max13')][string]$Mode = 'ask'
 )
 
 $ErrorActionPreference = 'Continue'
@@ -94,10 +94,12 @@ function Get-NextStep($Done) {
     return ''
 }
 
-function Get-TweakProfile([string]$Answer) {
-    # "Do you mainly play games on this PC?"  Y = games, anything else = the safe profile
-    if ($Answer -eq 'Y') { return 'games' }
-    return 'safe'
+function Get-TweakProfile([string]$Answer, [string]$Max = 'N', [string]$Mem13 = 'N') {
+    # "Do you mainly play games on this PC?"  Y = games, anything else = the safe profile.
+    # Only a gamer is offered "every optional tweak" (max). Memory Integrity (13) is added only after a typed YES (max13).
+    if ($Answer -ne 'Y') { return 'safe' }
+    if ($Max -eq 'Y') { if ($Mem13 -eq 'YES') { return 'max13' } else { return 'max' } }
+    return 'games'
 }
 
 function Test-RestartNeeded([bool]$Pending, $DriverResult) {
@@ -144,7 +146,13 @@ function Get-EasyPlan([bool]$Laptop, [bool]$Online, [string]$ProfileName) {
     $plan += 'plan_winupdate'
     $plan += 'plan_drivers'
     $plan += 'plan_restart'
-    if ($Laptop) { $plan += 'plan_tweaks_laptop' } elseif ($ProfileName -eq 'games') { $plan += 'plan_tweaks_games' } else { $plan += 'plan_tweaks_safe' }
+    $isMax = ($ProfileName -eq 'max' -or $ProfileName -eq 'max13')
+    if ($Laptop -and $isMax) { $plan += 'plan_tweaks_max_laptop' }
+    elseif ($Laptop) { $plan += 'plan_tweaks_laptop' }
+    elseif ($ProfileName -eq 'max13') { $plan += 'plan_tweaks_max13' }
+    elseif ($ProfileName -eq 'max') { $plan += 'plan_tweaks_max' }
+    elseif ($ProfileName -eq 'games') { $plan += 'plan_tweaks_games' }
+    else { $plan += 'plan_tweaks_safe' }
     $plan += 'plan_dns'
     $plan += 'plan_verify'
     return $plan
@@ -365,7 +373,7 @@ function Step-Restart {
 function Step-Tweaks {
     SayT 'step_tweaks_title' @() 'White'
     $prof = $script:ProfileName
-    if ($Preview) { SayT $(if ($script:Facts.Laptop) { 'preview_tweaks_laptop' } else { 'preview_tweaks' }) @($prof) 'Yellow'; return 'preview' }
+    if ($Preview) { SayT $(if ($script:Facts.Laptop) { 'preview_tweaks_laptop' } else { 'preview_tweaks' }) @((T ('profilename_' + $prof))) 'Yellow'; return 'preview' }
     SayT 'tweaks_running' @() 'DarkGray'
     $master = @(Get-ChildItem -LiteralPath $EasyRoot -File -Filter '1_Start_Here*.bat' -ErrorAction SilentlyContinue | Select-Object -First 1)
     if ($master.Count -eq 0) { SayT 'tweaks_missing' @() 'Red'; return 'failed' }
@@ -476,11 +484,20 @@ function Start-EasySetup {
         else {
             SayT 'ask_games_intro' @() 'Gray'
             $g = Read-Choice (T 'ask_games') @('N', 'Y')
-            $script:ProfileName = Get-TweakProfile $g
+            $mx = 'N'; $m13 = 'N'
+            if ($g -eq 'Y') {
+                SayT 'ask_max_intro' @() 'Gray'
+                $mx = Read-Choice (T 'ask_max') @('N', 'Y')
+                if ($mx -eq 'Y') {
+                    SayT 'ask_mem13_intro' @() 'Yellow'
+                    $m13 = Read-Choice (T 'ask_mem13') @('N', 'YES')
+                }
+            }
+            $script:ProfileName = Get-TweakProfile $g $mx $m13
         }
-        if ($script:Facts.Laptop -and $script:ProfileName -eq 'games') { SayT 'games_laptop_note' @() 'Gray' }
+        if ($script:Facts.Laptop -and $script:ProfileName -in 'games', 'max', 'max13') { SayT 'games_laptop_note' @() 'Gray' }
         Set-EasyValue 'EasyProfile' $script:ProfileName
-        if ($script:ProfileName -eq 'games') { SayT 'profile_games' @() 'Gray' } else { SayT 'profile_safe' @() 'Gray' }
+        SayT ('profile_' + $script:ProfileName) @() 'Gray'
 
         # the plan and the one confirmation
         Say '' 'Gray'

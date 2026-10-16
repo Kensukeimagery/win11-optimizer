@@ -107,3 +107,16 @@ preview_verify=   [PREVIEW] Would check everything again and show the summary.
 preview_end=   PREVIEW finished. Nothing was changed. Start 0_Easy_Setup normally to do it for real.
 profile_games=   Your answer: you mainly play games (the gaming extras are included).
 profile_safe=   Your answer: not mainly games (the safe settings only).
+ask_max_intro=   For gamers there is one more choice: apply EVERY optional tweak (maximum): fullscreen exclusive (09), Ndu fix (12), mouse (10), keyboard (11), timer (15) and CPU boost (16). The effect on FPS stays small and depends on the game.
+ask_max=   Apply every optional tweak? Y/N (Enter = N)
+ask_mem13_intro=   One more item lowers your protection: turning Memory Integrity off (13) can help FPS on some PCs, but Windows then protects less against kernel-level malware. It needs a restart.
+ask_mem13=   Type YES to also turn Memory Integrity off, or N to skip it (Enter = N)
+profile_max=   Your answer: games, and every optional tweak except Memory Integrity.
+profile_max13=   Your answer: games, and every optional tweak including Memory Integrity off.
+plan_tweaks_max=Apply the safe speed settings plus every optional tweak except Memory Integrity (fullscreen, mouse, keyboard, Ndu, timer, CPU boost).
+plan_tweaks_max13=Apply the safe speed settings plus EVERY optional tweak, including turning Memory Integrity off.
+plan_tweaks_max_laptop=Apply the safe speed settings plus the optional tweaks that add no heat (laptop: no timer and no CPU boost; Memory Integrity only if you typed YES).
+profilename_safe=safe
+profilename_games=games
+profilename_max=maximum
+profilename_max13=maximum with Memory Integrity off

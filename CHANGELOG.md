@@ -1,5 +1,10 @@
 # Changelog
 
+## v4.22
+- **Easy Setup: "Maximum".** If you say you mainly play games, a second question offers every optional tweak in one go: fullscreen exclusive (09), mouse (10), keyboard (11), Ndu fix (12), timer (15) and CPU boost (16). Turning Memory Integrity off (13) stays behind its own typed YES (default no) because it lowers protection. On a laptop, timer and CPU boost are skipped. Main menu `5` is unchanged and still lets you choose each tweak yourself. For scripts: `-Mode max` and `-Mode max13` for Easy_Setup.ps1, `/easy max` and `/easy max13` for the main menu file.
+- The preview and the plan name the profile in words (Thai too) instead of an internal id.
+- Tests: the choice rules, the plan lines and the preview of both new profiles. CI runs `/easy max` and `/easy max13` on a disposable machine and checks that the tweaks are in place (13 only after max13).
+
 ## v4.21
 - The download ZIP no longer contains the `.gitignore` file (it is only for the GitHub repository). The main folder now shows just the three files to click, the README, CHANGELOG, LICENSE and VERSION. If you updated from an older version, an old `.gitignore` stays in your folder; you can delete it, nothing uses it.
 - The README picture of the main menu is the current one (v4.20 layout).

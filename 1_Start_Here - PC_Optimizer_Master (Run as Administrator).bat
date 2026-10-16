@@ -1,10 +1,10 @@
 @echo off
 setlocal EnableExtensions
-title PC Optimizer - Master Control v4.21
+title PC Optimizer - Master Control v4.22
 color 0B
 
 :: =====================================================================
-::  PC OPTIMIZER - MASTER CONTROL v4.21
+::  PC OPTIMIZER - MASTER CONTROL v4.22
 ::  Safety rules used in this file - they avoid the crashes seen in v3:
 ::   - no brackets inside ECHO text that sits inside IF or FOR blocks
 ::   - flat GOTO labels instead of nested IF / ELSE blocks
@@ -24,7 +24,7 @@ set "LOGDIR=%SCRIPT_DIR%Logs"
 if not exist "%LOGDIR%" mkdir "%LOGDIR%" >nul 2>&1
 set "LOGFILE=%LOGDIR%\OptimizerLog_%TS%.txt"
 set "BACKUPDIR=%SCRIPT_DIR%Backup\%TS%"
-echo PC Optimizer v4.21 Log - %date% %time% > "%LOGFILE%"
+echo PC Optimizer v4.22 Log - %date% %time% > "%LOGFILE%"
 if exist "%TOOLDIR%\Report_Maintain.ps1" powershell -NoProfile -ExecutionPolicy Bypass -File "%TOOLDIR%\Report_Maintain.ps1" -Root "%SCRIPT_DIR%." >nul 2>&1
 
 if not exist "%REGROOT%" goto NOREG
@@ -90,7 +90,7 @@ goto MENU
 :MENU
 cls
 echo ===================================================================
-echo    PC OPTIMIZER - MASTER CONTROL v4.21
+echo    PC OPTIMIZER - MASTER CONTROL v4.22
 echo    Log: OptimizerLog_%TS%.txt
 if "%ISLAPTOP%"=="1" echo    Laptop detected - tweaks 02 and 16 are not recommended on a laptop.
 if defined UPDMSG echo    %UPDMSG%
@@ -832,7 +832,7 @@ pause
 goto :eof
 
 :: ---------------------------------------------------------------------
-::  Easy Setup entry. tools\Easy_Setup.ps1 starts this file as:  /easy safe   or   /easy games
+::  Easy Setup entry. tools\Easy_Setup.ps1 starts this file as:  /easy safe   /easy games   /easy max   or   /easy max13
 ::  No questions and no pauses. Recommended tweaks, base setup, power settings, and for "games" also 10, 11, 15 and 16 (15 and 16 not on laptops).
 :EASYSTART
 set "EASYMODE=1"
@@ -850,6 +850,8 @@ echo.
 echo   [Easy Setup] The settings step is finished.
 goto END
 :EASYOPT
+if /i "%EASYPROF%"=="max" goto EASYMAX
+if /i "%EASYPROF%"=="max13" goto EASYMAX
 call :SETCHOICE 09 N
 call :SETCHOICE 12 N
 call :SETCHOICE 13 N
@@ -867,6 +869,23 @@ call :IMPORTNUM 15
 call :BOOSTAPPLY
 goto :eof
 :EASYGAMESLAPTOP
+echo   - Laptop: 15 and 16 skipped (more heat and battery use)
+call :SETCHOICE 15 N
+call :SETCHOICE 16 N
+goto :eof
+:EASYMAX
+:: Maximum: every optional tweak. 13 (Memory Integrity off) only for max13, which Easy Setup starts after a typed YES.
+call :IMPORTNUM 09
+call :IMPORTNUM 10
+call :IMPORTNUM 11
+call :IMPORTNUM 12
+if /i "%EASYPROF%"=="max13" call :IMPORTNUM 13
+if /i not "%EASYPROF%"=="max13" call :SETCHOICE 13 N
+if "%ISLAPTOP%"=="1" goto EASYMAXLAPTOP
+call :IMPORTNUM 15
+call :BOOSTAPPLY
+goto :eof
+:EASYMAXLAPTOP
 echo   - Laptop: 15 and 16 skipped (more heat and battery use)
 call :SETCHOICE 15 N
 call :SETCHOICE 16 N
