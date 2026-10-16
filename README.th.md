@@ -110,7 +110,7 @@
 <details>
 <summary><b>คู่มือและเอกสาร</b></summary>
 
-- คู่มือ: [ภาษาไทย](docs/Manual_TH_v4.22.pdf) | [English](docs/Manual_EN_v4.22.pdf)
+- คู่มือ: [ภาษาไทย](docs/Manual_TH_v4.23.pdf) | [English](docs/Manual_EN_v4.23.pdf)
 - คู่มือตั้งค่าไดรเวอร์การ์ดจอ NVIDIA ทีละข้อ (แต่ละค่าคืออะไร ค่าแนะนำ ผลต่างกันอย่างไร): [ภาษาไทย](docs/GPU_Driver_Guide_TH.pdf) | [English](docs/GPU_Driver_Guide_EN.pdf)
 - [รายการเปลี่ยนแปลง (Changelog)](CHANGELOG.md)
 

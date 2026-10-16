@@ -1,0 +1,129 @@
+/* Print stylesheet of the user manual (A4, light). One family, a fixed type scale, restrained colour:
+   navy for structure, one blue for links and step numbers, and three meaning colours (green, amber, red) used only for callouts. */
+:root {
+  --ink: #1b2333;        /* body text, 15:1 on white */
+  --muted: #465065;      /* secondary text, 8:1 on white */
+  --navy: #14213d;
+  --blue: #1d5bbf;
+  --line: #d3dae8;
+  --soft: #f3f6fb;
+  --green: #17653a;  --green-bg: #edf7f1;  --green-line: #9fd2b4;
+  --amber: #7a4b00;  --amber-bg: #fff6e3;  --amber-line: #e5c27a;
+  --red: #9b2323;    --red-bg: #fdeeee;    --red-line: #e3a3a3;
+  --note: #1d4f9c;   --note-bg: #eef4fd;   --note-line: #aac4ee;
+}
+@page {
+  size: A4;
+  margin: 17mm 15mm 17mm 15mm;
+  @top-left { content: "Windows 11 Optimizer"; font: 8pt "Segoe UI", "Leelawadee UI", Tahoma, sans-serif; color: #465065; }
+  @bottom-center { content: counter(page); font: 8.5pt "Segoe UI", "Leelawadee UI", Tahoma, sans-serif; color: #465065; }
+}
+@page :first { margin-top: 12mm; @top-left { content: none; } @top-right { content: none; } @bottom-center { content: none; } }  /* each manual sets its own @top-right text in its head */
+* { box-sizing: border-box; }
+body { font-family: "Segoe UI", "Leelawadee UI", "Noto Sans Thai", Tahoma, sans-serif; font-size: 10pt; line-height: 1.5; color: var(--ink); margin: 0; hyphens: manual; }
+html[lang="th"] body { font-size: 10.2pt; line-height: 1.62; }
+.page { break-after: page; page-break-after: always; }
+.page:last-child { break-after: auto; page-break-after: auto; }
+
+/* headings: a clear scale (about 1.2 per step) and more space above than below */
+.banner { margin: 0 0 12px; break-after: avoid; page-break-after: avoid; break-inside: avoid; }
+.banner h1 { margin: 0; font-size: 21pt; line-height: 1.2; font-weight: 700; color: var(--navy); letter-spacing: -0.01em; padding-bottom: 5px; border-bottom: 2px solid var(--navy); }
+.banner p { margin: 6px 0 0; font-size: 10.5pt; color: var(--muted); }
+.banner.later { margin-top: 20px; }
+h2 { font-size: 14pt; line-height: 1.25; margin: 18px 0 6px; color: var(--navy); break-after: avoid; page-break-after: avoid; }
+h3 { font-size: 11.5pt; line-height: 1.3; margin: 12px 0 4px; color: var(--navy); break-after: avoid; page-break-after: avoid; }
+p { margin: 4px 0 7px; }
+ul, ol { margin: 4px 0 8px; padding-left: 20px; }
+li { margin: 2px 0; }
+a { color: var(--blue); text-decoration: none; word-break: break-all; }
+b, strong { font-weight: 650; }
+.small { font-size: 8.8pt; color: var(--muted); }
+.mono, code { font-family: Consolas, "Cascadia Mono", "Courier New", monospace; font-size: 9pt; background: var(--soft); border: 1px solid var(--line); padding: 0 4px; border-radius: 4px; word-break: break-all; }
+pre { font-family: Consolas, "Cascadia Mono", "Courier New", monospace; font-size: 8.6pt; line-height: 1.4; background: var(--soft); border: 1px solid var(--line); padding: 8px 10px; border-radius: 8px; white-space: pre-wrap; word-break: break-all; margin: 5px 0 9px; }
+.nobreak { break-inside: avoid; }
+
+/* cover */
+.cover-hero { padding: 36px 28px 30px; border-radius: 14px; background: var(--navy); color: #fff; margin: 0 0 22px; }
+.cover-hero .ver { font-size: 11pt; color: #c8d4ee; margin: 0 0 10px; }
+.cover-hero h1 { margin: 0; font-size: 32pt; line-height: 1.12; letter-spacing: -0.02em; font-weight: 700; }
+.cover-hero p { margin: 12px 0 0; font-size: 13pt; color: #dce5f6; max-width: 36em; }
+.howto { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin: 0 0 18px; }
+.howto div { border: 1px solid var(--line); border-radius: 12px; padding: 9px 12px; break-inside: avoid; }
+.howto b { display: block; font-size: 10.5pt; color: var(--navy); margin-bottom: 2px; }
+.toc { list-style: none; padding: 0; margin: 6px 0 0; }
+.toc li { display: flex; align-items: baseline; gap: 6px; padding: 5px 0; border-bottom: 1px solid var(--line); font-size: 10.5pt; }
+.toc li a { color: var(--ink); word-break: normal; flex: 0 1 auto; }
+.toc li .dots { flex: 1 1 auto; border-bottom: 1px dotted #9aa5ba; transform: translateY(-3px); min-width: 20px; }
+.toc li .pg { flex: 0 0 auto; font-variant-numeric: tabular-nums; color: var(--muted); min-width: 1.6em; text-align: right; }
+.toc li .what { color: var(--muted); font-size: 9pt; }
+
+/* callouts: one border, a tinted surface, a drawn icon, no side stripe */
+.callout { display: grid; grid-template-columns: 22px 1fr; gap: 10px; border: 1px solid; border-radius: 12px; padding: 9px 13px; margin: 9px 0 11px; break-inside: avoid; }
+.callout svg { width: 20px; height: 20px; margin-top: 2px; fill: none; stroke: currentColor; stroke-width: 1.9; stroke-linecap: round; stroke-linejoin: round; }
+.callout .body > :first-child { margin-top: 0; }
+.callout .body > :last-child { margin-bottom: 0; }
+.callout h3 { margin: 0 0 3px; font-size: 10.5pt; color: inherit; }
+.callout p, .callout li { color: var(--ink); }
+.callout ul { margin: 3px 0 3px; }
+.callout.tip { background: var(--green-bg); border-color: var(--green-line); color: var(--green); }
+.callout.warn { background: var(--amber-bg); border-color: var(--amber-line); color: var(--amber); }
+.callout.stop { background: var(--red-bg); border-color: var(--red-line); color: var(--red); }
+.callout.info { background: var(--note-bg); border-color: var(--note-line); color: var(--note); }
+/* the older box classes of the reference pages use the same look */
+.box { display: block; border: 1px solid; border-radius: 12px; padding: 9px 13px; margin: 9px 0 11px; break-inside: avoid; }
+.box h3 { margin: 0 0 4px; font-size: 10.5pt; }
+.box.green { background: var(--green-bg); border-color: var(--green-line); }
+.box.green h3 { color: var(--green); }
+.box.amber { background: var(--amber-bg); border-color: var(--amber-line); }
+.box.amber h3 { color: var(--amber); }
+.box.red { background: var(--red-bg); border-color: var(--red-line); }
+.box.red h3 { color: var(--red); }
+.box.blue { background: var(--note-bg); border-color: var(--note-line); }
+
+/* step cards: the number is information (the order), so it is shown large */
+.step { display: grid; grid-template-columns: 36px 1fr; gap: 12px; border: 1px solid var(--line); border-radius: 14px; padding: 11px 14px 10px; margin: 0 0 11px; break-inside: avoid; }
+.step .no { width: 32px; height: 32px; border-radius: 50%; background: var(--blue); color: #fff; font-weight: 700; font-size: 13pt; display: flex; align-items: center; justify-content: center; margin-top: 1px; }
+.step h3 { margin: 0 0 3px; font-size: 12pt; }
+.step .body > :last-child { margin-bottom: 0; }
+.step .see { margin: 5px 0 0; padding: 5px 9px; background: var(--soft); border-radius: 8px; font-size: 9.4pt; color: var(--ink); }
+.step .see b { color: var(--navy); }
+
+/* console examples */
+.console { font-family: Consolas, "Cascadia Mono", "Courier New", monospace; font-size: 8.2pt; line-height: 1.38; background: #0f172a; color: #e2e8f0; border-radius: 10px; padding: 9px 12px; margin: 6px 0 4px; white-space: pre-wrap; word-break: normal; break-inside: avoid; }
+.console .c { color: #7dd3fc; } .console .g { color: #86efac; } .console .y { color: #fde68a; } .console .d { color: #94a3b8; }
+.cap { font-size: 8.6pt; color: var(--muted); margin: 0 0 9px; }
+
+/* the folder list drawn as a diagram (always current, no screenshot needed) */
+.files { border: 1px solid var(--line); border-radius: 12px; overflow: hidden; margin: 6px 0 4px; break-inside: avoid; }
+.files .row { display: flex; align-items: center; gap: 9px; padding: 5px 12px; border-bottom: 1px solid var(--line); font-size: 9.4pt; }
+.files .row:last-child { border-bottom: none; }
+.files svg { width: 17px; height: 17px; flex: none; fill: none; stroke: #5b6b8a; stroke-width: 1.7; stroke-linecap: round; stroke-linejoin: round; }
+.files .row.go { background: var(--note-bg); font-weight: 650; }
+.files .row.go svg { stroke: var(--blue); }
+.files .row .tag { margin-left: auto; font-size: 8.4pt; font-weight: 600; color: #fff; background: var(--blue); border-radius: 999px; padding: 1px 9px; white-space: nowrap; }
+.files .row .why { margin-left: auto; font-size: 8.6pt; color: var(--muted); }
+figure { margin: 8px 0 10px; break-inside: avoid; }
+figure img { display: block; max-width: 100%; border: 1px solid var(--line); border-radius: 10px; }
+figcaption { font-size: 8.6pt; color: var(--muted); margin-top: 4px; }
+
+/* tables */
+table { width: 100%; border-collapse: collapse; margin: 7px 0 11px; font-size: 9.3pt; }
+th { background: #e9eef8; color: var(--navy); text-align: left; padding: 6px 9px; font-weight: 650; border-bottom: 2px solid var(--navy); }
+td { padding: 5px 9px; border-bottom: 1px solid var(--line); vertical-align: top; }
+tr { break-inside: avoid; page-break-inside: avoid; }
+tr:first-child { break-after: avoid; page-break-after: avoid; }
+table.green th { background: #e5f3ea; border-bottom-color: var(--green); color: var(--green); }
+table.trouble td:first-child { font-weight: 650; width: 27%; }
+table.trouble td:nth-child(2) { width: 30%; color: var(--muted); }
+table.gloss td:first-child { font-weight: 650; width: 24%; color: var(--navy); }
+.faq h3 { margin-top: 10px; }
+
+/* reference cards (tweaks and tools) */
+.card { border: 1px solid var(--line); border-radius: 12px; padding: 6px 12px 7px; margin: 6px 0; break-inside: avoid; }
+.card .t { font-weight: 650; font-size: 10.2pt; color: var(--navy); }
+.card .n { display: inline-block; min-width: 26px; background: var(--navy); color: #fff; text-align: center; border-radius: 6px; padding: 0 6px; margin-right: 7px; font-size: 9pt; font-weight: 600; }
+.card .h { color: var(--green); font-size: 9.2pt; margin-top: 3px; }
+.card.opt .n { background: #8a5a00; }
+.card.rep .n { background: var(--blue); }
+.foot { text-align: center; color: var(--muted); font-size: 8.6pt; margin-top: 12px; }
+table.trouble td, table.trouble th { font-size: 8.8pt; padding-top: 3px; padding-bottom: 3px; }

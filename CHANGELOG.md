@@ -1,5 +1,10 @@
 # Changelog
 
+## v4.23
+- **New user manuals (English and Thai).** Rebuilt for people who have never used the tool: a one-page cover that says where to start, "Before you start", a six-step Quick start with a numbered card per step and what you should see after it, a "Which button do I press?" table, the three ways to undo, Troubleshooting (16 symptoms with the fix), a Glossary, Questions and answers, and the old reference pages gathered at the back. The Maximum profile is explained too. 27 pages each, with page numbers in the contents.
+- The manuals are now built by `docs/src/build_manuals.py` from `manual_en.html` / `manual_th.html` and `manual.css` (Edge and PyMuPDF; the contents page numbers are filled in automatically).
+- Tests check that every manual section exists and has a page number. No change to how the tools work.
+
 ## v4.22
 - **Easy Setup: "Maximum".** If you say you mainly play games, a second question offers every optional tweak in one go: fullscreen exclusive (09), mouse (10), keyboard (11), Ndu fix (12), timer (15) and CPU boost (16). Turning Memory Integrity off (13) stays behind its own typed YES (default no) because it lowers protection. On a laptop, timer and CPU boost are skipped. Main menu `5` is unchanged and still lets you choose each tweak yourself. For scripts: `-Mode max` and `-Mode max13` for Easy_Setup.ps1, `/easy max` and `/easy max13` for the main menu file.
 - The preview and the plan name the profile in words (Thai too) instead of an internal id.

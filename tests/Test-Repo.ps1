@@ -40,7 +40,13 @@ foreach ($lang in 'EN', 'TH') {
     Assert (Test-Path -LiteralPath $pdf) ('manual PDF exists for ' + $lang + ' ' + $tagText)
     $src = Join-Path $root ('docs\src\manual_' + $lang.ToLower() + '.html')
     Assert (([IO.File]::ReadAllText($src)).Contains($tagText)) ('manual source ' + $lang + ' mentions ' + $tagText)
+    $mt = [IO.File]::ReadAllText($src)
+    foreach ($sec in 'before', 'quick', 'easy', 'which', 'undo', 'keep', 'trouble', 'gloss', 'faq', 'ref') {
+        Assert (($mt.Contains('id="sec-' + $sec + '"')) -and ($mt -match ('data-sec="sec-' + $sec + '">[1-9]\d*<'))) ('manual ' + $lang + ' has section ' + $sec + ' with a page number in the contents')
+    }
+    Assert ($mt.Contains('Maximum')) ('manual ' + $lang + ' describes the Maximum profile')
 }
+Assert ((Test-Path -LiteralPath (Join-Path $root 'docs\src\manual.css')) -and (Test-Path -LiteralPath (Join-Path $root 'docs\src\build_manuals.py'))) 'manual stylesheet and build script are in the repo'
 foreach ($lang in 'EN', 'TH') {
     Assert (Test-Path -LiteralPath (Join-Path $root ('docs\GPU_Driver_Guide_' + $lang + '.pdf'))) ('GPU driver guide PDF exists for ' + $lang)
     Assert (Test-Path -LiteralPath (Join-Path $root ('docs\src\gpu_guide_' + $lang.ToLower() + '.html'))) ('GPU driver guide source exists for ' + $lang)

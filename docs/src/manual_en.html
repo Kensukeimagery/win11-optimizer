@@ -1,11 +1,36 @@
 <!doctype html>
-<html lang="en"><head><meta charset="utf-8"><title>Windows 11 Optimizer - User Manual v4.22</title>
-<link rel="stylesheet" href="style.css"></head><body>
-
-<!-- PAGE 1 -->
+<html lang="en"><head><meta charset="utf-8"><title>Windows 11 Optimizer - User Manual v4.23</title>
+<link rel="stylesheet" href="manual.css">
+<style>@page { @top-right { content: "User manual v4.23"; font: 8pt "Segoe UI", "Leelawadee UI", Tahoma, sans-serif; color: #465065; } }</style></head><body>
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+<symbol id="i-info" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 11v5.2M12 7.7h.01"/></symbol>
+<symbol id="i-tip" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M8 12.6l2.7 2.7L16.2 9.6"/></symbol>
+<symbol id="i-warn" viewBox="0 0 24 24"><path d="M12 3.6l9.3 16.2H2.7z"/><path d="M12 10v4.3M12 17h.01"/></symbol>
+<symbol id="i-stop" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M9 9l6 6M15 9l-6 6"/></symbol>
+<symbol id="i-folder" viewBox="0 0 24 24"><path d="M3.5 7.5A1.5 1.5 0 0 1 5 6h4l2 2.2h8a1.5 1.5 0 0 1 1.5 1.5v7.8A1.5 1.5 0 0 1 19 19H5a1.5 1.5 0 0 1-1.5-1.5z"/></symbol>
+<symbol id="i-file" viewBox="0 0 24 24"><path d="M7 3.5h7l4 4V19a1.5 1.5 0 0 1-1.5 1.5h-9A1.5 1.5 0 0 1 6 19V5A1.5 1.5 0 0 1 7 3.5z"/><path d="M14 3.5V8h4.5"/></symbol>
+<symbol id="i-bat" viewBox="0 0 24 24"><path d="M7 3.5h7l4 4V19a1.5 1.5 0 0 1-1.5 1.5h-9A1.5 1.5 0 0 1 6 19V5A1.5 1.5 0 0 1 7 3.5z"/><path d="M14 3.5V8h4.5M9.5 12.6l2 1.7-2 1.7M13 16.4h2.4"/></symbol>
+</svg>
 <div class="page">
-<div class="banner cover"><div class="sub">User Manual v4.22</div><h1>Windows 11 Optimizer</h1><div class="sub">One menu for every tweak, with backups and one-by-one revert</div></div>
+<div class="cover-hero"><h1>Windows 11 Optimizer</h1><p>Safe, reversible tuning for Windows 11 gaming PCs. One button does the job in the right order, and every change can be undone.</p><p class="ver">User manual, version v4.23</p></div>
+<div class="howto"><div><b>New here?</b>Open Quick start. Six steps, about 30 minutes, most of it waiting.</div><div><b>Something went wrong?</b>Open Troubleshooting. Find your symptom and follow the fix.</div><div><b>Want every detail?</b>The Reference at the back lists each tweak and each tool.</div></div>
+<h2>Contents</h2>
+<ul class="toc">
+<li><a href="#sec-before">Before you start</a><span class="dots"></span><span class="pg" data-sec="sec-before">2</span></li>
+<li><a href="#sec-quick">Quick start</a><span class="dots"></span><span class="pg" data-sec="sec-quick">3</span></li>
+<li><a href="#sec-easy">What Easy Setup does</a><span class="dots"></span><span class="pg" data-sec="sec-easy">7</span></li>
+<li><a href="#sec-which">Which button do I press?</a><span class="dots"></span><span class="pg" data-sec="sec-which">8</span></li>
+<li><a href="#sec-undo">Undo: three ways back</a><span class="dots"></span><span class="pg" data-sec="sec-undo">9</span></li>
+<li><a href="#sec-keep">Keep it working: status check and updates</a><span class="dots"></span><span class="pg" data-sec="sec-keep">10</span></li>
+<li><a href="#sec-trouble">Troubleshooting</a><span class="dots"></span><span class="pg" data-sec="sec-trouble">11</span></li>
+<li><a href="#sec-gloss">Glossary</a><span class="dots"></span><span class="pg" data-sec="sec-gloss">12</span></li>
+<li><a href="#sec-faq">Questions and answers</a><span class="dots"></span><span class="pg" data-sec="sec-faq">13</span></li>
+<li><a href="#sec-ref">Reference: folders, menu keys, every tweak and tool, sources</a><span class="dots"></span><span class="pg" data-sec="sec-ref">14</span></li>
+</ul>
+</div>
 
+<div class="page">
+<div class="banner" id="sec-before"><h1>Before you start</h1><p>Two minutes of reading that keep you safe.</p></div>
 <div class="box red"><h3>Read this first</h3>
 <ul>
 <li><b>Use at your own risk.</b> These scripts edit the Windows registry and power settings. Use them only on a PC you own. Always keep the restore point the script creates.</li>
@@ -13,21 +38,116 @@
 <li>The gains are small and situational. GPU drivers, in-game settings, XMP/EXPO and cooling matter far more. See the honest notes on each tweak below.</li>
 <li>Some antivirus programs flag <span class="mono">.bat</span> files that edit the registry. Every file is plain text: open and read it before you run it.</li>
 </ul></div>
-
-<h2>Requirements</h2>
-<ul><li>Windows 11 (build 22000 or newer) and an administrator account (right-click &gt; <i>Run as administrator</i>). On older Windows the menu warns you first. If it detects a laptop, it advises against tweaks 02 and 16 and asks before applying 02.</li>
-<li>Keep every folder next to the scripts. Do not move a <span class="mono">.bat</span> file out of the folder.</li>
-<li>System Protection (System Restore) turned on for the system drive, so the restore point can be created.</li></ul>
-
+<h2>What you need</h2>
+<ul>
+<li>A desktop or laptop with <b>Windows 11</b> (build 22000 or newer) and an <b>administrator</b> account. On older Windows the program warns you first.</li>
+<li>About 30 minutes. Most of it is waiting for the restore point and Windows Update.</li>
+<li><b>System Protection</b> (System Restore) switched on for drive C:, so the restore point can be made. The program tries to switch it on for you. Troubleshooting explains the manual way.</li>
+<li>An internet connection is best. Without one, the online steps are skipped and the rest still works.</li>
+<li>All folders of the download stay together. Do not move a <span class="mono">.bat</span> file out of its folder.</li>
+</ul>
+<h2>What it does and does not do</h2>
+<table><tr><th style="width:50%">It does</th><th>It does not</th></tr>
+<tr><td>Make a restore point before it changes anything</td><td>Delete your files or games</td></tr>
+<tr><td>Apply documented registry and power tweaks, each with its own undo file</td><td>Edit game files, inject into games or add overlays</td></tr>
+<tr><td>Install recommended drivers from Windows Update, never a maker's graphics driver or firmware</td><td>Install third-party programs or "driver updater" tools</td></tr>
+<tr><td>Show your PC specs, health and crashes in plain words</td><td>Promise FPS numbers: the gains are small and depend on the game</td></tr>
+<tr><td>Update itself only after you say yes, with a SHA-256 check</td><td>Send your data anywhere: it contacts github.com for updates and Microsoft for drivers</td></tr>
+</table>
+<div class="callout info"><svg><use href="#i-info"/></svg><div class="body"><h3>You stay in charge</h3><p>Easy Setup shows its plan first and asks before it starts. Press <b>Q</b> at that prompt to leave without changing anything.</p></div></div>
 </div>
 
-<!-- PAGE EASY -->
 <div class="page">
-<div class="banner"><h1>Easy Setup (one button)</h1><p>For a new Windows install, first-time users and people who do not know computers</p></div>
-<div class="box green"><h3>How to start</h3><ul>
-<li>Right-click <b>0_Easy_Setup (Run as Administrator).bat</b> &gt; <i>Run as administrator</i> (or press <b>E</b> in the main menu).</li>
-<li>Choose Thai or English, answer one question (do you mainly play games? A yes offers a second question: Maximum applies every optional tweak in one go, and Memory Integrity off needs its own typed YES), read the plan and press Enter. It asks only what it must. Allow about 20 to 40 minutes.</li>
-<li>If Windows asks for a restart, restart and double-click the same file again: it continues where it stopped.</li></ul></div>
+<div class="banner" id="sec-quick"><h1>Quick start</h1><p>Six steps from download to done. Follow them in order.</p></div>
+
+<div class="step"><div class="no">1</div><div class="body"><h3>Download the program</h3>
+<ul><li>Open <b>github.com/Kensukeimagery/win11-optimizer</b> and click the green <b>Download latest ZIP</b> button. You need no account.</li>
+<li>Direct link: <a href="https://github.com/Kensukeimagery/win11-optimizer/releases/latest/download/win11-optimizer.zip">github.com/Kensukeimagery/win11-optimizer/releases/latest/download/win11-optimizer.zip</a></li></ul>
+<p class="see"><b>You should see</b> a file named <span class="mono">win11-optimizer.zip</span> (about 1 MB) in your Downloads folder.</p></div></div>
+
+<div class="step"><div class="no">2</div><div class="body"><h3>Unblock the ZIP and extract it</h3>
+<ul><li>Right-click the ZIP, choose <b>Properties</b>, tick <b>Unblock</b> at the bottom and press <b>OK</b>. No Unblock box? Skip this. It stops Windows from warning about every file.</li>
+<li>Right-click the ZIP again, choose <b>Extract All</b>, then <b>Extract</b>. Open the new folder.</li>
+<li>Do not run anything from inside the ZIP.</li></ul>
+<p class="see"><b>You should see</b> the files below. Only three of them are for you to open.</p>
+<div class="files">
+<div class="row go"><svg><use href="#i-bat"/></svg>0_Easy_Setup (Run as Administrator).bat<span class="tag">Start here</span></div>
+<div class="row"><svg><use href="#i-bat"/></svg>1_Start_Here - PC_Optimizer_Master (Run as Administrator).bat<span class="why">main menu, for choosing yourself</span></div>
+<div class="row"><svg><use href="#i-bat"/></svg>2_Revert_Everything - System_Restore (Run as Administrator).bat<span class="why">undo everything</span></div>
+<div class="row"><svg><use href="#i-folder"/></svg>More Tools<span class="why">extra tools, all reachable from the menu</span></div>
+<div class="row"><svg><use href="#i-folder"/></svg>docs, reg, reg_undo, repair-tools, tools<span class="why">keep them next to the files above</span></div>
+<div class="row"><svg><use href="#i-file"/></svg>README.md, CHANGELOG.md, LICENSE, VERSION<span class="why">information only</span></div>
+</div></div></div>
+
+<div class="step"><div class="no">3</div><div class="body"><h3>Start Easy Setup as administrator</h3>
+<ul><li>Right-click <b>0_Easy_Setup (Run as Administrator).bat</b> and choose <b>Run as administrator</b>.</li>
+<li>Windows asks "Do you want to allow this app to make changes?" Press <b>Yes</b>.</li>
+<li>A blue "Windows protected your PC" window means SmartScreen does not know the file yet. You downloaded it from the project page yourself, so click <b>More info</b>, then <b>Run anyway</b>.</li></ul>
+<p class="see"><b>You should see</b> a black window titled "Easy Setup".</p></div></div>
+
+<div class="step"><div class="no">4</div><div class="body"><h3>Choose the language and answer one question</h3>
+<ul><li>Press <b>E</b> for English or <b>T</b> for Thai, then Enter. If Thai letters look broken (question marks or boxes), choose E.</li>
+<li>"Do you mainly play games on this PC?" Press <b>Enter</b> for No, or <b>Y</b> for Yes. A Yes adds the mouse, keyboard, timer and CPU boost tweaks, and opens a second question: <b>Maximum</b> applies every optional tweak at once. Turning Memory Integrity off (tweak 13) needs its own typed <b>YES</b>, because it lowers protection.</li>
+<li>Not sure? Press Enter. You can add the optional tweaks later (main menu, key 2).</li>
+<li>Read the plan and press <b>Y</b> to start.</li></ul></div></div>
+<div class="console"><span class="c">==================================================================
+   PC OPTIMIZER - EASY SETUP
+==================================================================</span>
+   Do you mainly play games on this PC? Y/N (Enter = N):
+   <span class="d">Your answer: not mainly games (the safe settings only).</span>
+
+   What will happen (about 20 to 40 minutes; Windows may ask for one restart):
+   1. Check if a newer version of this tool exists (you decide).
+   2. Make a safety point (System Restore) so you can always go back.
+   3. Remember how the PC is now, to show before and after.
+   4. Internet: connected.
+   5. Windows Update: we open it and you press install (we guide you).
+   6. Find and install the important drivers (network, sound, Bluetooth, chipset).
+   7. Restart if Windows needs it, then start this again to finish.
+   8. Apply the safe speed settings (the recommended ones only).
+   9. Optional: test the internet and pick a faster DNS (skipped unless you say yes).
+   10. Check everything again and show a one-page summary.
+<span class="g">   Nothing is deleted and every change can be undone. A restore point is made first.</span>
+   Start now? Y = start, Q = quit (Enter = start)</div>
+<p class="cap">What the plan looks like. Your list may differ slightly: a laptop or no internet changes lines 4 and 8.</p>
+
+<div class="step"><div class="no">5</div><div class="body"><h3>Let it work through the ten steps</h3>
+<p>It prints "Step 3 of 10" and so on. Most steps need nothing from you.</p>
+<table><tr><th style="width:21%">Step</th><th style="width:36%">What you see</th><th>What you do</th></tr>
+<tr><td>1 Update check</td><td>"Check for a newer version of this tool now?"</td><td>Press Enter. If a newer version exists, you may update.</td></tr>
+<tr><td>2 Restore point</td><td>"Making the safety point... 1 to 5 minutes"</td><td>Wait. Do not close the window.</td></tr>
+<tr><td>3 Save the state</td><td>"Saved how the PC is now"</td><td>Nothing.</td></tr>
+<tr><td>4 Internet</td><td>"The internet works." or "No internet"</td><td>No internet: plug in a cable or connect Wi-Fi and press <b>R</b>. Press <b>S</b> to skip the online steps. The settings still apply.</td></tr>
+<tr><td>5 Windows Update</td><td>The Windows Update page opens</td><td>Click <b>Check for updates</b>, install everything, come back to the black window and press <b>Enter</b>. Press <b>S</b> to skip this step.</td></tr>
+<tr><td>6 Drivers</td><td>"Drivers installed: 0. ..."</td><td>Nothing. If the graphics card has only the basic driver, it offers the maker's download page: press <b>Y</b> to open it.</td></tr>
+<tr><td>7 Restart</td><td>"Windows needs a restart..." (only when it does)</td><td>Press <b>R</b>. After the restart, open 0_Easy_Setup again and press Enter at "Continue where it stopped?"</td></tr>
+<tr><td>8 Settings</td><td>"Applying the settings..." about 1 minute</td><td>Nothing.</td></tr>
+<tr><td>9 DNS</td><td>"Test the internet speed and pick a faster DNS?"</td><td>Press Enter (No). The effect is small.</td></tr>
+<tr><td>10 Summary</td><td>The SUMMARY screen, after 30 seconds to 2 minutes</td><td>Read it (next step).</td></tr>
+</table>
+<div class="callout warn"><svg><use href="#i-warn"/></svg><div class="body"><h3>Do not click inside the black window while it works</h3><p>A click selects text and pauses the program. If the title bar starts with <b>Select</b>, press <b>Esc</b> and it continues.</p></div></div></div></div>
+
+<div class="step"><div class="no">6</div><div class="body"><h3>Read the summary and restart</h3>
+<div class="console"><span class="c">================== SUMMARY ===================</span>
+   Speed settings in place: 6 of 24 before, 24 of 24 now.
+   Devices without a working driver: 0 before, 0 now.
+   Drivers installed by this setup: 0.
+
+   <span class="y">Things worth a look (hints, not faults):</span>
+   - ...
+   To go back: run 2_Revert_Everything, or use Windows System Restore and pick Before_PC_Optimizer.
+   Please restart the PC so every setting takes full effect.
+   L = I will restart later, R = restart now (Enter = later)</div>
+<p class="cap">Example only. Your numbers will differ.</p>
+<ul><li><b>Speed settings in place</b> compares the PC before and after. The second number should equal the total.</li>
+<li><b>Things worth a look</b> are hints, not faults. Troubleshooting explains the common ones.</li>
+<li>Press <b>R</b> to restart now, or <b>L</b> to restart later. The settings take full effect after a restart.</li>
+<li>The full report is saved as <span class="mono">Logs\EasySetup_date-time.txt</span>.</li></ul>
+<div class="callout tip"><svg><use href="#i-tip"/></svg><div class="body"><h3>You are done</h3><p>After a big Windows update, press <b>C</b> in the main menu (<span class="mono">1_Start_Here</span>) to find settings that Windows reset and put them back.</p></div></div></div></div>
+</div>
+
+<div class="page">
+<div class="banner" id="sec-easy"><h1>What Easy Setup does</h1><p>Every step, and why it comes in this order.</p></div>
 <table><tr><th style="width:26px">#</th><th style="width:22%">Step</th><th>What it does</th><th style="width:30%">Why at this point</th></tr>
 <tr><td>1</td><td>Newer version</td><td>Asks if you want to check; if a newer version exists you can update this tool.</td><td>You start with the latest fixes.</td></tr>
 <tr><td>2</td><td>Restore point</td><td>Creates the System Restore point <span class="mono">Before_PC_Optimizer</span>.</td><td>Everything after it can be undone.</td></tr>
@@ -36,15 +156,144 @@
 <tr><td>5</td><td>Windows Update</td><td>Opens Windows Update. You press Check for updates, install everything and restart if it asks.</td><td>Updates can change settings, so they come first.</td></tr>
 <tr><td>6</td><td>Drivers</td><td>Installs the recommended drivers from Windows Update (network, sound, Bluetooth, chipset). No full driver copy: the restore point covers it. If the graphics card only has the basic driver, opens the maker's download page.</td><td>The same safe system as 7_Driver_Check.</td></tr>
 <tr><td>7</td><td>Restart</td><td>Offered only when Windows needs it. Run the file again to continue.</td><td>New drivers need it.</td></tr>
-<tr><td>8</td><td>Safe speed settings</td><td>Menu 1, 3 and 4. The gaming answer adds mouse, keyboard, timer resolution and CPU boost. A laptop skips what makes it hotter or drains the battery.</td><td>Last, so updates and drivers cannot undo them.</td></tr>
+<tr><td>8</td><td>Safe speed settings</td><td>Menu 1, 3 and 4. The gaming answer adds mouse, keyboard, timer resolution and CPU boost. Maximum also adds fullscreen exclusive and the Ndu fix. A laptop skips what makes it hotter or drains the battery.</td><td>Last, so updates and drivers cannot undo them.</td></tr>
 <tr><td>9</td><td>Faster DNS</td><td>Optional network test and DNS choice. The default is no.</td><td>Small effect, never forced.</td></tr>
 <tr><td>10</td><td>Check and summary</td><td>Settings in place before and after, devices without a driver, things worth a look, how to undo, and a restart reminder.</td><td>You see the result on one page.</td></tr>
 </table>
-<div class="box amber"><h3>Not included on purpose</h3><p>The Memory Integrity tweak, driver cleanup, deep file cleanup, network reset, changing DNS without asking, removing Windows apps and installing programs. They are for special cases and are in the main menu and repair-tools.</p></div>
+<div class="box amber"><h3>Not included on purpose</h3><p>Driver cleanup, deep file cleanup, network reset, changing DNS without asking, removing Windows apps and installing programs. They are for special cases and are in the main menu and repair-tools. Memory Integrity off (13) is applied only when you pick Maximum and type YES.</p></div>
 <p class="small">The PC is kept awake while it runs. Every run is saved as <span class="mono">EasySetup_date-time.txt</span> in the Logs folder. To see the plan without changing anything, start it from a command window with <span class="mono">-Preview</span>.</p>
 </div>
 
 <div class="page">
+<div class="banner" id="sec-which"><h1>Which button do I press?</h1><p>Pick the row that matches your situation.</p></div>
+<table><tr><th style="width:34%">Your situation</th><th style="width:22%">Open or press</th><th>What happens</th></tr>
+<tr><td>New Windows, first time, or not sure</td><td><b>0_Easy_Setup</b> (or <b>E</b> in the menu)</td><td>Everything in the right order, with a plan, a restore point and a summary.</td></tr>
+<tr><td>Windows update reset some settings</td><td><b>C</b></td><td>Lists what changed and puts it back after you confirm.</td></tr>
+<tr><td>I want to choose each optional tweak (09 to 16) myself</td><td><b>2</b>, or <b>5</b> for the whole set</td><td>Asks one by one. Tweak 13 needs a typed YES.</td></tr>
+<tr><td>I want every optional tweak without questions</td><td>Easy Setup, then Yes to games, then Yes to Maximum</td><td>One go. Memory Integrity off (13) still needs its own typed YES.</td></tr>
+<tr><td>One tweak feels wrong (for example the mouse)</td><td><b>7</b>, then the number</td><td>Puts back the Windows default for that one tweak.</td></tr>
+<tr><td>Everything feels wrong</td><td><b>2_Revert_Everything</b></td><td>Rolls the whole PC back with System Restore. It restarts the PC.</td></tr>
+<tr><td>Check or fix drivers</td><td><b>D</b></td><td>Scans, lists, and installs only what you choose.</td></tr>
+<tr><td>Web pages or the game connection feel slow</td><td><b>N</b></td><td>Ping, jitter, packet loss and DNS speed.</td></tr>
+<tr><td>See my specs, health or what uses CPU and RAM</td><td><b>S</b>, <b>H</b>, <b>R</b></td><td>One-page reports. They change nothing.</td></tr>
+<tr><td>Ask someone for help</td><td><b>B</b></td><td>Makes one file with private details replaced. Nothing is sent.</td></tr>
+</table>
+<h2>Easy Setup (E) compared with Run Everything (5)</h2>
+<table><tr><th style="width:30%"></th><th style="width:35%">E: Easy Setup</th><th>5: Run Everything</th></tr>
+<tr><td>Settings it applies</td><td>Tweaks 01-08, base setup, power settings. The games answer adds 10, 11, 15, 16. Maximum adds 09 and 12. Tweak 13 only after a typed YES.</td><td>Tweaks 01-08, base setup, power settings, and it asks about 09 to 16 one by one.</td></tr>
+<tr><td>Questions</td><td>One or two at the start</td><td>One per optional tweak</td></tr>
+<tr><td>Also does</td><td>Update check, Windows Update guide, drivers, DNS choice, before and after summary, continues after a restart</td><td>Nothing else</td></tr>
+<tr><td>Time</td><td>20 to 40 minutes</td><td>A few minutes</td></tr>
+</table>
+<p class="small">Both make a restore point named Before_PC_Optimizer. Running either again makes a new one with the same name, and 2_Revert_Everything goes back to the newest.</p>
+</div>
+
+<div class="page">
+<div class="banner" id="sec-undo"><h1>Undo: three ways back</h1><p>Use the smallest one that fixes your problem.</p></div>
+<div class="card rep"><div class="t"><span class="n">A</span>Revert one tweak: menu 7</div><ul>
+<li>Example: the mouse feels odd after file 10. Type 7, then 10.</li>
+<li>Restores the Windows default from <span class="mono">reg_undo</span>. T removes the network values, P resets all power plans.</li>
+<li>The script remembers the revert; the status check shows it as SKIPPED and will not offer to apply it again.</li></ul></div>
+<div class="card rep"><div class="t"><span class="n">B</span>Restore your exact previous values: Backup folder</div><ul>
+<li>Every run exports the old keys to <span class="mono">Backup\date-time</span>.</li>
+<li>Double-click a file there to restore the value your PC really had (more precise than the Windows default).</li></ul></div>
+<div class="card rep"><div class="t"><span class="n">C</span>Roll back the whole PC: 2_Revert_Everything</div><ul>
+<li>Uses System Restore to return to the <span class="mono">Before_PC_Optimizer</span> restore point.</li>
+<li>The PC restarts by itself, and programs installed after that point are removed. Serious problems only.</li></ul></div>
+<div class="callout info"><svg><use href="#i-info"/></svg><div class="body"><h3>Which restore point does 2_Revert_Everything use?</h3><p>The newest one named Before_PC_Optimizer. Running Easy Setup or key 5 again makes a new one with the same name, so the older one is no longer the target.</p></div></div>
+</div>
+
+<div class="page">
+<div class="banner" id="sec-keep"><h1>Keep it working</h1><p>Status check (menu C) and updates (menu U). More Tools\3_Check_Status does the same as menu C.</p></div>
+<h2>Status check</h2>
+<div class="card"><div class="t"><span class="n">1</span>Run 3_Check_Status as administrator</div><ul><li>It checks every item and prints each line with the current value against the expected one.</li></ul></div>
+<div class="card"><div class="t"><span class="n">2</span>Answer the fix questions</div><ul>
+<li>Recommended items: Y = re-apply everything missing, S = choose one by one, N = change nothing.</li>
+<li>Optional items are always asked one by one; file 13 still needs YES.</li>
+<li>The old values are backed up to <span class="mono">Backup\date-time_check</span> before anything is re-applied.</li></ul></div>
+<div class="card"><div class="t"><span class="n">3</span>Automatic re-check</div><ul><li>After fixing, the script checks the fixed items again to confirm. Everything is saved to <span class="mono">CheckReport_date-time.txt</span>. Restart once.</li></ul></div>
+
+<table><tr><th style="width:18%">Status</th><th>Meaning</th><th style="width:34%">What the script does</th></tr>
+<tr><td>OK</td><td>The value is still as the script set it.</td><td>Nothing.</td></tr>
+<tr><td>CHANGED</td><td>A value was changed, for example by a Windows update.</td><td>Can re-apply it.</td></tr>
+<tr><td>MISSING</td><td>The value is not there at all.</td><td>Can re-apply it.</td></tr>
+<tr><td>NOT CHOSEN</td><td>An optional tweak (09-13) you never answered.</td><td>Asks: Y apply, N not now, X never ask again.</td></tr>
+<tr><td>SKIPPED</td><td>You skipped or reverted it.</td><td>Does not ask or change it.</td></tr>
+<tr><td>UNKNOWN</td><td>Cannot be read, or this PC does not have the option.</td><td>Information only.</td></tr>
+</table>
+
+<h2>Updating</h2>
+<div class="card rep"><div class="t"><span class="n">U</span>Updating: menu U or 6_Check_For_Updates.bat</div><ul>
+<li>Looks for a newer release on GitHub, shows what is new, and installs it only if you press U. N = not now, S = skip this version, L = open the release page.</li>
+<li>Safe by design: the download is checked against a SHA-256 checksum published with the release. The old version is moved to <span class="mono">Backup\update_oldversion_time</span>, and if anything fails it is put back. Your Backup folder, logs and reports are never touched.</li>
+<li>The first time you open the menu it asks once whether to check automatically at start (it contacts github.com and sends nothing about you). Press A to turn that on or off. Nothing is ever installed without your choice.</li>
+<li>Updating from v4.5 or older needs one manual download of the ZIP. From v4.6 on, the tool updates itself.</li></ul></div>
+</div>
+
+<div class="page">
+<div class="banner" id="sec-trouble"><h1>Troubleshooting</h1><p>Find the symptom in the left column.</p></div>
+<table class="trouble"><tr><th>Symptom</th><th>What it means</th><th>What to do</th></tr>
+<tr><td>A blue "Windows protected your PC" window</td><td>SmartScreen does not know the file. Normal for a new <span class="mono">.bat</span>.</td><td>Click <b>More info</b>, then <b>Run anyway</b>. Next time, unblock the ZIP before you extract it (Quick start, step 2).</td></tr>
+<tr><td>Antivirus blocks or deletes a file</td><td>Some antivirus programs flag <span class="mono">.bat</span> files that edit the registry.</td><td>Check that you downloaded from the project page and read the file. Never turn antivirus off. If it still blocks, do not use the file.</td></tr>
+<tr><td>"Please right-click this file and choose Run as administrator"</td><td>You opened it with a normal double-click.</td><td>Right-click the file and choose <b>Run as administrator</b>. Nothing was changed.</td></tr>
+<tr><td>The window freezes. The title bar starts with "Select"</td><td>You clicked inside the black window, which pauses it.</td><td>Press <b>Esc</b>. It continues.</td></tr>
+<tr><td>"The argument ... does not exist" or "not recognized" after typing a command</td><td>A typo or the wrong folder.</td><td>Open the extracted folder, type <span class="mono">cmd</span> in the address bar, press Enter, and copy the command instead of typing it.</td></tr>
+<tr><td>"The safety point could not be made"</td><td>System Protection is off for drive C:.</td><td>Start menu, type <b>Create a restore point</b>, select C:, press <b>Configure</b>, choose <b>Turn on system protection</b>, press OK. Run Easy Setup again.</td></tr>
+<tr><td>"No internet" in step 4</td><td>No connection, or the PC lacks a network driver.</td><td>Plug in a cable or connect Wi-Fi and press R. With no network driver, download it from your motherboard or laptop maker on another PC and copy it by USB drive. Or press S to skip the online steps.</td></tr>
+<tr><td>The Windows Update page did not open</td><td>Some PCs block the shortcut.</td><td>Open Settings, then Windows Update, by hand. Or press S to skip this step.</td></tr>
+<tr><td>Thai letters are spaced out, boxes or question marks</td><td>The console window cannot draw Thai well.</td><td>Choose <b>E</b> (English). Windows Terminal draws Thai better. This Thai manual stays available.</td></tr>
+<tr><td>"An earlier Easy Setup was started... Continue?"</td><td>You closed it halfway or restarted.</td><td>Press Y (or Enter) to continue where it stopped. Press N to start again.</td></tr>
+<tr><td>Settings are back to normal after a Windows update</td><td>Windows reset some values. This happens.</td><td>Press <b>C</b> in the main menu and confirm.</td></tr>
+<tr><td>The PC is hotter or the fans are louder</td><td>Ultimate Performance and CPU boost keep the processor fast.</td><td>Undo 16 (menu 7, then 16), or pick Balanced in Power Options. On a laptop, skip the optional tweaks.</td></tr>
+<tr><td>The mouse feels odd</td><td>Tweak 10 turned off pointer acceleration.</td><td>Menu 7, then 10.</td></tr>
+<tr><td>A game complains about security or anti-cheat</td><td>Anti-cheat rules belong to the game maker. This tool changes Windows settings only.</td><td>Open <b>S</b> (PC specs) to see Secure Boot and TPM, which some games need. If you turned Memory Integrity off (13), undo it: menu 7, then 13.</td></tr>
+<tr><td>Something broke after a driver install</td><td>A new driver does not suit the device.</td><td>Device Manager, the device, <b>Roll Back Driver</b>. Or use System Restore and pick <span class="mono">Before_Driver_Install</span>.</td></tr>
+<tr><td>I want help from someone</td><td>The support bundle collects what they need.</td><td>Press <b>B</b>. Read the file in <span class="mono">Logs</span>, then attach it to an issue at github.com/Kensukeimagery/win11-optimizer.</td></tr>
+</table>
+</div>
+
+<div class="page">
+<div class="banner" id="sec-gloss"><h1>Glossary</h1><p>The words of this manual in plain language.</p></div>
+<table class="gloss"><tr><th>Word</th><th>Meaning</th></tr>
+<tr><td>Administrator</td><td>A Windows account that may change system settings. Programs that change settings need "Run as administrator".</td></tr>
+<tr><td>Restore point</td><td>A snapshot of Windows settings that System Restore can return to. It does not touch your documents.</td></tr>
+<tr><td>Registry</td><td>The database where Windows stores its settings. Each tweak here changes a few values in it.</td></tr>
+<tr><td>.reg file</td><td>A small text file that sets registry values. You can open it in Notepad and read it. Every tweak has one, and one undo file.</td></tr>
+<tr><td>Driver</td><td>Software that lets Windows talk to a device such as the graphics card or sound chip.</td></tr>
+<tr><td>Windows Update</td><td>Microsoft's service for fixes and many drivers.</td></tr>
+<tr><td>SmartScreen</td><td>A Windows check that warns about files it does not recognise.</td></tr>
+<tr><td>SHA-256 checksum</td><td>A fingerprint of a file. The updater compares it to the published one to make sure the download is intact.</td></tr>
+<tr><td>BIOS / UEFI</td><td>The firmware settings screen you reach at power-on (often Delete or F2).</td></tr>
+<tr><td>XMP / EXPO</td><td>A memory profile in the BIOS that runs the RAM at its rated speed.</td></tr>
+<tr><td>Secure Boot, TPM</td><td>Security features that Windows 11 and some games, such as Valorant, require. The PC specs page shows whether they are on.</td></tr>
+<tr><td>FPS and 1% lows</td><td>Frames per second. The 1% lows are the slowest moments, and they decide how smooth a game feels.</td></tr>
+<tr><td>Ping, jitter, packet loss</td><td>Delay to a server, how much that delay jumps around, and the share of packets that never arrive. Jitter is what you feel as rubber-banding.</td></tr>
+<tr><td>DNS</td><td>The service that turns a website name into an address. It is used once when you connect and does not change in-game ping.</td></tr>
+<tr><td>Refresh rate (Hz)</td><td>How many times per second the screen updates. A 144 Hz screen running at 60 Hz looks like input lag.</td></tr>
+<tr><td>Memory Integrity</td><td>A Windows security feature (HVCI). Turning it off can raise FPS on some PCs but protects the PC less.</td></tr>
+<tr><td>Power plan</td><td>A set of power rules. Ultimate Performance keeps the processor fast and never sleeps cores.</td></tr>
+<tr><td>Core parking</td><td>Windows putting idle processor cores to sleep to save power. The power settings here turn it off.</td></tr>
+<tr><td>SSD, HDD</td><td>Solid-state drive and hard disk drive. Windows and games run faster from an SSD.</td></tr>
+</table>
+</div>
+
+<div class="page">
+<div class="banner" id="sec-faq"><h1>Questions and answers</h1></div>
+<div class="faq">
+<h3>Is it safe?</h3><p>It makes a restore point first, changes only documented Windows settings, and each tweak has an undo. You can read every file before you run it. Use it only on your own PC, and keep the restore point.</p>
+<h3>Will it raise my FPS?</h3><p>Slightly, and only in some games. The tweaks are small. GPU driver settings, in-game settings, XMP/EXPO and cooling matter far more. Be careful with any program that promises large gains.</p>
+<h3>Will it get me banned in a game?</h3><p>It does not edit game files, inject code or add overlays. It changes Windows settings only. Anti-cheat rules belong to each game maker, so check yours.</p>
+<h3>What does it send over the internet?</h3><p>The update check contacts github.com and sends nothing about you. Driver search uses Windows Update. The network test pings public DNS servers when you start it. The support bundle replaces private details and is never sent.</p>
+<h3>Can I use it on a laptop?</h3><p>It is built for desktops. On a laptop Easy Setup skips the tweaks that raise heat and drain the battery.</p>
+<h3>Can I run it twice?</h3><p>Yes. Running again is safe. It makes a new restore point with the same name, and 2_Revert_Everything goes back to the newest one.</p>
+<h3>How do I remove it?</h3><p>There is no installer. Undo the tweaks with 2_Revert_Everything or menu 7, then delete the folder.</p>
+<h3>Where are my reports?</h3><p>In the <span class="mono">Logs</span> folder next to the program. The newest three of each kind are kept.</p>
+<h3>Does it cost anything?</h3><p>No. It is free and open source (MIT license).</p>
+</div>
+</div>
+
+<div class="page">
+<div class="banner" id="sec-ref"><h1>Reference</h1><p>Lookup pages. You do not need them for a first run.</p></div>
 <h2>Folder layout</h2>
 <table><tr><th style="width:44%">File / folder</th><th>Purpose</th></tr>
 <tr><td>0_Easy_Setup (Run as Administrator).bat</td><td>ONE BUTTON for a new Windows install and for beginners: restore point, drivers, Windows Update (guided), safe settings, summary. Thai or English.</td></tr>
@@ -66,49 +315,35 @@
 <tr><td>Backup/ (created when you run)</td><td>Copy of every key before it is changed, in a dated folder.</td></tr>
 <tr><td>Logs/ (created when you run)</td><td>The log of every command and the report of every tool. The newest 3 of each kind are kept and older ones are removed automatically (menu L changes the number).</td></tr>
 </table>
-</div>
-
-
-
-<div class="page">
-<div class="banner"><h1>Quick start</h1><p>Three steps</p></div>
-<div class="card rep"><div class="t"><span class="n">A</span>Revert one tweak: menu 7</div><ul>
-<li>Example: the mouse feels odd after file 10. Type 7, then 10.</li>
-<li>Restores the Windows default from <span class="mono">reg_undo</span>. T removes the network values, P resets all power plans.</li>
-<li>The script remembers the revert; the status check shows it as SKIPPED and will not offer to apply it again.</li></ul></div>
-<div class="card rep"><div class="t"><span class="n">B</span>Restore your exact previous values: Backup folder</div><ul>
-<li>Every run exports the old keys to <span class="mono">Backup\date-time</span>.</li>
-<li>Double-click a file there to restore the value your PC really had (more precise than the Windows default).</li></ul></div>
-<div class="card rep"><div class="t"><span class="n">C</span>Roll back the whole PC: 2_Revert_Everything</div><ul>
-<li>Uses System Restore to return to the <span class="mono">Before_PC_Optimizer</span> restore point.</li>
-<li>The PC restarts by itself, and programs installed after that point are removed. Serious problems only.</li></ul></div>
-
-<div class="banner" style="margin-top:14px"><h1>Status check</h1><p>3_Check_Status, or menu C. Use it after a Windows update or every 1-2 months</p></div>
-<div class="card"><div class="t"><span class="n">1</span>Run 3_Check_Status as administrator</div><ul><li>It checks every item and prints each line with the current value against the expected one.</li></ul></div>
-<div class="card"><div class="t"><span class="n">2</span>Answer the fix questions</div><ul>
-<li>Recommended items: Y = re-apply everything missing, S = choose one by one, N = change nothing.</li>
-<li>Optional items are always asked one by one; file 13 still needs YES.</li>
-<li>The old values are backed up to <span class="mono">Backup\date-time_check</span> before anything is re-applied.</li></ul></div>
-<div class="card"><div class="t"><span class="n">3</span>Automatic re-check</div><ul><li>After fixing, the script checks the fixed items again to confirm. Everything is saved to <span class="mono">CheckReport_date-time.txt</span>. Restart once.</li></ul></div>
-
-<table><tr><th style="width:18%">Status</th><th>Meaning</th><th style="width:34%">What the script does</th></tr>
-<tr><td>OK</td><td>The value is still as the script set it.</td><td>Nothing.</td></tr>
-<tr><td>CHANGED</td><td>A value was changed, for example by a Windows update.</td><td>Can re-apply it.</td></tr>
-<tr><td>MISSING</td><td>The value is not there at all.</td><td>Can re-apply it.</td></tr>
-<tr><td>NOT CHOSEN</td><td>An optional tweak (09-13) you never answered.</td><td>Asks: Y apply, N not now, X never ask again.</td></tr>
-<tr><td>SKIPPED</td><td>You skipped or reverted it.</td><td>Does not ask or change it.</td></tr>
-<tr><td>UNKNOWN</td><td>Cannot be read, or this PC does not have the option.</td><td>Information only.</td></tr>
+<h2>Main menu keys</h2>
+<table><tr><th style="width:8%">Key</th><th>What it does</th></tr>
+<tr><td><b>E</b></td><td>Easy Setup: one button for a new PC or first use</td></tr>
+<tr><td><b>1</b></td><td>Recommended tweaks 01-08, safe for everyone</td></tr>
+<tr><td><b>2</b></td><td>Optional tweaks 09-13, 15, 16, asked one by one</td></tr>
+<tr><td><b>3</b></td><td>Base setup: power plan, services, SSD check, network per adapter, temp cleanup</td></tr>
+<tr><td><b>4</b></td><td>Power settings: tweak 14 and the automatic CPU, USB and PCIe settings</td></tr>
+<tr><td><b>5</b></td><td>Run everything: restore point, then 1, 2, 3 and 4</td></tr>
+<tr><td><b>6</b></td><td>Create a restore point only</td></tr>
+<tr><td><b>7</b></td><td>Revert one tweak to the Windows default</td></tr>
+<tr><td><b>8</b></td><td>Show the disk type (SSD or HDD)</td></tr>
+<tr><td><b>9</b></td><td>Open the Power Options window</td></tr>
+<tr><td><b>C</b></td><td>Check status: find settings that Windows Update changed back</td></tr>
+<tr><td><b>D</b></td><td>Drivers: find missing or old drivers (beta)</td></tr>
+<tr><td><b>U</b></td><td>Check for updates; update only if you say yes</td></tr>
+<tr><td><b>A</b></td><td>Turn the automatic update check on or off</td></tr>
+<tr><td><b>N</b></td><td>Network test: ping, jitter, packet loss and DNS speed</td></tr>
+<tr><td><b>R</b></td><td>System report: CPU and RAM users, startup list</td></tr>
+<tr><td><b>S</b></td><td>PC specs on one page, in plain words</td></tr>
+<tr><td><b>H</b></td><td>PC health: crashes, drives, refresh rate, RAM speed, cable speed</td></tr>
+<tr><td><b>B</b></td><td>Support bundle: one file to attach to a problem report</td></tr>
+<tr><td><b>L</b></td><td>Clean up old reports and backups</td></tr>
+<tr><td><b>0</b></td><td>Exit</td></tr>
 </table>
+<figure><img src="../img/main-menu.png" alt="The main menu" style="max-width:76%"><figcaption>The main menu (1_Start_Here). E is Easy Setup. Every tool in More Tools has a key here.</figcaption></figure>
+<h2>Status check: what it checks and its limits</h2>
 <p class="small"><b>What it checks:</b> all 14 .reg files (read from the same files that are applied), the power plan (Ultimate Performance, or High Performance if Ultimate is unavailable), the four power values, Prefetcher (SSD must be 0, HDD must be 3), TcpAckFrequency and TCPNoDelay on every adapter, and the DiagTrack / dmwappushservice services. Optional 15, 16 and (once used) 17 are checked too (16: boost mode 2 and preference 0 while plugged in).<br>
 <b>Limits:</b> it tells you a value is still there, not that it still has an effect (item 08 can show OK on a GPU that does not support GPU scheduling). Values under GameConfigStore (01, 09) are rewritten by Windows and the Xbox Game Bar, so CHANGED there is common. Adding a new VPN or Wi-Fi adapter makes Network show CHANGED until it is configured.</p>
-<div class="card rep"><div class="t"><span class="n">U</span>Updating: menu U or 6_Check_For_Updates.bat</div><ul>
-<li>Looks for a newer release on GitHub, shows what is new, and installs it only if you press U. N = not now, S = skip this version, L = open the release page.</li>
-<li>Safe by design: the download is checked against a SHA-256 checksum published with the release. The old version is moved to <span class="mono">Backup\update_oldversion_time</span>, and if anything fails it is put back. Your Backup folder, logs and reports are never touched.</li>
-<li>The first time you open the menu it asks once whether to check automatically at start (it contacts github.com and sends nothing about you). Press A to turn that on or off. Nothing is ever installed without your choice.</li>
-<li>Updating from v4.5 or older needs one manual download of the ZIP. From v4.6 on, the tool updates itself.</li></ul></div>
-
-
-<div class="banner"><h1>.reg files, group 1: Recommended (01-08)</h1><p>Menu 1. Meant to be safe for most PCs</p></div>
+<div class="banner later"><h1>.reg files, group 1: Recommended (01-08)</h1><p>Menu 1. Meant to be safe for most PCs</p></div>
 <div class="card"><div class="t"><span class="n">01</span>GameBar_DVR_Off</div><ul><li>Turns off Xbox Game Bar background recording (Game DVR), at user and policy level. Game Mode is kept on (v3 turned it off by mistake).</li></ul><div class="h">Helps: gives back CPU, GPU and disk time used for constant recording. No official Microsoft documentation for these values.</div></div>
 <div class="card"><div class="t"><span class="n">02</span>Power_Throttling_Off</div><ul><li>PowerThrottlingOff = 1 stops Windows slowing background programs. Energy estimation off. Fast Startup off, so Shutdown is a real clean restart.</li></ul><div class="h">Helps: Discord or OBS in the background are not slowed down. Cost: slightly longer boot, and more power use on laptops.</div></div>
 <div class="card"><div class="t"><span class="n">03</span>Gaming_Priority_MMCSS</div><ul><li>NetworkThrottlingIndex = ffffffff removes the network limit for multimedia tasks.</li><li>SystemResponsiveness = 10, the lowest value that takes effect. Microsoft documents that values below 10 are raised to the default of 20, so a value of 0 does nothing.</li><li>Tasks\Games: GPU Priority 8, Priority 6, Scheduling Category High, SFIO Priority High.</li></ul><div class="h">Helps: queues work so the game gets CPU, GPU and disk first.</div></div>
@@ -117,11 +352,7 @@
 <div class="card"><div class="t"><span class="n">06</span>System_Responsiveness</div><ul><li>Menus appear instantly, frozen apps are closed faster, lighter animations and visual effects.</li><li>NTFS last-access time stamps off; the classic Copy To / Move To right-click entries restored.</li></ul><div class="h">Helps: Windows feels quicker, fewer needless disk writes.</div></div>
 <div class="card"><div class="t"><span class="n">07</span>Delivery_Optimization_Off</div><ul><li>DODownloadMode = 0.</li></ul><div class="h">Helps: Windows Update does not upload updates to other PCs while you play online.</div></div>
 <div class="card"><div class="t"><span class="n">08</span>GPU_Scheduling_On</div><ul><li>HwSchMode = 2 turns on hardware-accelerated GPU scheduling. Needs a restart and a supported GPU and driver; unsupported systems ignore it.</li></ul><div class="h">Helps: slightly lower CPU-to-GPU latency. Microsoft says most users should not expect a big change.</div></div>
-</div>
-
-<!-- PAGE 5 -->
-<div class="page">
-<div class="banner"><h1>Optional tweaks (09-13, 15, 16)</h1><p>The script asks about each one. Answer for how you actually play</p></div>
+<div class="banner later"><h1>Optional tweaks (09-13, 15, 16)</h1><p>The script asks about each one. Answer for how you actually play</p></div>
 <div class="card opt"><div class="t"><span class="n">09</span>Fullscreen_Exclusive</div><ul><li>Forces true Fullscreen Exclusive instead of letting Windows convert games to borderless.</li><li>Answer Y only if fullscreen games stutter or hang on alt-tab. Some newer games work better the default way.</li></ul><div class="h">Helps: lower input lag in older games that support Fullscreen Exclusive.</div></div>
 <div class="card opt"><div class="t"><span class="n">10</span>Mouse_No_Acceleration</div><ul><li>Turns off Enhance Pointer Precision so the mouse moves 1:1.</li></ul><div class="h">Helps: consistent aim in shooters.</div></div>
 <div class="card opt"><div class="t"><span class="n">11</span>Keyboard_Fast_Repeat</div><ul><li>KeyboardDelay = 0 (shortest delay before repeat). Flags = 122 stops the Filter Keys pop-up when Shift is held for 8 seconds in a game.</li></ul><div class="h">Helps: faster key response and no interrupting pop-up.</div></div>
@@ -129,14 +360,11 @@
 <div class="card opt"><div class="t"><span class="n">13</span>Memory_Integrity_Off</div><ul><li>Turns off Memory Integrity (HVCI). You must type YES, and restart.</li><li>Microsoft confirms it can affect gaming performance on some PCs (no figure given). With it off, Windows protects less against kernel-level malware.</li><li>Skip it on a work PC or one holding important data. Undo with menu 7, then 13.</li></ul><div class="h">Helps: the only tweak here that can raise FPS noticeably, at a security cost.</div></div>
 <div class="card opt"><div class="t"><span class="n">15</span>Timer_Resolution</div><ul><li>Sets GlobalTimerResolutionRequests = 1. Since Windows 10 2004 and Windows 11, a game's timer-resolution request only applies to that game. This value lets such a request apply system-wide again.</li><li>Can steady frame pacing in some games. Microsoft notes that a higher timer resolution uses more power and can keep the CPU from saving power. Needs a restart. Undo: menu 7, then 15.</li></ul><div class="h">Helps: frame pacing in some games, effect varies. The value comes from the tweaking community; Microsoft does not document it.</div></div>
 <div class="card opt"><div class="t"><span class="n">16</span>CPU_Boost_Aggressive (power setting, no .reg file)</div><ul><li>Plugged in only: processor performance boost mode = Aggressive (2) and energy performance preference = 0 (favour performance), on the active power plan.</li><li>Your earlier values are saved first, so menu 7, then 16 restores exactly those. The Ultimate Performance plan already uses these values on most PCs, so this mainly matters on High Performance or Balanced. Expect more heat, especially on laptops.</li></ul><div class="h">Helps: 1% lows in games limited by the CPU. Skipped automatically on PCs that do not offer these settings.</div></div>
-
-</div><div class="page">
-<div class="banner"><h1>Group 3: Power (14) and automatic settings</h1><p>Menu 4 does the whole job, no manual setup</p></div>
+<div class="banner later"><h1>Group 3: Power (14) and automatic settings</h1><p>Menu 4 does the whole job, no manual setup</p></div>
 <div class="card"><div class="t"><span class="n">14</span>Unlock_CPU_Power_Settings</div><ul><li>Makes visible the CPU options Windows hides: core parking, maximum frequency, boost mode, energy performance preference.</li><li>Merges files 11 and 12 of v3 and drops entries that are normally visible.</li></ul></div>
 <div class="card"><div class="t"><span class="n">P</span>What menu 4 then sets with powercfg</div><ul><li>Minimum processor state = 100%. Core parking minimum = 100% (cores never sleep).</li><li>USB selective suspend = off. PCIe Link State Power Management = off.</li><li>Plugged-in values only; the battery profile on a laptop is not touched.</li></ul><div class="h">Helps: CPU and GPU do not switch to power-saving states mid-game.</div></div>
-
-<div class="banner"><h1>What menu 3 (Base setup) does</h1><p>The parts that are not plain .reg files</p></div>
-<table><tr><th style="width:17%">Item</th><th>What it does</th><th style="width:36%">Note</th></tr>
+<div class="banner later"><h1>What menu 3 (Base setup) does</h1><p>The parts that are not plain .reg files</p></div>
+<table><tr><th>Item</th><th>What it does</th><th>Note</th></tr>
 <tr><td>Power plan</td><td>Uses Ultimate Performance; High Performance if that is missing; leaves Balanced if neither exists.</td><td>The plan GUID is remembered, so repeat runs do not create duplicates (v3 did).</td></tr>
 <tr><td>Services</td><td>Windows Search and Print Spooler on; DiagTrack and dmwappushservice off.</td><td>"already running" in the log is normal.</td></tr>
 <tr><td>Prefetcher</td><td>Checks the type of the drive Windows is installed on (C:) first: SSD off, HDD on, unknown type left alone.</td><td>Stops you disabling it on an HDD, which would slow it down.</td></tr>
@@ -144,10 +372,9 @@
 <tr><td>Old values</td><td>Removes MaxUserPort, TcpTimedWaitDelay and misplaced TCP values from v3.</td><td>None of them matter for gaming.</td></tr>
 <tr><td>Temp files</td><td>Deletes the user's temporary files.</td><td>Files in use are skipped safely.</td></tr>
 </table>
-
-<div class="banner"><h1>Windows settings to change by hand</h1><p>Things a script cannot do for you</p></div>
+<div class="banner later"><h1>Windows settings to change by hand</h1><p>Things a script cannot do for you</p></div>
 <p class="small">Already automatic in v4, no need to do by hand: GPU scheduling (08), Delivery Optimization (07), USB selective suspend and PCIe power saving (menu 4), Game Bar DVR (01), Game Mode kept on (01), Enhance Pointer Precision (10, if you answered Y).</p>
-<table><tr><th>Clear effect: do these</th><th style="width:36%">Where</th><th style="width:30%">Why</th></tr>
+<table><tr><th>Clear effect: do these</th><th>Where</th><th>Why</th></tr>
 <tr><td>GPU power = Maximum Performance</td><td>NVIDIA Control Panel / AMD Software</td><td>Stops the card down-clocking under uneven load.</td></tr>
 <tr><td>Network adapter power saving off</td><td>Device Manager &gt; adapter &gt; Power Management</td><td>Avoids ping spikes.</td></tr>
 <tr><td>Add game folders to Defender exclusions</td><td>Virus &amp; threat protection &gt; Exclusions</td><td>Faster level loading. Does not turn Defender off.</td></tr>
@@ -158,7 +385,7 @@
 <tr><td>Shader Cache Size = Unlimited (NVIDIA)</td><td>NVIDIA Control Panel &gt; Manage 3D settings</td><td>Fewer stutters from shaders being rebuilt.</td></tr>
 <tr><td>Use a network cable, not Wi-Fi</td><td>Router to PC</td><td>The biggest fix for ping spikes and jitter.</td></tr>
 </table>
-<table><tr><th>Situational or small effect</th><th style="width:36%">Where</th><th style="width:30%">Why</th></tr>
+<table><tr><th>Situational or small effect</th><th>Where</th><th>Why</th></tr>
 <tr><td>Focus Assist while gaming</td><td>Settings &gt; System &gt; Notifications</td><td>No notifications stealing focus.</td></tr>
 <tr><td>Xbox Game Bar fully off (if you do not use Win+G)</td><td>Settings &gt; Gaming &gt; Xbox Game Bar</td><td>One less background process.</td></tr>
 <tr><td>Disable fullscreen optimizations per game</td><td>Right-click .exe &gt; Properties &gt; Compatibility</td><td>For older games with problems.</td></tr>
@@ -170,8 +397,7 @@
 <tr><td>Fixed-size page file</td><td>System Properties &gt; Advanced &gt; Virtual Memory</td><td>More stable over time.</td></tr>
 </table>
 <p class="small"><b>Make sure of:</b> GPU drivers installed from the vendor directly (NVIDIA settings: <span class="mono">GPU_Driver_Guide_EN.pdf</span>), XMP/EXPO enabled in the BIOS, Variable Refresh Rate on if your monitor supports it, and games set to use the "High performance" GPU on dual-GPU laptops.</p>
-
-<div class="banner"><h1>Diagnostic tools</h1><p>These tools look at your PC. They change nothing unless you choose to at the end (a DNS in the network test, drivers in the driver check). Menu N, R, D, S, H and B run the same tools</p></div>
+<div class="banner later"><h1>Diagnostic tools</h1><p>These tools look at your PC. They change nothing unless you choose to at the end (a DNS in the network test, drivers in the driver check). Menu N, R, D, S, H and B run the same tools All of them are in the More Tools folder.</p></div>
 <div class="card"><div class="t"><span class="n">4</span>4_Network_Test.bat</div><ul>
 <li>Sends 30 pings each to your router, 1.1.1.1, 8.8.8.8 and, if you type one, a game server (these are ordinary ping packets). It shows average ping, jitter and packet loss, grades each line Good / Fair / Poor and says where the problem most likely is.</li>
 <li><b>Jitter</b> is how much the delay jumps around. It is what you feel as rubber-banding, and it matters more than a slightly higher average ping.</li>
@@ -182,7 +408,7 @@
 <li>Your earlier DNS settings are saved first (including "obtain automatically"). To undo: run the test again and choose U, or use menu 7, then 17.</li>
 <li>Check Status shows this item once you have used it, and re-applies it if a Windows update or a VPN changed it.</li></ul>
 <div class="h">How much does it matter? DNS is used once, when you connect to a site or a game server. It does <b>not</b> change in-game ping or FPS. A faster DNS can make web pages and launchers start a little quicker, and a broken DNS can make sites fail to load. If your current DNS is within about 5 ms of the best one, leave it alone. The DNS provider you choose sees the names of the sites you visit.</div></div>
-<table><tr><th style="width:36%">What you see</th><th>Most likely cause</th><th style="width:30%">What to try</th></tr>
+<table><tr><th>What you see</th><th>Most likely cause</th><th>What to try</th></tr>
 <tr><td>Router line is Fair or Poor</td><td>Wi-Fi signal, a bad cable, or other devices using the network.</td><td>Use a cable, move closer, pause other downloads and streams.</td></tr>
 <tr><td>Router is Good, internet lines are Poor</td><td>Your internet provider or the line.</td><td>Restart the router; if it stays, contact the provider.</td></tr>
 <tr><td>Router and internet Good, only the game server is bad</td><td>The route to that server, or the server itself.</td><td>Choose another server or region. Nothing on your PC fixes this.</td></tr>
@@ -223,14 +449,12 @@
 <li>Use a network cable. Wi-Fi jitter is the most common cause of bad ping.</li>
 <li>Keep GPU drivers current, keep the PC cool and close heavy programs before you play.</li>
 <li>None of the registry tweaks in this project lowers ping by a noticeable amount, and neither does changing DNS. They are small, situational gains.</li></ul></div>
-
-<div class="banner"><h1>Folder: repair-tools</h1><p>Targeted repair tools. Not needed on every run. Right-click &gt; Run as administrator</p></div>
+<div class="banner later"><h1>Folder: repair-tools</h1><p>Targeted repair tools. Not needed on every run. Right-click &gt; Run as administrator</p></div>
 <div class="card rep"><div class="t"><span class="n">A</span>Deep_Clean_Junk_Files.bat</div><ul><li>Runs Disk Cleanup on the safe categories plus temp files. It <b>never</b> touches your Downloads folder, and it asks before emptying the Recycle Bin or deleting old Windows setup files such as Windows.old. Reports free space before and after, and warns if less than 15% is left.</li></ul><div class="h">Use when: disk space is low, or every 1-2 months.</div></div>
 <div class="card rep"><div class="t"><span class="n">B</span>Network_Reset_Fix_Internet.bat</div><ul><li>Resets Winsock, IPv4 and IPv6, renews the IP address, flushes DNS and ARP, then pings to test.</li></ul><div class="h">Use when: the connection drops, will not connect, or is oddly slow.</div></div>
 <div class="card rep"><div class="t"><span class="n">C</span>Bluetooth_Fix.bat</div><ul><li>Re-enables the pairing service and restarts the Bluetooth Support Service.</li></ul><div class="h">Use when: a device will not pair or connect.</div></div>
 <div class="card rep"><div class="t"><span class="n">D</span>System_File_Scan_Repair.bat</div><ul><li>DISM first, then SFC, the order Microsoft recommends (15-40 minutes). ResetBase is an optional Y/N question because it cannot be undone.</li></ul><div class="h">Use when: programs crash, freeze often, or you suspect damaged system files.</div></div>
-
-<div class="banner" style="margin-top:12px"><h1>External tools (optional)</h1><p>Not part of this repository. Use only if you want them</p></div>
+<div class="banner later"><h1>External tools (optional)</h1><p>Not part of this repository. Use only if you want them</p></div>
 <div class="box amber"><h3>Read before use</h3>Both tools download and run the latest code from the internet each time. What was checked in October 2026 may differ from a future version. Create a restore point first (menu 6) and run 3_Check_Status afterwards to see which of this project's values changed.</div>
 <table><tr><th>Tool</th><th>FPS effect</th><th>Real benefit</th><th>Risk</th><th>For</th></tr>
 <tr><td>WinUtil: Install tab</td><td>None</td><td>Installs several programs at once through winget</td><td>Low</td><td>Everyone</td></tr>
@@ -242,7 +466,6 @@
 <li>To open: right-click Start &gt; Terminal (Admin), then paste the command from the official GitHub page (Stable):</li></ul>
 <pre>irm https://christitus.com/win | iex</pre>
 <div class="small">Link: <a href="https://github.com/ChrisTitusTech/winutil">github.com/ChrisTitusTech/winutil</a></div></div>
-
 
 <div class="card"><div class="t"><span class="n">R</span>RemoveWindowsAI (zoicware)</div><ul>
 <li>Removes Copilot, Recall and other AI features, and installs packages so Windows Update does not bring them back.</li>
@@ -256,9 +479,8 @@
 <p class="small">Revert everything:</p>
 <pre>&amp; ([scriptblock]::Create((irm "https://raw.githubusercontent.com/zoicware/RemoveWindowsAI/main/RemoveWindowsAi.ps1"))) -nonInteractive -revertMode -AllOptions</pre>
 <div class="small">Each command must be on one line. If copying from this PDF splits it, join it before pressing Enter, or copy from the GitHub page. Link: <a href="https://github.com/zoicware/RemoveWindowsAI">github.com/zoicware/RemoveWindowsAI</a>. Use the full links above, never shortened ones, because you cannot tell where a short link leads.</div></div>
-
-<div class="banner" style="margin-top:12px"><h1>References</h1><p>Links are clickable in the PDF. Last checked 30 Sep 2026</p></div>
-<table class="green"><tr><th style="width:22%">Used for</th><th>Source / link</th></tr>
+<div class="banner later"><h1>References</h1><p>Links are clickable in the PDF. Last checked 30 Sep 2026</p></div>
+<table class="green"><tr><th>Used for</th><th>Source / link</th></tr>
 <tr><td>03 SystemResponsiveness, Tasks\Games</td><td>Microsoft Learn - Multimedia Class Scheduler Service<br><a href="https://learn.microsoft.com/en-us/windows/win32/procthread/multimedia-class-scheduler-service">learn.microsoft.com/en-us/windows/win32/procthread/multimedia-class-scheduler-service</a><br><span class="small">Values below 10 are raised to 20; a value of 100 turns MMCSS off.</span></td></tr>
 <tr><td>04 Win32PrioritySeparation</td><td>Microsoft TechNet - Win32PrioritySeparation<br><a href="https://technet.microsoft.com/library/Cc976120">technet.microsoft.com/library/Cc976120</a><br><span class="small">Default is 0x2, as in UNDO_04.</span></td></tr>
 <tr><td>07 Delivery Optimization</td><td>Microsoft Learn - Delivery Optimization reference<br><a href="https://learn.microsoft.com/en-us/windows/deployment/do/waas-delivery-optimization-reference">learn.microsoft.com/en-us/windows/deployment/do/waas-delivery-optimization-reference</a></td></tr>
@@ -281,6 +503,7 @@
 <li>11 Keyboard Response flags and 12 Ndu memory leak: from user reports, not Microsoft.</li>
 <li>The defaults in reg_undo for these are typical Windows values. If you need your exact originals, use the Backup folder.</li></ul>
 Results differ between PCs and Microsoft may change how these values behave in a later Windows release. Every item can be reverted with menu 7 or the Backup folder.</div>
-<div class="foot">win11-optimizer v4.22 - github.com/Kensukeimagery/win11-optimizer - MIT License</div>
+<div class="foot">win11-optimizer v4.23 - github.com/Kensukeimagery/win11-optimizer - MIT License</div>
 </div>
+
 </body></html>

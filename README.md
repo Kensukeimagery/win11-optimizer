@@ -110,7 +110,7 @@ The main folder holds only three files to double-click (0, 1 and 2). Everything 
 <details>
 <summary><b>Manuals and guides</b></summary>
 
-- Manual: [English](docs/Manual_EN_v4.22.pdf) | [ภาษาไทย](docs/Manual_TH_v4.22.pdf)
+- Manual: [English](docs/Manual_EN_v4.23.pdf) | [ภาษาไทย](docs/Manual_TH_v4.23.pdf)
 - NVIDIA driver settings, explained one by one: [English](docs/GPU_Driver_Guide_EN.pdf) | [ภาษาไทย](docs/GPU_Driver_Guide_TH.pdf)
 - [Changelog](CHANGELOG.md)
 
