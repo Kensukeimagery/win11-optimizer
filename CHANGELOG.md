@@ -1,5 +1,9 @@
 # Changelog
 
+## v4.24
+- **Easy Setup is English only.** The language question is gone (the old console window shows Thai as question marks, and one language is simpler to keep correct). Everything the program prints is English; the Thai manual explains every message and quotes the English wording next to the Thai meaning. `-Lang` is removed from `Easy_Setup.ps1` and `easy_th.txt` is deleted, so the ZIP is smaller. The Thai README and Thai manuals stay.
+- The manuals no longer tell you to choose a language.
+
 ## v4.23
 - **New user manuals (English and Thai).** Rebuilt for people who have never used the tool: a one-page cover that says where to start, "Before you start", a six-step Quick start with a numbered card per step and what you should see after it, a "Which button do I press?" table, the three ways to undo, Troubleshooting (16 symptoms with the fix), a Glossary, Questions and answers, and the old reference pages gathered at the back. The Maximum profile is explained too. 27 pages each, with page numbers in the contents.
 - The manuals are now built by `docs/src/build_manuals.py` from `manual_en.html` / `manual_th.html` and `manual.css` (Edge and PyMuPDF; the contents page numbers are filled in automatically).

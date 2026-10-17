@@ -1,20 +1,19 @@
-# PC Optimizer v4.23 - Easy Setup (one button)
+# PC Optimizer v4.24 - Easy Setup (one button)
 # For a new Windows install, for people who never used an optimizer, and for people who do not know computers.
-# It walks through everything in the best order, in plain words (Thai or English), and asks only what it must:
+# It walks through everything in the best order, in plain words, and asks only what it must:
 #   check for a newer version -> restore point -> remember how the PC is now -> internet -> Windows Update (guided)
 #   -> drivers -> restart if needed -> safe speed settings -> verify and show a one-page summary.
 # Drivers and settings come LAST so that updates and drivers cannot undo the settings. Nothing is deleted.
 #   -Preview    show the plan and what would be done, change NOTHING
 #   -Yes        do not ask the first confirmation (tests)
 #   -NoPrompt   never wait for the keyboard: every question takes its default (tests)
-#   -Lang th|en|ask   -Mode safe|games|max|max13|ask   (safe = recommended settings only; games = also mouse, keyboard, timer and CPU boost; max = every optional tweak except Memory Integrity; max13 = max plus Memory Integrity off)
-# The messages are in tools\lang\easy_en.txt and easy_th.txt (UTF-8). This file itself is plain ASCII.
+#   -Mode safe|games|max|max13|ask   (safe = recommended settings only; games = also mouse, keyboard, timer and CPU boost; max = every optional tweak except Memory Integrity; max13 = max plus Memory Integrity off)
+# The messages are in tools\lang\easy_en.txt (UTF-8). This file itself is plain ASCII.
 param(
     [string]$Root = '',
     [switch]$Preview,
     [switch]$Yes,
     [switch]$NoPrompt,
-    [ValidateSet('ask', 'th', 'en')][string]$Lang = 'ask',
     [ValidateSet('ask', 'safe', 'games', 'max', 'max13')][string]$Mode = 'ask'
 )
 
@@ -26,15 +25,14 @@ try { [Console]::OutputEncoding = [Text.Encoding]::UTF8; $OutputEncoding = [Text
 
 $script:EasyLines = New-Object System.Collections.Generic.List[string]
 $script:Strings = @{}
-$script:StringsEn = @{}
 $script:EasyUser = [string]$env:USERNAME
 $script:ReportPath = ''
 $script:StepOrder = @('update', 'restore', 'before', 'network', 'winupdate', 'drivers', 'restart', 'tweaks', 'dns', 'verify')
 
 # ---------------------------------------------------------------- messages
-function Import-Strings([string]$Code) {
+function Import-Strings {
     $map = @{}
-    $path = Join-Path $PSScriptRoot ('lang\easy_' + $Code + '.txt')
+    $path = Join-Path $PSScriptRoot 'lang\easy_en.txt'
     if (Test-Path -LiteralPath $path) {
         foreach ($line in [IO.File]::ReadAllLines($path, [Text.Encoding]::UTF8)) {
             if ($line -match '^\s*#' -or $line.Trim() -eq '') { continue }
@@ -48,7 +46,6 @@ function Import-Strings([string]$Code) {
 function T([string]$Key, [object[]]$Values = @()) {
     $s = $null
     if ($script:Strings.ContainsKey($Key)) { $s = $script:Strings[$Key] }
-    elseif ($script:StringsEn.ContainsKey($Key)) { $s = $script:StringsEn[$Key] }
     else { return $Key }
     if ($Values.Count -gt 0) { try { return [string]::Format($s, $Values) } catch { return $s } }
     return $s
@@ -161,14 +158,13 @@ function Get-EasyPlan([bool]$Laptop, [bool]$Online, [string]$ProfileName) {
 # ---------------------------------------------------------------- state (so the setup can continue after a restart)
 $script:StateKey = 'HKCU:\Software\PCOptimizer'
 function Get-EasyState {
-    $done = @(); $prof = ''; $lang = ''
+    $done = @(); $prof = ''
     try {
         $p = Get-ItemProperty -Path $script:StateKey -ErrorAction Stop
         if ($p.EasyDone) { $done = @(([string]$p.EasyDone) -split ',' | Where-Object { $_ -ne '' }) }
         if ($p.EasyProfile) { $prof = [string]$p.EasyProfile }
-        if ($p.EasyLang) { $lang = [string]$p.EasyLang }
     } catch { }
-    return @{ Done = $done; Profile = $prof; Lang = $lang }
+    return @{ Done = $done; Profile = $prof }
 }
 function Set-EasyValue([string]$Name, [string]$Value) {
     if ($Preview) { return }
@@ -427,28 +423,7 @@ function Step-Verify {
 function Start-EasySetup {
     Set-KeepAwake $true
     try {
-        # language
-        $st = Get-EasyState
-        $code = $Lang
-        if ($code -eq 'ask') {
-            Write-Host ''
-            Write-Host '   PC OPTIMIZER - EASY SETUP' -ForegroundColor Cyan
-            Write-Host '   Language / ' -NoNewline
-            $thaiName = [string]::Join('', [char[]](0x0E20, 0x0E32, 0x0E29, 0x0E32))
-            Write-Host $thaiName -NoNewline
-            Write-Host ':   T = Thai (' -NoNewline
-            Write-Host ([string]::Join('', [char[]](0x0E44, 0x0E17, 0x0E22))) -NoNewline
-            Write-Host ')   E = English'
-            Write-Host '   (If the Thai letters look broken on your screen, choose E.)' -ForegroundColor DarkGray
-            $def = @('E', 'T')   # English is the default: the old console cannot show Thai
-            if ($st.Lang -eq 'th') { $def = @('T', 'E') }
-            $a = Read-Choice '   > ' $def
-            $code = $(if ($a -eq 'T') { 'th' } else { 'en' })
-        }
-        $script:StringsEn = Import-Strings 'en'
-        $script:LangCode = $code
-        $script:Strings = $(if ($code -eq 'th') { Import-Strings 'th' } else { $script:StringsEn })
-        Set-EasyValue 'EasyLang' $code
+        $script:Strings = Import-Strings
 
         Say '' 'Gray'
         Say '==================================================================' 'Cyan'
@@ -553,8 +528,7 @@ function Start-EasySetup {
             SayT 'some_failed' @(($failed -join ', ')) 'Yellow'
         }
         SayT 'final_undo' @() 'Gray'
-        $guide = Join-Path $EasyRoot 'docs\GPU_Driver_Guide_TH.pdf'
-        if ($script:LangCode -ne 'th') { $guide = Join-Path $EasyRoot 'docs\GPU_Driver_Guide_EN.pdf' }
+        $guide = Join-Path $EasyRoot 'docs\GPU_Driver_Guide_EN.pdf'
         if (Test-Path -LiteralPath $guide) { SayT 'final_gpu_guide' @(('docs\' + (Split-Path -Leaf $guide))) 'Gray' }
         if ($failed.Count -gt 0 -or $script:HadProblems) {
             $b = Read-Choice (T 'ask_bundle') @('N', 'Y')

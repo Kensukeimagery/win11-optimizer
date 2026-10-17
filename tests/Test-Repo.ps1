@@ -338,25 +338,19 @@ Write-Host ''
 Write-Host '== Easy Setup (one button): messages, order, rules and the preview (nothing is changed)' -ForegroundColor Cyan
 try {
     $easySrc = [IO.File]::ReadAllText((Join-Path $root 'tools\Easy_Setup.ps1'))
-    Assert (-not ($easySrc -match '[^\x00-\x7F]')) 'the Easy Setup script itself is plain ASCII (the Thai text lives in tools\lang)'
-    $enMap = @{}; $thMap = @{}
-    foreach ($pair in @(@('en', $enMap), @('th', $thMap))) {
-        foreach ($line in [IO.File]::ReadAllLines((Join-Path $root ('tools\lang\easy_' + $pair[0] + '.txt')), [Text.Encoding]::UTF8)) {
-            if ($line -match '^\s*#' -or $line.Trim() -eq '') { continue }
-            $i = $line.IndexOf('=')
-            if ($i -gt 0) { $pair[1][$line.Substring(0, $i).Trim()] = $line.Substring($i + 1) }
-        }
+    Assert (-not ($easySrc -match '[^\x00-\x7F]')) 'the Easy Setup script itself is plain ASCII (the messages live in tools\lang)'
+    $enMap = @{}
+    foreach ($line in [IO.File]::ReadAllLines((Join-Path $root 'tools\lang\easy_en.txt'), [Text.Encoding]::UTF8)) {
+        if ($line -match '^\s*#' -or $line.Trim() -eq '') { continue }
+        $i = $line.IndexOf('=')
+        if ($i -gt 0) { $enMap[$line.Substring(0, $i).Trim()] = $line.Substring($i + 1) }
     }
     $used = @([regex]::Matches($easySrc, "(?:SayT|T|Read-Choice \(T) '([a-z0-9_]+)'") | ForEach-Object { $_.Groups[1].Value }) + @([regex]::Matches($easySrc, "'((?:plan|preview)_[a-z_]+)'") | ForEach-Object { $_.Groups[1].Value }) | Sort-Object -Unique
     Assert (@($used | Where-Object { -not $enMap.ContainsKey($_) }).Count -eq 0) ('every message the script uses exists in English ' + (($used | Where-Object { -not $enMap.ContainsKey($_) }) -join ', '))
-    Assert (@($used | Where-Object { -not $thMap.ContainsKey($_) }).Count -eq 0) ('every message the script uses exists in Thai ' + (($used | Where-Object { -not $thMap.ContainsKey($_) }) -join ', '))
-    Assert (@($enMap.Keys | Where-Object { -not $thMap.ContainsKey($_) }).Count -eq 0 -and @($thMap.Keys | Where-Object { -not $enMap.ContainsKey($_) }).Count -eq 0) 'the English and Thai message files have exactly the same keys'
-    $badPh = @($enMap.Keys | Where-Object { $thMap.ContainsKey($_) -and ((@([regex]::Matches($enMap[$_], '\{\d\}') | ForEach-Object { $_.Value } | Sort-Object) -join ',') -ne (@([regex]::Matches($thMap[$_], '\{\d\}') | ForEach-Object { $_.Value } | Sort-Object) -join ',')) })
-    Assert ($badPh.Count -eq 0) ('the numbers filled into each message match in both languages ' + ($badPh -join ', '))
-    Assert (@($enMap.Keys + $thMap.Keys | Where-Object { (($enMap[$_] + $thMap[$_]) -replace '\{\d\}', '') -match '[{}]' }).Count -eq 0) 'no stray braces in the messages (they would break the formatting)'
-    Assert ((([IO.File]::ReadAllText((Join-Path $root 'tools\lang\easy_th.txt'), [Text.Encoding]::UTF8)).ToCharArray() | Where-Object { [int]$_ -ge 0x0E00 -and [int]$_ -le 0x0E7F }).Count -gt 50) 'the Thai file really contains Thai text'
+    Assert (@($enMap.Keys | Where-Object { ($enMap[$_] -replace '\{\d\}', '') -match '[{}]' }).Count -eq 0) 'no stray braces in the messages (they would break the formatting)'
+    Assert ((-not (Test-Path -LiteralPath (Join-Path $root 'tools\lang\easy_th.txt'))) -and -not ($easySrc -match '\$Lang') -and -not ($easySrc -match 'LangCode')) 'Easy Setup is English only: no language option and no Thai message file'
     & {
-        . (Join-Path $root 'tools\Easy_Setup.ps1') -Root $root -Preview -NoPrompt -Lang en
+        . (Join-Path $root 'tools\Easy_Setup.ps1') -Root $root -Preview -NoPrompt
         Assert ((Get-NextStep @()) -eq 'update' -and (Get-NextStep @('update', 'restore', 'before')) -eq 'network' -and (Get-NextStep $script:StepOrder) -eq '') 'the next step follows the order and stops at the end'
         $order = $script:StepOrder
         Assert (($order.IndexOf('restore') -lt $order.IndexOf('drivers')) -and ($order.IndexOf('winupdate') -lt $order.IndexOf('drivers')) -and ($order.IndexOf('drivers') -lt $order.IndexOf('tweaks')) -and ($order.IndexOf('tweaks') -lt $order.IndexOf('verify')) -and ($order.IndexOf('network') -lt $order.IndexOf('winupdate'))) 'restore point first, then internet, Windows Update and drivers, the settings last and the check at the very end'
@@ -390,13 +384,10 @@ try {
     Fail ('Easy Setup rules threw: ' + $_.Exception.Message)
 }
 try {
-    foreach ($lang in 'en', 'th') {
-        $prev = & powershell.exe -NoProfile -ExecutionPolicy Bypass -File (Join-Path $root 'tools\Easy_Setup.ps1') -Root $root -Preview -NoPrompt -Lang $lang 2>&1 | Out-String
-        $endMark = $(if ($lang -eq 'en') { 'PREVIEW finished' } else { [string]::Join('', [char[]](0x0E08, 0x0E1A, 0x0E42, 0x0E2B, 0x0E21, 0x0E14)) })
-        Assert ($LASTEXITCODE -eq 0 -and $prev.Contains($endMark) -and $prev -notmatch 'Exception') ('the preview runs to the end in ' + $lang + ' and exits cleanly')
-    }
+    $prev = & powershell.exe -NoProfile -ExecutionPolicy Bypass -File (Join-Path $root 'tools\Easy_Setup.ps1') -Root $root -Preview -NoPrompt 2>&1 | Out-String
+    Assert ($LASTEXITCODE -eq 0 -and $prev.Contains('PREVIEW finished') -and $prev -notmatch 'Exception' -and $prev -notmatch 'Language') 'the preview runs to the end, asks no language question and exits cleanly'
     foreach ($m in 'max', 'max13') {
-        $pv = & powershell.exe -NoProfile -ExecutionPolicy Bypass -File (Join-Path $root 'tools\Easy_Setup.ps1') -Root $root -Preview -NoPrompt -Lang en -Mode $m 2>&1 | Out-String
+        $pv = & powershell.exe -NoProfile -ExecutionPolicy Bypass -File (Join-Path $root 'tools\Easy_Setup.ps1') -Root $root -Preview -NoPrompt -Mode $m 2>&1 | Out-String
         Assert ($LASTEXITCODE -eq 0 -and $pv.Contains('PREVIEW finished') -and $pv -notmatch 'Exception' -and $pv.Contains('maximum')) ('the preview of the ' + $m + ' profile runs to the end and names it')
     }
     Assert (-not (Test-Path -LiteralPath (Join-Path $root 'Logs\EasySetup*'))) 'the preview saves no report'

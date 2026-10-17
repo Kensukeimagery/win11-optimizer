@@ -1,7 +1,7 @@
 <!doctype html>
-<html lang="en"><head><meta charset="utf-8"><title>Windows 11 Optimizer - User Manual v4.23</title>
+<html lang="en"><head><meta charset="utf-8"><title>Windows 11 Optimizer - User Manual v4.24</title>
 <link rel="stylesheet" href="manual.css">
-<style>@page { @top-right { content: "User manual v4.23"; font: 8pt "Segoe UI", "Leelawadee UI", Tahoma, sans-serif; color: #465065; } }</style></head><body>
+<style>@page { @top-right { content: "User manual v4.24"; font: 8pt "Segoe UI", "Leelawadee UI", Tahoma, sans-serif; color: #465065; } }</style></head><body>
 <svg width="0" height="0" style="position:absolute" aria-hidden="true">
 <symbol id="i-info" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 11v5.2M12 7.7h.01"/></symbol>
 <symbol id="i-tip" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M8 12.6l2.7 2.7L16.2 9.6"/></symbol>
@@ -12,7 +12,7 @@
 <symbol id="i-bat" viewBox="0 0 24 24"><path d="M7 3.5h7l4 4V19a1.5 1.5 0 0 1-1.5 1.5h-9A1.5 1.5 0 0 1 6 19V5A1.5 1.5 0 0 1 7 3.5z"/><path d="M14 3.5V8h4.5M9.5 12.6l2 1.7-2 1.7M13 16.4h2.4"/></symbol>
 </svg>
 <div class="page">
-<div class="cover-hero"><h1>Windows 11 Optimizer</h1><p>Safe, reversible tuning for Windows 11 gaming PCs. One button does the job in the right order, and every change can be undone.</p><p class="ver">User manual, version v4.23</p></div>
+<div class="cover-hero"><h1>Windows 11 Optimizer</h1><p>Safe, reversible tuning for Windows 11 gaming PCs. One button does the job in the right order, and every change can be undone.</p><p class="ver">User manual, version v4.24</p></div>
 <div class="howto"><div><b>New here?</b>Open Quick start. Six steps, about 30 minutes, most of it waiting.</div><div><b>Something went wrong?</b>Open Troubleshooting. Find your symptom and follow the fix.</div><div><b>Want every detail?</b>The Reference at the back lists each tweak and each tool.</div></div>
 <h2>Contents</h2>
 <ul class="toc">
@@ -85,9 +85,8 @@
 <li>A blue "Windows protected your PC" window means SmartScreen does not know the file yet. You downloaded it from the project page yourself, so click <b>More info</b>, then <b>Run anyway</b>.</li></ul>
 <p class="see"><b>You should see</b> a black window titled "Easy Setup".</p></div></div>
 
-<div class="step"><div class="no">4</div><div class="body"><h3>Choose the language and answer one question</h3>
-<ul><li>Press <b>E</b> for English or <b>T</b> for Thai, then Enter. If Thai letters look broken (question marks or boxes), choose E.</li>
-<li>"Do you mainly play games on this PC?" Press <b>Enter</b> for No, or <b>Y</b> for Yes. A Yes adds the mouse, keyboard, timer and CPU boost tweaks, and opens a second question: <b>Maximum</b> applies every optional tweak at once. Turning Memory Integrity off (tweak 13) needs its own typed <b>YES</b>, because it lowers protection.</li>
+<div class="step"><div class="no">4</div><div class="body"><h3>Answer one question</h3>
+<ul><li>"Do you mainly play games on this PC?" Press <b>Enter</b> for No, or <b>Y</b> for Yes. A Yes adds the mouse, keyboard, timer and CPU boost tweaks, and opens a second question: <b>Maximum</b> applies every optional tweak at once. Turning Memory Integrity off (tweak 13) needs its own typed <b>YES</b>, because it lowers protection.</li>
 <li>Not sure? Press Enter. You can add the optional tweaks later (main menu, key 2).</li>
 <li>Read the plan and press <b>Y</b> to start.</li></ul></div></div>
 <div class="console"><span class="c">==================================================================
@@ -241,7 +240,6 @@
 <tr><td>"The safety point could not be made"</td><td>System Protection is off for drive C:.</td><td>Start menu, type <b>Create a restore point</b>, select C:, press <b>Configure</b>, choose <b>Turn on system protection</b>, press OK. Run Easy Setup again.</td></tr>
 <tr><td>"No internet" in step 4</td><td>No connection, or the PC lacks a network driver.</td><td>Plug in a cable or connect Wi-Fi and press R. With no network driver, download it from your motherboard or laptop maker on another PC and copy it by USB drive. Or press S to skip the online steps.</td></tr>
 <tr><td>The Windows Update page did not open</td><td>Some PCs block the shortcut.</td><td>Open Settings, then Windows Update, by hand. Or press S to skip this step.</td></tr>
-<tr><td>Thai letters are spaced out, boxes or question marks</td><td>The console window cannot draw Thai well.</td><td>Choose <b>E</b> (English). Windows Terminal draws Thai better. This Thai manual stays available.</td></tr>
 <tr><td>"An earlier Easy Setup was started... Continue?"</td><td>You closed it halfway or restarted.</td><td>Press Y (or Enter) to continue where it stopped. Press N to start again.</td></tr>
 <tr><td>Settings are back to normal after a Windows update</td><td>Windows reset some values. This happens.</td><td>Press <b>C</b> in the main menu and confirm.</td></tr>
 <tr><td>The PC is hotter or the fans are louder</td><td>Ultimate Performance and CPU boost keep the processor fast.</td><td>Undo 16 (menu 7, then 16), or pick Balanced in Power Options. On a laptop, skip the optional tweaks.</td></tr>
@@ -296,7 +294,7 @@
 <div class="banner" id="sec-ref"><h1>Reference</h1><p>Lookup pages. You do not need them for a first run.</p></div>
 <h2>Folder layout</h2>
 <table><tr><th style="width:44%">File / folder</th><th>Purpose</th></tr>
-<tr><td>0_Easy_Setup (Run as Administrator).bat</td><td>ONE BUTTON for a new Windows install and for beginners: restore point, drivers, Windows Update (guided), safe settings, summary. Thai or English.</td></tr>
+<tr><td>0_Easy_Setup (Run as Administrator).bat</td><td>ONE BUTTON for a new Windows install and for beginners: restore point, drivers, Windows Update (guided), safe settings, summary.</td></tr>
 <tr><td>1_Start_Here - PC_Optimizer_Master (Run as Administrator).bat</td><td>Main menu. Start here; everything is reachable from it.</td></tr>
 <tr><td>2_Revert_Everything - System_Restore (Run as Administrator).bat</td><td>Roll the whole PC back with System Restore (serious problems only).</td></tr>
 <tr><td>More Tools/</td><td>The extra tools below (each one also opens from the main menu). Keep this folder next to the main files.</td></tr>
@@ -503,7 +501,7 @@
 <li>11 Keyboard Response flags and 12 Ndu memory leak: from user reports, not Microsoft.</li>
 <li>The defaults in reg_undo for these are typical Windows values. If you need your exact originals, use the Backup folder.</li></ul>
 Results differ between PCs and Microsoft may change how these values behave in a later Windows release. Every item can be reverted with menu 7 or the Backup folder.</div>
-<div class="foot">win11-optimizer v4.23 - github.com/Kensukeimagery/win11-optimizer - MIT License</div>
+<div class="foot">win11-optimizer v4.24 - github.com/Kensukeimagery/win11-optimizer - MIT License</div>
 </div>
 
 </body></html>

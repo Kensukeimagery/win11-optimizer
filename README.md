@@ -22,7 +22,7 @@
 
 1. **Download** the ZIP with the green button above. You do not need a GitHub account. Right-click the ZIP, choose **Extract All**, and open the new folder. Do not run files from inside the ZIP.
 2. **Double-click** `0_Easy_Setup (Run as Administrator).bat` (right-click, then **Run as administrator**).
-3. **Pick a language**, answer one question (do you mainly play games?), and read the plan. Press **Y** to start. Restart when it asks, then open the same file again and it continues.
+3. **Answer one question** (do you mainly play games?), and read the plan. Press **Y** to start. Restart when it asks, then open the same file again and it continues.
 
 > [!NOTE]
 > Windows SmartScreen or your antivirus may warn about `.bat` files that change settings. That is normal for this kind of tool. Read the scripts first, they are plain text. Right-click the ZIP, open **Properties**, tick **Unblock** and press OK before you extract it to avoid a warning for every file. Never turn your antivirus off for this tool.
@@ -79,8 +79,8 @@ The main folder holds only three files to double-click (0, 1 and 2). Everything 
 
 | Path | Purpose |
 |---|---|
-| `docs/` | Manuals (PDF, English and Thai): run order, what each `.reg` does, manual Windows settings, references. Also the NVIDIA driver settings guide (`GPU_Driver_Guide_EN.pdf` and `_TH.pdf`). HTML sources are in `docs/src/` |
-| `0_Easy_Setup ... .bat` | One button for a new Windows install and for beginners (Thai or English) |
+| `docs/` | Manuals (PDF, English and Thai; the programs themselves print English): run order, what each `.reg` does, manual Windows settings, references. Also the NVIDIA driver settings guide (`GPU_Driver_Guide_EN.pdf` and `_TH.pdf`). HTML sources are in `docs/src/` |
+| `0_Easy_Setup ... .bat` | One button for a new Windows install and for beginners |
 | `1_Start_Here ... .bat` | Main menu |
 | `2_Revert_Everything ... .bat` | Restore to the `Before_PC_Optimizer` restore point |
 | `More Tools/3_Check_Status ... .bat` | Check which tweaks are still applied |
@@ -110,11 +110,11 @@ The main folder holds only three files to double-click (0, 1 and 2). Everything 
 <details>
 <summary><b>Manuals and guides</b></summary>
 
-- Manual: [English](docs/Manual_EN_v4.23.pdf) | [ภาษาไทย](docs/Manual_TH_v4.23.pdf)
+- Manual: [English](docs/Manual_EN_v4.24.pdf) | [ภาษาไทย](docs/Manual_TH_v4.24.pdf)
 - NVIDIA driver settings, explained one by one: [English](docs/GPU_Driver_Guide_EN.pdf) | [ภาษาไทย](docs/GPU_Driver_Guide_TH.pdf)
 - [Changelog](CHANGELOG.md)
 
-The scripts print English. Easy Setup also speaks Thai.
+The programs print English only. The Thai manual explains every message.
 
 </details>
 

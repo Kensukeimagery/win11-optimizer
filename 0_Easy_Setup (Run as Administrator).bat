@@ -1,10 +1,10 @@
 @echo off
-title PC Optimizer - Easy Setup v4.23
+title PC Optimizer - Easy Setup v4.24
 color 0B
 chcp 65001 >nul 2>&1
 
 :: ONE BUTTON for a new Windows install, for first-time users and for people who do not know computers.
-:: It asks for the language (Thai or English), shows the plan, and then does everything in the best order:
+:: It asks one question, shows the plan, and then does everything in the best order:
 :: restore point, drivers, Windows Update (guided), safe speed settings, and a one-page summary.
 :: It must run as administrator. Nothing is deleted. Every change can be undone.
 
