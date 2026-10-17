@@ -177,6 +177,7 @@ jobs:
           if errorlevel 1 exit /b 1
           findstr /c:"earlier Easy Setup" /c:"profile_" easyfull_out.txt
           if not errorlevel 1 exit /b 1
+          exit /b 0
 
       - name: The tools in More Tools save their reports in the main Logs folder
         shell: powershell
