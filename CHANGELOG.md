@@ -1,5 +1,10 @@
 # Changelog
 
+## v4.25
+- **Fix (v4.24 only):** Easy Setup said "An earlier Easy Setup was started" on every run and printed `profile_`. v4.24 lost the line that reads the saved state when the language question was removed. Now it only offers to continue when a run really was left unfinished. If you pressed Y on that question, nothing was changed: close the window and open Easy Setup again.
+- Tests: a check that the saved state is read before it is used, and CI fails if the whole-flow run mentions an earlier Easy Setup or prints `profile_`.
+- The main menu picture in the README and the manuals is the v4.24 screen.
+
 ## v4.24
 - **Easy Setup is English only.** The language question is gone (the old console window shows Thai as question marks, and one language is simpler to keep correct). Everything the program prints is English; the Thai manual explains every message and quotes the English wording next to the Thai meaning. `-Lang` is removed from `Easy_Setup.ps1` and `easy_th.txt` is deleted, so the ZIP is smaller. The Thai README and Thai manuals stay.
 - The manuals no longer tell you to choose a language.

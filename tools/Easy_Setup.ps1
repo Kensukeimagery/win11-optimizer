@@ -1,4 +1,4 @@
-# PC Optimizer v4.24 - Easy Setup (one button)
+# PC Optimizer v4.25 - Easy Setup (one button)
 # For a new Windows install, for people who never used an optimizer, and for people who do not know computers.
 # It walks through everything in the best order, in plain words, and asks only what it must:
 #   check for a newer version -> restore point -> remember how the PC is now -> internet -> Windows Update (guided)
@@ -445,6 +445,7 @@ function Start-EasySetup {
         if ($script:Facts.Laptop) { SayT 'laptop_note' @() 'Gray' }
 
         # resume?
+        $st = Get-EasyState
         $resume = $false
         if (-not $Preview -and @($st.Done).Count -gt 0 -and $st.Profile -ne '') {
             SayT 'resume_found' @() 'Yellow'

@@ -349,6 +349,7 @@ try {
     Assert (@($used | Where-Object { -not $enMap.ContainsKey($_) }).Count -eq 0) ('every message the script uses exists in English ' + (($used | Where-Object { -not $enMap.ContainsKey($_) }) -join ', '))
     Assert (@($enMap.Keys | Where-Object { ($enMap[$_] -replace '\{\d\}', '') -match '[{}]' }).Count -eq 0) 'no stray braces in the messages (they would break the formatting)'
     Assert ((-not (Test-Path -LiteralPath (Join-Path $root 'tools\lang\easy_th.txt'))) -and -not ($easySrc -match '\$Lang') -and -not ($easySrc -match 'LangCode')) 'Easy Setup is English only: no language option and no Thai message file'
+    Assert ($easySrc.IndexOf('$st = Get-EasyState') -gt 0 -and $easySrc.IndexOf('$st = Get-EasyState') -lt $easySrc.IndexOf('$st.Done')) 'Easy Setup reads the saved state before it checks for a half-finished run (otherwise every run asks to continue)'
     & {
         . (Join-Path $root 'tools\Easy_Setup.ps1') -Root $root -Preview -NoPrompt
         Assert ((Get-NextStep @()) -eq 'update' -and (Get-NextStep @('update', 'restore', 'before')) -eq 'network' -and (Get-NextStep $script:StepOrder) -eq '') 'the next step follows the order and stops at the end'
