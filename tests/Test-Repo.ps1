@@ -439,7 +439,7 @@ New-Item -ItemType Directory -Path $vmUnrelated -Force | Out-Null
 $null = & powershell.exe -NoProfile -ExecutionPolicy Bypass -File (Join-Path $root 'tests\vm\Make_VM_Edition.ps1') -OutDir $vmUnrelated -Root $root 2>&1
 Assert ((Test-Path -LiteralPath (Join-Path $vmUnrelated 'important.txt'))) 'the builder refuses to wipe a folder that is not an earlier VM edition'
 Remove-Item -LiteralPath $vmTmp, $vmUnrelated -Recurse -Force -ErrorAction SilentlyContinue
-$vmCreate = & powershell.exe -NoProfile -ExecutionPolicy Bypass -File (Join-Path $root 'tests\vm\Create_Test_VM.ps1') -Iso 'X:\none.iso' -DryRun 2>&1 | Out-String
+$vmCreate = & powershell.exe -NoProfile -ExecutionPolicy Bypass -File (Join-Path $root 'tests\vm\Create_Test_VM.ps1') -Iso 'X:\none.iso' -BaseFolder 'Q:\vbtest' -EditionDir 'Q:\edtest' -DryRun 2>&1 | Out-String
 Assert ($LASTEXITCODE -eq 0 -and $vmCreate.Contains('createvm') -and $vmCreate.Contains('--tpm-type 2.0') -and $vmCreate.Contains('sharedfolder add') -and -not $vmCreate.Contains('unattended')) 'the VM creator prints its VBoxManage commands in a dry run (it never installs Windows for you)'
 
 Write-Host '== Folder layout: three files to click in the main folder, the other tools in More Tools' -ForegroundColor Cyan

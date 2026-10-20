@@ -21,10 +21,10 @@ if ($null -eq $vbm -and -not $DryRun) { throw 'VirtualBox was not found (VBoxMan
 if ($null -eq $vbm) { $vbm = 'VBoxManage' }
 if (-not $DryRun -and -not (Test-Path -LiteralPath $Iso)) { throw ('The ISO file was not found: ' + $Iso) }
 
-$vmDir = Join-Path $BaseFolder $Name
-$disk = Join-Path $vmDir ($Name + '.vdi')
+$vmDir = [IO.Path]::Combine($BaseFolder, $Name)   # not Join-Path: it fails for a drive that is not there (dry run on another PC)
+$disk = [IO.Path]::Combine($vmDir, $Name + '.vdi')
 $additions = 'C:\Program Files\Oracle\VirtualBox\VBoxGuestAdditions.iso'
-$reports = Join-Path $EditionDir '_reports'
+$reports = [IO.Path]::Combine($EditionDir, '_reports')
 
 function Vbm([string[]]$VbmArgs, [switch]$Optional) {
     Write-Host ('  VBoxManage ' + (($VbmArgs | ForEach-Object { if ($_ -match '\s') { '"' + $_ + '"' } else { $_ } }) -join ' ')) -ForegroundColor DarkGray
