@@ -1,39 +1,297 @@
 <!doctype html>
-<html lang="en"><head><meta charset="utf-8"><title>NVIDIA Driver Settings Guide for Gaming</title>
-<link rel="stylesheet" href="style.css"></head><body>
-
-<!-- PAGE 1 -->
+<html lang="en"><head><meta charset="utf-8"><title>NVIDIA Driver Settings Guide</title>
+<link rel="stylesheet" href="manual.css">
+<style>@page { @top-right { content: "NVIDIA driver guide"; font: 8pt "Segoe UI", "Leelawadee UI", Tahoma, sans-serif; color: #465065; } }</style></head><body>
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+<symbol id="i-info" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 11v5.2M12 7.7h.01"/></symbol>
+<symbol id="i-tip" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M8 12.6l2.7 2.7L16.2 9.6"/></symbol>
+<symbol id="i-warn" viewBox="0 0 24 24"><path d="M12 3.6l9.3 16.2H2.7z"/><path d="M12 10v4.3M12 17h.01"/></symbol>
+<symbol id="i-stop" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M9 9l6 6M15 9l-6 6"/></symbol>
+</svg>
 <div class="page">
-<div class="banner cover"><div class="sub">Guide</div><h1>NVIDIA Driver Settings for Gaming</h1><div class="sub">What every setting does, a recommended value, and when to choose something else</div></div>
-
-<div class="box red"><h3>Read this first</h3>
-<ul>
-<li>This guide is only about <b>NVIDIA Control Panel</b>, the driver settings that NVIDIA itself provides. It does not touch any game file, so it is not game modification and anti-cheat systems do not treat it as cheating. Do not combine it with tools that edit game files or hook into the game.</li>
-<li>Written around a <b>GeForce GTX 1070</b> (Pascal), and valid for most GTX 10, 16, RTX 20, 30, 40 and 50 cards. Names and defaults can differ slightly between driver versions. If an option is missing on your card, skip it.</li>
-<li><b>Honest expectation:</b> most options below change FPS by 0 to 3%. The ones that really matter are <b>Power management mode, Low Latency Mode, V-Sync / G-SYNC / frame cap</b> and the <b>refresh rate</b>. In-game settings and your CPU matter more than all of them.</li>
-</ul></div>
-
-<div class="box blue"><h3>Before you start (2 minutes)</h3>
-<ul>
-<li>Open it: right-click the desktop &gt; <i>NVIDIA Control Panel</i> (Windows 11: <i>Show more options</i> first). If it is missing, install <i>NVIDIA Control Panel</i> from the Microsoft Store.</li>
-<li>Take screenshots of the pages you change, so you can go back. The <b>Restore</b> button on a page puts that page back to the NVIDIA defaults.</li>
-<li>Apply with the <b>Apply</b> button at the bottom right of each page. Nothing is saved until you press it.</li>
-</ul></div>
-
-<h2>Global Settings or Program Settings?</h2>
-<p><b>Manage 3D settings</b> has two tabs. <b>Global Settings</b> applies to every game and program. <b>Program Settings</b> applies to one program only and overrides Global. A good method: set Global to the safe values in this guide, then use Program Settings for the one or two games that need something different (for example Low Latency Mode = Ultra on a GPU-heavy game).</p>
-
-<h2>Step 1: Adjust image settings with preview</h2>
-<div class="card"><div class="t"><span class="n">1</span>Use the advanced 3D image settings</div><ul>
-<li><b>What it is:</b> the page has a slider ("Use my preference emphasizing: Performance / Quality") and an "advanced" choice.</li>
-<li><b>Recommended: Use the advanced 3D image settings.</b> The slider is a preset that silently changes image-quality options and overrides what you set in Manage 3D settings. With the advanced choice, every value you set yourself is used as it is. The FPS difference between the two is small (about 1 to 2%), but only the advanced choice lets you know exactly what is set.</li></ul></div>
+<div class="cover-hero"><h1>NVIDIA Driver Settings Guide</h1><p>Every setting in NVIDIA Control Panel, in the right order, with a screenshot for each step. Written for the GeForce GTX 1070 and driver 582.78.</p><p class="ver">Part of Windows 11 Optimizer</p></div>
+<div class="howto"><div><b>In a hurry?</b>Open "Quick setup". Nine short steps, about 10 minutes.</div><div><b>Want to see each screen?</b>Open "Step by step". Every page has a screenshot with numbered markers.</div><div><b>Something looks wrong?</b>Open "Troubleshooting". Find the symptom and the fix.</div></div>
+<h2>Contents</h2>
+<ul class="toc">
+<li><a href="#sec-before">Before you start</a><span class="dots"></span><span class="pg" data-sec="sec-before">2</span></li>
+<li><a href="#sec-quick">Quick setup in 9 steps</a><span class="dots"></span><span class="pg" data-sec="sec-quick">3</span></li>
+<li><a href="#sec-steps">Step by step, with screenshots</a><span class="dots"></span><span class="pg" data-sec="sec-steps">4</span></li>
+<li><a href="#sec-styles">Choose your style: V-Sync, frame cap, latency</a><span class="dots"></span><span class="pg" data-sec="sec-styles">11</span></li>
+<li><a href="#sec-windows">Windows and monitor checks</a><span class="dots"></span><span class="pg" data-sec="sec-windows">12</span></li>
+<li><a href="#sec-driver">The driver: update, clean install, roll back</a><span class="dots"></span><span class="pg" data-sec="sec-driver">13</span></li>
+<li><a href="#sec-trouble">Troubleshooting</a><span class="dots"></span><span class="pg" data-sec="sec-trouble">14</span></li>
+<li><a href="#sec-card">Cheat sheet: every value on one page</a><span class="dots"></span><span class="pg" data-sec="sec-card">15</span></li>
+<li><a href="#sec-ref">Every setting explained</a><span class="dots"></span><span class="pg" data-sec="sec-ref">16</span></li>
+<li><a href="#sec-gloss">Glossary</a><span class="dots"></span><span class="pg" data-sec="sec-gloss">18</span></li>
+<li><a href="#sec-src">Sources and limits</a><span class="dots"></span><span class="pg" data-sec="sec-src">19</span></li>
+</ul>
 </div>
 
-<!-- PAGE 2 -->
 <div class="page">
-<div class="banner"><h1>Step 2: Manage 3D settings</h1><p>Global Settings, in the order the page lists them</p></div>
-<p class="small">Default = the NVIDIA default. "Rec." = recommended for gaming. Effect: FPS = frame rate, Lag = input delay, Look = image quality.</p>
-<table><tr><th style="width:17%">Setting</th><th>What it is and what the options do</th><th style="width:16%">Default</th><th style="width:15%">Rec.</th></tr>
+<div class="banner" id="sec-before"><h1>Before you start</h1><p>Five minutes of reading that save you time later.</p></div>
+<div class="callout info"><svg><use href="#i-info"/></svg><div class="body"><h3>What this guide covers, and what it does not</h3><p>It covers <b>NVIDIA Control Panel</b>, the driver settings that NVIDIA itself provides, plus the Windows and monitor settings that go with them. It never edits a game file or hooks into a game, so anti-cheat systems do not treat it as cheating.</p></div></div>
+<h2>Written for this setup</h2>
+<table class="gloss"><tr><th>Part</th><th>Used in the screenshots</th></tr>
+<tr><td>Graphics card</td><td>GeForce GTX 1070 (Pascal). Most pages are identical on GTX 10, GTX 16 and RTX cards. If an option is missing on your card, skip it.</td></tr>
+<tr><td>Driver</td><td>582.78, the Control Panel version shown in every screenshot.</td></tr>
+<tr><td>Windows</td><td>Windows 11.</td></tr>
+<tr><td>Screen</td><td>A 144 Hz Adaptive-Sync (FreeSync) monitor connected with a <b>DisplayPort</b> cable, used as G-SYNC Compatible.</td></tr>
+</table>
+<h2>About driver 582.78</h2>
+<p>News sites report that 582.78 is a <b>GeForce Security Update Driver</b> for GeForce GTX 750 to GTX 10 series cards (Maxwell, Pascal and Volta), published at the end of September 2026. NVIDIA stopped Game Ready drivers for these cards in October 2025 and has announced security updates until October 2028. In plain words:</p>
+<ul>
+<li>The driver brings <b>no new game optimizations</b>. Nothing in this guide depends on a newer driver.</li>
+<li>If your games run well, <b>you do not need to update the driver every month</b>. Update when a security update appears.</li>
+<li>The Control Panel pages look the same as before. To see your version, click <b>System Information</b> at the bottom left of NVIDIA Control Panel: the <b>Display</b> tab shows "Driver version".</li>
+</ul>
+<p class="small">These facts come from news coverage. NVIDIA's own driver page and release notes are the authority: check nvidia.com if the exact wording matters to you.</p>
+<h2>Honest expectations</h2>
+<p>Most options change FPS by 0 to 3%. The ones that really change how a game feels are <b>power management mode, low latency mode, V-Sync / G-SYNC / frame cap</b> and the <b>refresh rate</b>. In-game settings and your CPU matter more than all driver options together.</p>
+<div class="callout tip"><svg><use href="#i-tip"/></svg><div class="body"><h3>Three safety habits</h3><ul><li>Take a screenshot of each page before you change it (Windows key + Shift + S).</li><li><b>Restore Defaults</b> at the top right of a page puts that page back to the NVIDIA defaults.</li><li>Nothing is saved until you press <b>Apply</b> at the bottom right of the page.</li></ul></div></div>
+</div>
+
+<div class="page">
+<div class="banner" id="sec-quick"><h1>Quick setup in 9 steps</h1><p>The short path. Each step points to the page with the screenshot.</p></div>
+<div class="step"><div class="no">1</div><div class="body"><h3>Open the Control Panel, then image settings</h3><p>Right-click an empty spot on the desktop, <b>Show more options</b>, <b>NVIDIA Control Panel</b> (if it is missing, install it from the Microsoft Store). Then 3D Settings, <b>Adjust image settings with preview</b>. Pick <b>Use the advanced 3D image settings</b>, then Apply.</p><p class="see"><b>Why:</b> the slider preset silently overrides your own values.</p></div></div>
+<div class="step"><div class="no">2</div><div class="body"><h3>Manage 3D settings: the nine values that matter</h3><p>Open <b>Global Settings</b> and set these. Leave the other rows at their defaults (pages "2a" to "2c" list every row).</p>
+<table><tr><th style="width:44%">Row</th><th>Set to</th></tr>
+<tr><td>Low Latency Mode</td><td>On</td></tr>
+<tr><td>Power management mode</td><td>Prefer maximum performance</td></tr>
+<tr><td>Preferred refresh rate</td><td>Highest available</td></tr>
+<tr><td>Shader Cache Size</td><td>Unlimited (or 10 GB)</td></tr>
+<tr><td>Texture filtering - Negative LOD bias</td><td>Clamp</td></tr>
+<tr><td>Threaded optimization</td><td>Auto</td></tr>
+<tr><td>Monitor Technology</td><td>G-SYNC Compatible (if the row exists)</td></tr>
+<tr><td>Vertical sync</td><td>Off for style A, On for style B</td></tr>
+<tr><td>Max Frame Rate</td><td>Off for style A, refresh rate minus 3 for style B</td></tr>
+</table></div></div>
+<div class="step"><div class="no">3</div><div class="body"><h3>PhysX: name your card</h3><p>3D Settings, <b>Configure Surround, PhysX</b>. Processor: your GeForce card, not Auto-select. Apply.</p></div></div>
+<div class="step"><div class="no">4</div><div class="body"><h3>Resolution and refresh rate</h3><p>Display, <b>Change resolution</b>. Native resolution, the highest refresh rate. Under "Use NVIDIA color settings": RGB, 8 bpc, Full range. Apply.</p></div></div>
+<div class="step"><div class="no">5</div><div class="body"><h3>Desktop size and position</h3><p>Display, <b>Adjust desktop size and position</b>. If you play at native resolution you can leave it. Otherwise pick <b>Aspect ratio</b> and leave "Override the scaling mode" unticked.</p></div></div>
+<div class="step"><div class="no">6</div><div class="body"><h3>G-SYNC</h3><p>Display, <b>Set up G-SYNC</b>. Tick <b>Enable G-SYNC, G-SYNC Compatible</b>, choose <b>Enable for full screen mode</b>, tick <b>Enable settings for the selected display model</b>. Apply.</p></div></div>
+<div class="step"><div class="no">7</div><div class="body"><h3>Make your gaming screen the main display</h3><p>If the G-SYNC page says "set it as primary display": Windows Settings, System, Display, select the gaming screen, tick <b>Make this my main display</b>.</p></div></div>
+<div class="step"><div class="no">8</div><div class="body"><h3>Inside the game</h3><p>Fullscreen (or borderless), V-Sync <b>Off</b> in the game for style B, NVIDIA Reflex <b>On</b> if the game offers it.</p></div></div>
+<div class="step"><div class="no">9</div><div class="body"><h3>Test it</h3><p>Play five minutes in a game you know. Is the picture torn? Does it stutter? If yes, use the Troubleshooting page, or press <b>Restore Defaults</b> on the page you changed last.</p></div></div>
+
+<div class="banner later" id="sec-steps"><h1>Step by step, with screenshots</h1><p>The orange numbers on each screenshot match the numbered points under it.</p></div>
+<h2>Step 1. Adjust image settings with preview</h2>
+<p class="small">Path: 3D Settings, Adjust image settings with preview.</p>
+<figure><img src="../img/nvidia-image-settings.png" alt="Adjust Image Settings with Preview" style="max-width:60%"><figcaption>Driver 582.78, GTX 1070. Your page looks the same.</figcaption></figure>
+<ol><li>Select <b>Use the advanced 3D image settings</b>. The slider underneath turns grey, which is what you want.</li>
+<li>Press <b>Apply</b> at the bottom right.</li></ol>
+<p class="small"><b>Why not the slider?</b> "Use my preference emphasizing" is a preset that changes image-quality options in the background and overrides the values you set on the next page. The speed difference is about 1 to 2%.</p>
+</div>
+
+<div class="page">
+<h2>Step 2a. Manage 3D settings: the top of the list</h2>
+<p class="small">Path: 3D Settings, Manage 3D settings, tab <b>Global Settings</b>. Click a value in the right column to open its drop-down list, then press <b>Apply</b> when the whole page is done.</p>
+<figure><img src="../img/nvidia-3d-top.png" alt="Manage 3D settings, top of the list" style="max-width:100%"><figcaption>Global Settings, top of the list.</figcaption></figure>
+<table><tr><th style="width:26%">Row</th><th style="width:19%">Set to</th><th>In one line</th></tr>
+<tr><td>Image Scaling</td><td>Off</td><td>NVIDIA's upscaler. Only for playing below native resolution.</td></tr>
+<tr><td>Ambient Occlusion</td><td>Off</td><td>Forces extra shadows. Big FPS cost, few games support it.</td></tr>
+<tr><td>Anisotropic filtering</td><td>Application-controlled</td><td>Let the game choose. Forcing 16x costs 0 to 3% and helps old games.</td></tr>
+<tr><td>Antialiasing - FXAA</td><td>Off</td><td>Blur-based edge smoothing. Games have better options.</td></tr>
+<tr><td>Antialiasing - Gamma correction</td><td>Leave as is</td><td>Matters only when the driver forces antialiasing.</td></tr>
+<tr><td>Antialiasing - Mode</td><td>Application-controlled</td><td>Let the game decide. "Override" rarely does anything in modern games.</td></tr>
+<tr><td>Antialiasing - Setting</td><td>Nothing to do</td><td>Greyed out while Mode is Application-controlled.</td></tr>
+<tr><td>Antialiasing - Transparency</td><td>Off</td><td>Smooths fences and leaves. Supersampling is expensive.</td></tr>
+<tr><td>Background Application Max Frame Rate</td><td>Off</td><td>Caps a game that is in the background. 20 saves heat and power.</td></tr>
+<tr><td>CUDA - GPUs</td><td>All</td><td>Which cards CUDA programs may use. Not for games.</td></tr>
+<tr><td>CUDA - Sysmem Fallback Policy</td><td>Driver Default</td><td>What happens when video memory is full.</td></tr>
+<tr><td>DSR - Factors</td><td>Off</td><td>Renders above native resolution and shrinks it. Lowers FPS on purpose.</td></tr>
+</table>
+</div>
+
+<div class="page">
+<h2>Step 2b. Manage 3D settings: the middle of the list</h2>
+<p class="small">Scroll the list down with the mouse wheel or the scroll bar at its right edge.</p>
+<figure><img src="../img/nvidia-3d-middle.png" alt="Manage 3D settings, middle of the list" style="max-width:100%"><figcaption>Global Settings, middle of the list.</figcaption></figure>
+<table><tr><th style="width:26%">Row</th><th style="width:19%">Set to</th><th>In one line</th></tr>
+<tr><td>DSR - Smoothness</td><td>Nothing to do</td><td>Greyed out while DSR is off.</td></tr>
+<tr><td>Low Latency Mode</td><td><b>On</b></td><td>Shortens the render queue. Ultra for GPU-bound games: see "Choose your style".</td></tr>
+<tr><td>Max Frame Rate</td><td><b>Style A: Off.</b> Style B: refresh rate minus 3</td><td>The driver's frame cap. For 144 Hz, 141.</td></tr>
+<tr><td>Monitor Technology</td><td><b>G-SYNC Compatible</b></td><td>The screen follows your FPS. Shown only after step 6.</td></tr>
+<tr><td>Multi-Frame Sampled AA (MFAA)</td><td>Off</td><td>Rarely useful and needs MSAA.</td></tr>
+<tr><td>OpenGL GDI compatibility</td><td>Auto</td><td>For very old OpenGL programs.</td></tr>
+<tr><td>OpenGL rendering GPU</td><td>Your GeForce card</td><td>Name the card so the driver does not guess.</td></tr>
+<tr><td>Power management mode</td><td><b>Prefer maximum performance</b></td><td>Keeps clocks steady while a game runs. Costs a little heat and idle power.</td></tr>
+<tr><td>Preferred refresh rate</td><td><b>Highest available</b></td><td>Stops games from picking 60 Hz on a 144 Hz screen.</td></tr>
+<tr><td>Shader Cache Size</td><td><b>Unlimited</b> (or 10 GB)</td><td>Room for compiled shaders, so fewer stutters the second time.</td></tr>
+<tr><td>Texture filtering - Anisotropic sample optimization</td><td>Off (On for esports)</td><td>Fewer texture samples: a tiny speed gain, a tiny quality loss.</td></tr>
+</table>
+</div>
+
+<div class="page">
+<h2>Step 2c. Manage 3D settings: the bottom of the list</h2>
+<figure><img src="../img/nvidia-3d-bottom.png" alt="Manage 3D settings, bottom of the list" style="max-width:100%"><figcaption>Global Settings, bottom of the list.</figcaption></figure>
+<table><tr><th style="width:26%">Row</th><th style="width:19%">Set to</th><th>In one line</th></tr>
+<tr><td>Texture filtering - Negative LOD bias</td><td><b>Clamp</b></td><td>Removes texture shimmer. No FPS effect.</td></tr>
+<tr><td>Texture filtering - Quality</td><td>Quality (High performance for esports)</td><td>Quality for looks, High performance for the last frames.</td></tr>
+<tr><td>Texture filtering - Trilinear optimization</td><td>On</td><td>Faster texture blending, tiny loss. Leave it.</td></tr>
+<tr><td>Threaded optimization</td><td><b>Auto</b></td><td>The driver chooses per game. Force On or Off for one game only if it misbehaves.</td></tr>
+<tr><td>Triple buffering</td><td>Off</td><td>Only for OpenGL games with V-Sync.</td></tr>
+<tr><td>Vertical sync</td><td><b>Style A: Off.</b> Style B: On</td><td>See "Choose your style".</td></tr>
+<tr><td>Virtual Reality pre-rendered frames</td><td>1</td><td>For VR headsets only.</td></tr>
+<tr><td>Vulkan/OpenGL present method</td><td>Auto</td><td>Leave Auto unless a guide for one game says otherwise.</td></tr>
+</table>
+<div class="callout tip"><svg><use href="#i-tip"/></svg><div class="body"><h3>Press Apply, then check</h3><p>Press <b>Apply</b> at the bottom right. Your screenshot may show other values than the "Set to" column. Follow the column. "Every setting explained" near the end of this guide has the long version of each row.</p></div></div>
+</div>
+
+<div class="page">
+<div class="nobreak"><h2>Step 3. Configure Surround, PhysX</h2>
+<p class="small">Path: 3D Settings, Configure Surround, PhysX.</p>
+<figure><img src="../img/nvidia-physx.png" alt="Configure Surround, PhysX" style="max-width:100%"><figcaption>PhysX settings, processor drop-down (marker 1).</figcaption></figure>
+</div>
+<ol><li>Open the <b>Processor</b> drop-down (marker 1) and choose your GeForce card instead of Auto-select. Auto normally picks the card anyway; naming it only removes the chance of physics work landing on the CPU.</li>
+<li>Leave "Span displays with Surround" unticked. Surround is for three-screen setups.</li>
+<li>Press <b>Apply</b>.</li></ol>
+<h2>Step 4. Change resolution</h2>
+<p class="small">Path: Display, Change resolution. This page has no screenshot here because it lists your own screens.</p>
+<ol><li>Select the gaming screen at the top.</li>
+<li><b>Resolution:</b> the one marked "native" (2560 x 1440 for the screen in the screenshots).</li>
+<li><b>Refresh rate:</b> the highest value (144 Hz). A 144 Hz screen left at 60 Hz is the most common reason for "my FPS feels low".</li>
+<li>Under <b>Choose the color settings</b> select <b>Use NVIDIA color settings</b> and set <b>Output color format: RGB</b>, <b>Output color depth: 8 bpc</b>, <b>Output dynamic range: Full</b>. Most games and Windows use 8 bits, and a higher depth gives no benefit with them. Full range keeps blacks black (Limited is for TVs).</li>
+<li>Press <b>Apply</b>. Windows shows "Keep changes?": press <b>Yes</b>.</li></ol>
+<div class="callout warn"><svg><use href="#i-warn"/></svg><div class="body"><h3>If the screen goes black</h3><p>Do nothing for 15 seconds. Windows returns to the old mode by itself if you do not confirm.</p></div></div>
+</div>
+
+<div class="page">
+<h2>Step 5. Adjust desktop size and position</h2>
+<p class="small">Path: Display, Adjust desktop size and position.</p>
+<figure><img src="../img/nvidia-desktop-size.png" alt="Adjust desktop size and position" style="max-width:74%"><figcaption>Tab Scaling. Markers 1 to 3 are the three choices explained below.</figcaption></figure>
+<ol><li><b>Scaling mode</b> (marker 1). When the game runs at your screen's native resolution, the mode makes no difference. When it runs lower, <b>Aspect ratio</b> keeps the picture the right shape. Full-screen stretches it. No scaling leaves black borders.</li>
+<li><b>Perform scaling on</b> (marker 2). <b>GPU</b> is the safe default. <b>Display</b> lets the monitor do the scaling, which is a little faster on some screens and worse looking on others. Try it only if you play below native resolution.</li>
+<li><b>Override the scaling mode set by games and programs</b> (marker 3). Leave it <b>unticked</b>, so games can use their own scaling. Tick it only if one game shows a stretched picture.</li></ol>
+<div class="callout info"><svg><use href="#i-info"/></svg><div class="body"><h3>Rule of thumb</h3><p>Play at native resolution and this page needs no change at all.</p></div></div>
+</div>
+
+<div class="page">
+<h2>Step 6. Set up G-SYNC</h2>
+<p class="small">Path: Display, Set up G-SYNC.</p>
+<figure><img src="../img/nvidia-gsync.png" alt="Set up G-SYNC" style="max-width:76%"><figcaption>Set up G-SYNC with a monitor that is not NVIDIA-validated.</figcaption></figure>
+<ol><li>Tick <b>Enable G-SYNC, G-SYNC Compatible</b> (marker 1). This lets the screen follow your FPS, so you get no tearing without the delay of V-Sync.</li>
+<li>Choose <b>Enable for full screen mode</b> (marker 2). It covers fullscreen and the fullscreen-style windows of most games. "Windowed and full screen" also works for windowed games.</li>
+<li>Select your gaming screen (marker 3), then tick <b>Enable settings for the selected display model</b> (section 3 of the page).</li>
+<li>Read the line under it. <b>"Selected Display is not validated as G-SYNC Compatible"</b> means NVIDIA has not tested that model. It often works, but NVIDIA does not promise a perfect result. If you see flicker or black flashes, untick the box again.</li>
+<li>Marker 4: <b>"To enable this monitor set it as primary display"</b>. If you see this line, open the <b>Set up multiple displays</b> link, or Windows Settings, System, Display, select the gaming screen and tick <b>Make this my main display</b>. Press Apply on both pages.</li></ol>
+<div class="callout warn"><svg><use href="#i-warn"/></svg><div class="body"><h3>Use DisplayPort</h3><p>With a GTX 10 series card, G-SYNC Compatible needs a DisplayPort connection (DisplayPort 1.2a or newer). HDMI variable refresh rate needs a newer card than Pascal, according to hardware sites. If your screen is on HDMI, move the cable to DisplayPort.</p></div></div>
+<h2>Step 7. Program Settings: different values for one game</h2>
+<p><b>Global Settings</b> apply to everything. <b>Program Settings</b> apply to one game and win over Global. Use it for the one or two games that need something else (for example Low Latency Mode Ultra for a GPU-heavy game).</p>
+<ol><li>3D Settings, Manage 3D settings, tab <b>Program Settings</b>.</li>
+<li>Press <b>Add</b> and pick the game's .exe (or choose it from the list).</li>
+<li>Change only the rows you need. Everything else stays <b>Use global setting</b>.</li>
+<li>Press <b>Apply</b>. To undo, set the row back to "Use global setting", or press <b>Restore</b>.</li></ol>
+</div>
+
+<div class="page">
+<div class="banner" id="sec-styles"><h1>Choose your style</h1><p>V-Sync and the frame cap set the feel of a game more than any other option.</p></div>
+<h2>Two ready styles</h2>
+<table><tr><th style="width:30%">Where</th><th>Style A: lowest delay</th><th>Style B: smooth, no tearing</th></tr>
+<tr><td><b>For</b></td><td>Esports and shooters where every millisecond counts</td><td>Single-player and most other games</td></tr>
+<tr><td>NVIDIA: Vertical sync</td><td>Off</td><td><b>On</b></td></tr>
+<tr><td>NVIDIA: Max Frame Rate</td><td>Off (or a cap well above your refresh rate)</td><td>Your refresh rate minus 3 (144 Hz: <b>141</b>)</td></tr>
+<tr><td>NVIDIA: Low Latency Mode</td><td>On</td><td>On</td></tr>
+<tr><td>NVIDIA: Set up G-SYNC</td><td>On (the screen still follows your FPS below the refresh rate)</td><td>On</td></tr>
+<tr><td>In the game: V-Sync</td><td>Off</td><td><b>Off</b> (the Control Panel does the work)</td></tr>
+<tr><td>In the game: NVIDIA Reflex</td><td>On, if offered</td><td>On, if offered</td></tr>
+<tr><td>Price</td><td>Tearing (a horizontal split) on some frames</td><td>FPS cannot go above the cap</td></tr>
+</table>
+<div class="callout info"><svg><use href="#i-info"/></svg><div class="body"><h3>Why 3 FPS below the refresh rate?</h3><p>Blur Busters, who tested G-SYNC in detail, recommend a frame cap a few FPS below the refresh rate (about 3 to 5%) together with V-Sync on in the Control Panel. The game then always stays inside the G-SYNC range, so V-Sync never adds its usual delay. It is community-tested guidance, not an NVIDIA rule. If the game has its own FPS limit, use that one first: it adds the least delay.</p></div></div>
+<h2>Low Latency Mode: On or Ultra?</h2>
+<table><tr><th style="width:42%">Situation</th><th>Choose</th></tr>
+<tr><td>The graphics card is the limit (GPU usage 95 to 99%): heavy, good-looking games</td><td><b>Ultra</b> for that game (Program Settings). It cuts the render queue.</td></tr>
+<tr><td>The CPU is the limit (GPU usage clearly below 95%): esports, very high FPS</td><td><b>On</b> (Global). Ultra gives little and can cost a few FPS.</td></tr>
+<tr><td>The game has NVIDIA Reflex</td><td>Turn <b>Reflex On</b> in the game and leave the driver at On. Reflex does the same job better.</td></tr>
+<tr><td>DirectX 12 or Vulkan game</td><td>The driver setting does nothing there. Use Reflex if offered.</td></tr>
+<tr><td>G-SYNC with V-Sync (style B) and Ultra</td><td>Ultra also keeps FPS under the refresh rate by itself. Fine, but then you do not need the cap.</td></tr>
+</table>
+<p><b>How to see which limit you have:</b> open Task Manager, Performance, GPU while you play. It needs no overlay and nothing hooks into the game. GPU at 95% or more means the card is the limit. Lower means the CPU or the game is.</p>
+</div>
+
+<div class="page">
+<div class="banner" id="sec-windows"><h1>Windows and monitor checks</h1><p>The driver is only half of the picture. Check these five places too.</p></div>
+<div class="step"><div class="no">1</div><div class="body"><h3>Windows refresh rate</h3><p>Settings, System, Display, <b>Advanced display</b>, choose the gaming screen, <b>Choose a refresh rate</b>: the highest value. (Tool menu H, "PC health", checks this for you.)</p></div></div>
+<div class="step"><div class="no">2</div><div class="body"><h3>Variable refresh rate in windowed games</h3><p>Settings, System, Display, <b>Graphics</b>, <b>Change default graphics settings</b>. Turn on <b>Optimizations for windowed games</b> (Windows 11). It lets G-SYNC work in borderless and windowed games that use DirectX 10 or 11.</p></div></div>
+<div class="step"><div class="no">3</div><div class="body"><h3>Hardware-accelerated GPU scheduling</h3><p>Same page, <b>Hardware-accelerated GPU scheduling</b>. The effect is small and differs per PC. Turn it on, restart, play a game you know. If it stutters more, turn it off again. (This optimizer's tweak 08 sets it.)</p></div></div>
+<div class="step"><div class="no">4</div><div class="body"><h3>Game Mode and power mode</h3><p>Settings, Gaming, <b>Game Mode</b>: On. Settings, System, Power, <b>Power mode</b>: Best performance (plugged in).</p></div></div>
+<div class="step"><div class="no">5</div><div class="body"><h3>The monitor's own menu (OSD)</h3><p>Turn on <b>Adaptive-Sync</b> (some brands call it FreeSync). Leave <b>Overdrive / response time</b> on the middle value: the highest setting can add a ghost-like halo. Check that the screen is not in an eco or low-power picture mode.</p></div></div>
+<h2>Two screens</h2>
+<ul><li>The screen you game on must be the <b>main display</b> (see step 7 of the quick setup).</li>
+<li>A second screen with another refresh rate can make a game stutter. If you see that, close videos and animations on the second screen while you play.</li>
+<li>Use a DisplayPort cable for the gaming screen. Use the cable that came with the monitor if you are not sure.</li></ul>
+<div class="callout tip"><svg><use href="#i-tip"/></svg><div class="body"><h3>What gives more FPS than any driver option</h3><ul><li><b>In-game settings.</b> Shadows, volumetric effects, view distance and render scale cost far more than any driver option.</li><li><b>CPU limit.</b> A CPU with many cores but a low clock per core limits many games. Lowering the resolution does not help then.</li><li><b>Cooling and power.</b> A hot card or CPU lowers its clocks. Clean dust and check airflow.</li><li><b>RAM at its rated speed.</b> Turn on XMP / EXPO in the BIOS. Tool menu H shows if the RAM runs below its rating.</li></ul></div></div>
+</div>
+
+<div class="page">
+<div class="banner" id="sec-driver"><h1>The driver: update, clean install, roll back</h1><p>How to change the driver without losing your settings, or your PC.</p></div>
+<h2>Update the driver</h2>
+<ol><li>Go to nvidia.com, Drivers, and choose <b>GeForce</b>, series <b>GeForce 10 Series</b>, product <b>GeForce GTX 1070</b>, your Windows version. Download the newest driver the page lists.</li>
+<li>Run the installer. Choose <b>NVIDIA Graphics Driver</b> (and the HD audio driver if you use HDMI or DisplayPort audio).</li>
+<li>Choose <b>Custom (Advanced)</b> only if you want a clean installation (next section). Otherwise <b>Express</b> is fine.</li>
+<li>Restart the PC when the installer asks.</li></ol>
+<div class="callout info"><svg><use href="#i-info"/></svg><div class="body"><h3>Easy Setup and drivers</h3><p>Windows 11 Optimizer never installs a graphics driver for you. Easy Setup only opens the maker's download page when the graphics card has just the basic Windows driver.</p></div></div>
+<h2>Clean installation</h2>
+<p>A clean installation removes the saved settings of the old driver and starts from the NVIDIA defaults. Use it when you have stutter, crashes or odd colours that started after a driver change.</p>
+<ol><li><b>Take screenshots of your Control Panel pages first.</b> A clean installation also resets them.</li>
+<li>In the installer choose <b>Custom (Advanced)</b>, press Next, tick <b>Perform a clean installation</b>, press Next.</li>
+<li>Restart, then set the Control Panel again with this guide.</li></ol>
+<p class="small">A third-party tool called DDU removes even more leftovers and is run in Safe Mode. It is a last resort for stubborn problems and is not part of this project.</p>
+<h2>Roll back a driver that caused trouble</h2>
+<ol><li>Right-click Start, <b>Device Manager</b>, Display adapters, double-click your GeForce card.</li>
+<li>Tab <b>Driver</b>, button <b>Roll Back Driver</b>, follow the steps, restart.</li>
+<li>If the button is grey: Windows has no older driver stored. Install the previous version from nvidia.com instead, or use the restore point <span class="mono">Before_Driver_Install</span> from this optimizer's driver tool.</li></ol>
+<h2>Clear the shader cache</h2>
+<p>If one game stutters after a driver change, clear the cache once: Start, type <b>Disk Cleanup</b>, choose drive C:, tick <b>DirectX Shader Cache</b>, OK. The first run of each game afterwards is slower while the cache fills again.</p>
+</div>
+
+<div class="page">
+<div class="banner" id="sec-trouble"><h1>Troubleshooting</h1><p>Find the symptom in the left column.</p></div>
+<table class="trouble"><tr><th>Symptom</th><th>Likely cause</th><th>What to do</th></tr>
+<tr><td>"Set up G-SYNC" or "Monitor Technology" is missing</td><td>The screen is on HDMI, or it has no Adaptive-Sync, or the option is off in the monitor menu.</td><td>Use DisplayPort. Turn on Adaptive-Sync in the monitor menu. Restart the Control Panel.</td></tr>
+<tr><td>The picture flickers in menus or loading screens</td><td>A screen that NVIDIA has not validated reacts badly to big FPS jumps.</td><td>Untick "Enable settings for the selected display model", or cap the FPS in the game.</td></tr>
+<tr><td>Tearing is back</td><td>FPS above the refresh rate, V-Sync off, or G-SYNC not active for this game.</td><td>Style B: V-Sync On in the Control Panel and a cap at refresh minus 3. Check the display mode: fullscreen or borderless.</td></tr>
+<tr><td>G-SYNC does not work in a windowed game</td><td>"Enable for full screen mode" is selected.</td><td>Choose "Enable for windowed and full screen mode", and turn on Windows "Optimizations for windowed games".</td></tr>
+<tr><td>FPS is stuck at 60 on a 144 Hz screen</td><td>The refresh rate is 60 Hz in Windows or the Control Panel.</td><td>Step 4 of "Step by step" and step 1 of "Windows and monitor checks". Set Preferred refresh rate to Highest available.</td></tr>
+<tr><td>The game ignores Max Frame Rate</td><td>A few games or launchers override it.</td><td>Use the game's own FPS limit instead.</td></tr>
+<tr><td>Input feels heavy after the changes</td><td>V-Sync on without a cap, or Ultra with a game that already has Reflex.</td><td>Add the cap (refresh minus 3). Turn Reflex on in the game and use On, not Ultra, in the driver.</td></tr>
+<tr><td>The PC idles hot or loud</td><td>Power management mode "Prefer maximum performance" keeps clocks up.</td><td>Set it back to Optimal power in Global Settings and use Prefer maximum performance in Program Settings of your main game only.</td></tr>
+<tr><td>Stutter in one game only</td><td>A per-game conflict, or an old shader cache.</td><td>Program Settings: set the rows you changed back to "Use global setting". Clear the shader cache (driver chapter).</td></tr>
+<tr><td>Stutter in every game after a driver update</td><td>Old settings or files that do not fit the new driver.</td><td>Do a clean installation (driver chapter).</td></tr>
+<tr><td>The screen is black after Apply</td><td>The new mode is not supported by the cable or screen.</td><td>Wait 15 seconds: Windows goes back by itself. Try a lower refresh rate or another DisplayPort cable.</td></tr>
+<tr><td>Control Panel is missing or will not open</td><td>It is a separate app on newer Windows installs.</td><td>Install "NVIDIA Control Panel" from the Microsoft Store.</td></tr>
+<tr><td>Settings were reset after a driver update</td><td>The installer ran a clean installation.</td><td>Set them again with the cheat sheet on the next page.</td></tr>
+<tr><td>Colors look washed out</td><td>Output dynamic range is Limited.</td><td>Change resolution page: Output dynamic range, Full.</td></tr>
+</table>
+</div>
+
+<div class="page">
+<div class="banner" id="sec-card"><h1>Cheat sheet</h1><p>Every value of this guide on one page. Print it or keep it next to the Control Panel.</p></div>
+<table><tr><th style="width:40%">Page / row</th><th style="width:30%">Style A (lowest delay)</th><th>Style B (smooth)</th></tr>
+<tr><td>Adjust image settings</td><td colspan="2">Use the advanced 3D image settings</td></tr>
+<tr><td>Low Latency Mode</td><td>On</td><td>On</td></tr>
+<tr><td>Max Frame Rate</td><td>Off</td><td>Refresh minus 3 (144 Hz: 141)</td></tr>
+<tr><td>Monitor Technology</td><td colspan="2">G-SYNC Compatible</td></tr>
+<tr><td>Power management mode</td><td colspan="2">Prefer maximum performance</td></tr>
+<tr><td>Preferred refresh rate</td><td colspan="2">Highest available</td></tr>
+<tr><td>Shader Cache Size</td><td colspan="2">Unlimited (or 10 GB)</td></tr>
+<tr><td>Texture filtering - Negative LOD bias</td><td colspan="2">Clamp</td></tr>
+<tr><td>Texture filtering - Quality</td><td>High performance</td><td>Quality</td></tr>
+<tr><td>Threaded optimization</td><td colspan="2">Auto</td></tr>
+<tr><td>Vertical sync</td><td>Off</td><td>On</td></tr>
+<tr><td>All other rows of Manage 3D settings</td><td colspan="2">Defaults (Off, Auto or Application-controlled)</td></tr>
+<tr><td>PhysX processor</td><td colspan="2">Your GeForce card</td></tr>
+<tr><td>Change resolution</td><td colspan="2">Native, highest refresh rate, RGB, 8 bpc, Full</td></tr>
+<tr><td>Desktop size and position</td><td colspan="2">Aspect ratio (only if you play below native), Override unticked</td></tr>
+<tr><td>Set up G-SYNC</td><td colspan="2">Enabled, full screen mode, display model ticked, main display</td></tr>
+<tr><td>In the game: V-Sync</td><td>Off</td><td>Off</td></tr>
+<tr><td>In the game: NVIDIA Reflex</td><td colspan="2">On, if offered</td></tr>
+<tr><td>Windows</td><td colspan="2">Refresh rate max, Optimizations for windowed games On, Game Mode On</td></tr>
+</table>
+</div>
+
+<div class="page">
+<div class="banner" id="sec-ref"><h1>Every setting explained</h1><p>The long version of each Manage 3D settings row. Default = NVIDIA default. Rec. = recommended for gaming.</p></div>
+<table><tr><th>Setting</th><th>What it is and what the options do</th><th>Default</th><th>Rec.</th></tr>
 <tr><td>Image Scaling</td><td>NVIDIA's own upscaler (NIS). It renders at a lower resolution and enlarges it. Useful only if you want to play below native resolution. Look: softer.</td><td>Off</td><td>Off</td></tr>
 <tr><td>Ambient Occlusion</td><td>Forces extra shadowing in games that support it. Large FPS cost, and only a few older games have a profile for it.</td><td>Off</td><td>Off</td></tr>
 <tr><td>Anisotropic filtering</td><td>Keeps textures sharp at a slant (floors, roads). "Application-controlled" lets the game choose; a number forces that level. Forcing 16x costs about 0 to 3% on a GTX 1070 and helps old games that do not offer it.</td><td>Application-controlled</td><td>Application-controlled</td></tr>
@@ -48,12 +306,6 @@
 <tr><td>Max Frame Rate</td><td>A frame cap applied by the driver. See the profiles on the next page.</td><td>Off</td><td>See profiles</td></tr>
 <tr><td>Monitor Technology</td><td>G-SYNC Compatible makes the screen follow your FPS (variable refresh rate), so there is no tearing without the delay of V-Sync. Shown only if your screen supports it and it is enabled in Set up G-SYNC.</td><td>Fixed Refresh</td><td>G-SYNC Compatible (if offered)</td></tr>
 <tr><td>MFAA</td><td>A cheaper form of multi-sample antialiasing that only works with MSAA on. Rarely useful.</td><td>Off</td><td>Off</td></tr>
-</table>
-</div>
-
-<!-- PAGE 3 -->
-<div class="page">
-<table><tr><th style="width:17%">Setting</th><th>What it is and what the options do</th><th style="width:16%">Default</th><th style="width:15%">Rec.</th></tr>
 <tr><td>OpenGL GDI compatibility</td><td>Compatibility mode for old OpenGL programs.</td><td>Auto</td><td>Auto</td></tr>
 <tr><td>OpenGL rendering GPU</td><td>Which card runs OpenGL games. On a PC with one GeForce card, naming it avoids the driver guessing.</td><td>Auto-select</td><td>Your GeForce card</td></tr>
 <tr><td>Power management mode</td><td>How hard the card keeps its clocks up. <b>Optimal power</b> lowers clocks when it thinks the load is light, which can cause dips in games with changing load. <b>Adaptive</b> is similar. <b>Prefer maximum performance</b> keeps clocks high while a 3D program runs, which gives more even FPS. Cost: a little more heat and power, and higher idle power on some PCs. If your PC idles hot, set this per game instead of Global.</td><td>Optimal power</td><td>Prefer maximum performance</td></tr>
@@ -69,79 +321,41 @@
 <tr><td>Virtual Reality pre-rendered frames</td><td>Same idea as Low Latency Mode, for VR headsets only.</td><td>1</td><td>1</td></tr>
 <tr><td>Vulkan/OpenGL present method</td><td>"Prefer layered on DXGI swapchain" lets G-SYNC work in windowed Vulkan/OpenGL games. Leave Auto unless you need that.</td><td>Auto</td><td>Auto</td></tr>
 </table>
-<div class="box green"><h3>Configure Surround, PhysX</h3>
-<p>Set the PhysX processor to your GeForce card instead of Auto-select. Auto normally chooses the card anyway; naming it only removes the chance of the work landing on the CPU.</p></div>
 </div>
 
-<!-- PAGE 4 -->
 <div class="page">
-<div class="banner"><h1>Choose your style: two ready profiles</h1><p>V-Sync and Max Frame Rate set the feel more than any other option</p></div>
-
-<div class="card"><div class="t"><span class="n">A</span>Maximum FPS, lowest lag (esports: Valorant, CS2, Overwatch and similar)</div><ul>
-<li>Vertical sync = <b>Off</b>, Max Frame Rate = <b>Off</b> (or a cap above your refresh rate).</li>
-<li>Low Latency Mode = On; use Ultra only if the game keeps the GPU at 95% or more.</li>
-<li>Price: tearing (the picture shows a horizontal split) on some frames. In return you get the lowest delay.</li></ul></div>
-<div class="card"><div class="t"><span class="n">B</span>Smooth picture, no tearing, low lag (single-player and most games)</div><ul>
-<li>Set up G-SYNC: on. Vertical sync = <b>On</b> in NVIDIA Control Panel, and <b>Off</b> inside the game.</li>
-<li>Max Frame Rate = your refresh rate minus 3 (for example 144 Hz screen: 141). Staying just under the refresh rate keeps G-SYNC active, so V-Sync does not add its usual delay.</li>
-<li>Low Latency Mode = On (Ultra automatically keeps FPS under the refresh rate when G-SYNC and V-Sync are on).</li>
-<li>Price: FPS cannot go above the cap. Use exclusive fullscreen if the game offers it.</li></ul></div>
-
-<h2>Low Latency Mode: On or Ultra?</h2>
-<table><tr><th style="width:20%">Situation</th><th>Choose</th></tr>
-<tr><td>GPU is the limit (usage 95 to 99%): heavy, good-looking games</td><td><b>Ultra</b> for that game (Program Settings). It cuts the render queue and the lag is lower.</td></tr>
-<tr><td>CPU is the limit (GPU usage clearly below 95%): esports, very high FPS</td><td><b>On</b> (Global). Ultra gives little here and can cost a few FPS or add stutter.</td></tr>
-<tr><td>The game has NVIDIA Reflex</td><td>Turn <b>Reflex On</b> in the game and leave the driver at On. Reflex does the same job better.</td></tr>
-<tr><td>DirectX 12 or Vulkan game</td><td>The driver setting does nothing; the game manages its own queue. Use Reflex if offered.</td></tr>
+<div class="banner" id="sec-gloss"><h1>Glossary</h1><p>The words of this guide in plain language.</p></div>
+<table class="gloss"><tr><th>Word</th><th>Meaning</th></tr>
+<tr><td>G-SYNC / Adaptive-Sync / FreeSync</td><td>Variable refresh rate: the screen changes its refresh rate to match your FPS, so frames are not torn or delayed. "G-SYNC Compatible" is NVIDIA's name for using a FreeSync or Adaptive-Sync monitor.</td></tr>
+<tr><td>V-Sync</td><td>Makes the card wait for the screen's refresh before showing a frame. Stops tearing, adds delay when the FPS is below the refresh rate.</td></tr>
+<tr><td>Tearing</td><td>A horizontal split in the picture where two frames meet.</td></tr>
+<tr><td>Frame cap</td><td>A limit on FPS, set in the game or the driver.</td></tr>
+<tr><td>Input lag / latency</td><td>The time between your mouse click and the result on screen.</td></tr>
+<tr><td>NVIDIA Reflex</td><td>A game option that shortens the render queue. Better than the driver's Low Latency Mode in games that offer it.</td></tr>
+<tr><td>Render queue</td><td>Frames that the CPU has prepared and the GPU has not drawn yet. A long queue means more delay.</td></tr>
+<tr><td>GPU-bound / CPU-bound</td><td>Which part limits your FPS. GPU usage at 95% or more means GPU-bound.</td></tr>
+<tr><td>Shader cache</td><td>Compiled game effects that the driver saves on disk, so they need not be compiled again.</td></tr>
+<tr><td>Native resolution</td><td>The resolution your screen was built for.</td></tr>
+<tr><td>Refresh rate (Hz)</td><td>How many times per second the screen updates.</td></tr>
+<tr><td>bpc</td><td>Bits per color channel. 8 bpc is normal for games and Windows.</td></tr>
+<tr><td>DSR</td><td>Dynamic Super Resolution: renders above native resolution and shrinks the result.</td></tr>
+<tr><td>DDU</td><td>Display Driver Uninstaller, a third-party tool that removes driver leftovers.</td></tr>
+<tr><td>Pascal</td><td>The GPU generation of GTX 10 series cards, such as the GTX 1070.</td></tr>
+<tr><td>Clean installation</td><td>A driver install that first removes the old driver's saved settings.</td></tr>
 </table>
-<p class="small"><b>How to see which limit you have:</b> open Task Manager &gt; Performance &gt; GPU while playing. This needs no overlay and nothing hooks into the game. If GPU stays at 95% or more, the graphics card is the limit; if it is lower while FPS is capped by something else, the CPU (or the game) is.</p>
-
-<h2>Set up G-SYNC</h2>
-<ul>
-<li>Tick <b>Enable G-SYNC, G-SYNC Compatible</b>. Choose <b>Enable for full screen mode</b> (best for games). "Windowed and full screen" also works for borderless games.</li>
-<li>If your screen shows "not validated", tick <b>Enable settings for the selected display model</b>. If you see flicker or black screens, untick it again: not every FreeSync/VRR screen is fully compatible.</li>
-<li>Also check that <i>Variable refresh rate</i> is on in Windows Settings &gt; System &gt; Display &gt; Graphics.</li>
-<li>With two screens at different refresh rates, a game on one screen can stutter because of the other one. If you see that, close videos and animations on the second screen while you play.</li></ul>
-
-<h2>Change resolution</h2>
-<ul>
-<li>Resolution = your screen's native one. Refresh rate = the highest it offers (a 144 Hz screen left at 60 Hz is a very common cause of "my FPS feels low").</li>
-<li>Output dynamic range = <b>Full</b> if the option appears (HDMI sometimes defaults to Limited, which makes the picture look washed out). PC monitors normally use Full.</li></ul>
 </div>
 
-<!-- PAGE 5 -->
 <div class="page">
-<div class="banner"><h1>Keeping it safe, and getting more FPS</h1><p>What is safe for anti-cheat, what to avoid, and what else matters</p></div>
-
-<div class="box green"><h3>Safe (driver and Windows settings)</h3>
+<div class="banner" id="sec-src"><h1>Sources and limits</h1><p>Where the advice comes from, and how far to trust it.</p></div>
 <ul>
-<li>Everything in the tables above, the Windows graphics settings, in-game settings changed through the game's own menus, and launch options that the game's maker documents.</li>
-<li>Updating the graphics driver from NVIDIA (choose <i>Custom</i> and tick <i>Perform a clean installation</i> only if you have had problems).</li></ul></div>
-<div class="box amber"><h3>Avoid (can get an account banned)</h3>
-<ul>
-<li>Editing or replacing game files (.exe, .dll, asset or pak files), injecting DLLs, memory editors, and "FPS unlocker" programs for online games.</li>
-<li>Config tweaks that remove textures, shadows or effects so enemies are easier to see. Many games treat that as an unfair advantage.</li>
-<li>Overlays and tools that hook into the game. Some are allowed by some games and banned by others; read the game's own rules first.</li>
-<li>Hidden driver profile editors: not covered here, they are unsupported by NVIDIA.</li></ul></div>
-
-<h2>What gives more FPS than any driver option</h2>
-<table><tr><th style="width:26%">Lever</th><th>Why</th></tr>
-<tr><td>Screen refresh rate</td><td>Make sure it is the highest the screen supports (Windows Settings &gt; Display &gt; Advanced display, and the NVIDIA page above). The PC Health tool (menu H) checks this.</td></tr>
-<tr><td>In-game settings</td><td>Shadows, volumetric effects, view distance and render scale cost far more than any driver option. Lower those first.</td></tr>
-<tr><td>CPU limit</td><td>A CPU with many cores but a low clock per core limits many games. Lowering the resolution does not help then; lowering view distance, crowd and effects does.</td></tr>
-<tr><td>Cooling and power</td><td>A hot card or CPU lowers its clocks. Clean dust and check airflow.</td></tr>
-<tr><td>RAM at its rated speed</td><td>Turn on XMP / EXPO in the BIOS. The PC Health tool (menu H) shows if the RAM runs below its rating.</td></tr>
-<tr><td>Windows settings</td><td>Hardware-accelerated GPU scheduling (this optimizer's tweak 08) and Game Mode. Their effect is small and differs per PC: change one thing at a time and compare.</td></tr>
-</table>
-
-<h2>If something goes wrong</h2>
-<ul>
-<li>Stutter, flicker, crashes after a change: press <b>Restore</b> on that page, or on Manage 3D settings press Restore, then change settings one at a time.</li>
-<li>One game misbehaves: select it in <b>Program Settings</b> and set the setting you changed back to <i>Use global setting</i>.</li>
-<li>To compare fairly, measure with the same scene and the same in-game settings before and after, and change one value at a time.</li></ul>
-
-<h2>Sources</h2>
-<p class="small">Setting names, options and defaults come from NVIDIA Control Panel itself (the help text in each page) and common documentation of its behavior. The G-SYNC and frame-cap advice (cap about 3 FPS under the refresh rate) is community-tested guidance from Blur Busters (blurbusters.com, "G-SYNC 101"), not an NVIDIA rule. NVIDIA Reflex is described on NVIDIA's own Reflex page. Results differ per game and PC: treat the recommended values as a good starting point, not a promise.</p>
-<div class="foot">win11-optimizer - github.com/Kensukeimagery/win11-optimizer - MIT License</div>
+<li><b>Setting names, options and defaults</b> come from NVIDIA Control Panel itself (the help text under each page, visible in the screenshots) and its well-known behavior.</li>
+<li><b>G-SYNC and frame cap:</b> the advice to enable G-SYNC and V-Sync in the Control Panel, switch V-Sync off in the game and cap a few FPS below the refresh rate is community-tested guidance from Blur Busters, "G-SYNC 101" (blurbusters.com/gsync/gsync101-input-lag-tests-and-settings). It is not an NVIDIA rule.</li>
+<li><b>Low Latency Mode:</b> works in DirectX 9 to 11 games and not in DirectX 12 or Vulkan, according to several hardware sites and forums. NVIDIA Reflex is described on NVIDIA's own Reflex page.</li>
+<li><b>Driver 582.78:</b> reported by TweakTown, Guru3D and other news sites as a security-only driver for Maxwell, Pascal and Volta (GTX 750 to GTX 10 series). Searched on 20 October 2026. NVIDIA's own release notes were not available to this guide, so check nvidia.com for the exact notes.</li>
+<li><b>DisplayPort and HDMI:</b> G-SYNC Compatible over DisplayPort 1.2a or newer, and no HDMI variable refresh on Pascal cards, come from hardware sites (Wikipedia, Igor's Lab). Check your monitor's manual.</li>
+<li><b>Clean installation:</b> the steps follow common vendor documentation (for example Dell's support article about NVIDIA clean installation).</li>
+</ul>
+<div class="callout warn"><svg><use href="#i-warn"/></svg><div class="body"><h3>Limits</h3><p>Results differ per game and per PC. Treat the recommended values as a good starting point, not a promise. Change one thing at a time and compare the same scene before and after. This guide is not NVIDIA documentation.</p></div></div>
+<p class="foot">win11-optimizer - github.com/Kensukeimagery/win11-optimizer - MIT License</p>
 </div>
 </body></html>

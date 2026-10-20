@@ -127,3 +127,4 @@ table.gloss td:first-child { font-weight: 650; width: 24%; color: var(--navy); }
 .card.rep .n { background: var(--blue); }
 .foot { text-align: center; color: var(--muted); font-size: 8.6pt; margin-top: 12px; }
 table.trouble td, table.trouble th { font-size: 8.8pt; padding-top: 3px; padding-bottom: 3px; }
+h2 + p.small { break-after: avoid; page-break-after: avoid; }

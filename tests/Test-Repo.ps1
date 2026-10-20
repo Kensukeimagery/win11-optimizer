@@ -50,6 +50,14 @@ Assert ((Test-Path -LiteralPath (Join-Path $root 'docs\src\manual.css')) -and (T
 foreach ($lang in 'EN', 'TH') {
     Assert (Test-Path -LiteralPath (Join-Path $root ('docs\GPU_Driver_Guide_' + $lang + '.pdf'))) ('GPU driver guide PDF exists for ' + $lang)
     Assert (Test-Path -LiteralPath (Join-Path $root ('docs\src\gpu_guide_' + $lang.ToLower() + '.html'))) ('GPU driver guide source exists for ' + $lang)
+    $gt = [IO.File]::ReadAllText((Join-Path $root ('docs\src\gpu_guide_' + $lang.ToLower() + '.html')))
+    foreach ($sec in 'before', 'quick', 'steps', 'styles', 'windows', 'driver', 'trouble', 'card', 'ref', 'gloss', 'src') {
+        Assert (($gt.Contains('id="sec-' + $sec + '"')) -and ($gt -match ('data-sec="sec-' + $sec + '">[1-9]\d*<'))) ('GPU guide ' + $lang + ' has section ' + $sec + ' with a page number in the contents')
+    }
+    foreach ($img in 'nvidia-image-settings', 'nvidia-3d-top', 'nvidia-3d-middle', 'nvidia-3d-bottom', 'nvidia-physx', 'nvidia-desktop-size', 'nvidia-gsync') {
+        Assert ($gt.Contains('../img/' + $img + '.png') -and (Test-Path -LiteralPath (Join-Path $root ('docs\img\' + $img + '.png')))) ('GPU guide ' + $lang + ' shows the screenshot ' + $img)
+    }
+    Assert ($gt.Contains('582.78')) ('GPU guide ' + $lang + ' names the driver version it was written for')
 }
 $readme = [IO.File]::ReadAllText((Join-Path $root 'README.md'))
 Assert ($readme.Contains('Manual_EN_' + $tagText + '.pdf') -and $readme.Contains('Manual_TH_' + $tagText + '.pdf')) 'README links the current manuals'

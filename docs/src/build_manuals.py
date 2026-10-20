@@ -47,9 +47,9 @@ def section_pages(pdf_path, titles):
     return found, doc.page_count
 
 
-def build(lang):
-    src = os.path.join(HERE, f'manual_{lang}.html')
-    out = os.path.join(REPO, 'docs', f'Manual_{lang.upper()}_{TAG}.pdf')
+def build(lang, kind='manual'):
+    src = os.path.join(HERE, f'{kind}_{lang}.html')
+    out = os.path.join(REPO, 'docs', (f'Manual_{lang.upper()}_{TAG}.pdf' if kind == 'manual' else f'GPU_Driver_Guide_{lang.upper()}.pdf'))
     text = io.open(src, encoding='utf-8').read()
     titles = {}
     for m in re.finditer(r'<li><a href="#(sec-[a-z]+)">(.*?)</a>', text):
@@ -57,7 +57,7 @@ def build(lang):
     # the banner headings are shorter than the contents entries: take them from the section banners
     for m in re.finditer(r'<div class="banner" id="(sec-[a-z]+)"><h1>(.*?)</h1>', text):
         titles[m.group(1)] = re.sub(r'<[^>]+>', '', m.group(2)).strip()
-    tmp = os.path.join(os.environ.get('TEMP', HERE), f'manual_{lang}_pass.pdf')
+    tmp = os.path.join(os.environ.get('TEMP', HERE), f'{kind}_{lang}_pass.pdf')
     for attempt in range(3):
         print_pdf(src, tmp)
         pages, total = section_pages(tmp, titles)
@@ -72,9 +72,13 @@ def build(lang):
         text = new
         io.open(src, 'w', encoding='utf-8', newline='\n').write(text)
     print_pdf(src, out)
-    print(f'{lang}: {total} pages ->', out, {k: v for k, v in sorted(pages.items(), key=lambda kv: kv[1])})
+    print(f'{kind} {lang}: {total} pages ->', out, {k: v for k, v in sorted(pages.items(), key=lambda kv: kv[1])})
 
 
 if __name__ == '__main__':
-    for lang in (sys.argv[1:] or ['en', 'th']):
-        build(lang)
+    args = sys.argv[1:]
+    kinds = [k for k in ('manual', 'gpu_guide') if k in args] or ['manual', 'gpu_guide']   # no name: build both
+    langs = [a for a in args if a in ('en', 'th')] or ['en', 'th']
+    for kind in kinds:
+        for lang in langs:
+            build(lang, kind)

@@ -1,5 +1,5 @@
 @echo off
-title PC Optimizer - Check For Updates v4.25
+title PC Optimizer - Check For Updates v4.26
 color 0B
 for %%I in ("%~dp0..") do set "ROOTDIR=%%~fI"
 

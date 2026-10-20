@@ -1,5 +1,10 @@
 # Changelog
 
+## v4.26
+- **New NVIDIA driver settings guide (English and Thai, 19 pages each),** replacing the old 5-page one: Quick setup in nine steps, then every page of NVIDIA Control Panel step by step with annotated screenshots (Adjust image settings, the whole Manage 3D settings list in three parts, PhysX, desktop size, G-SYNC), the V-Sync / frame cap / Low Latency choice in two ready styles, Windows and monitor checks, driver update / clean install / roll back, a troubleshooting table, a one-page cheat sheet, the long explanation of every setting, a glossary and the sources. Written for the GTX 1070 and driver 582.78 (a security-only driver for Pascal, so nothing in it depends on a newer driver).
+- The guides use the same page design as the user manuals and are built with the same script (`python docs/src/build_manuals.py gpu_guide`). The old `style.css` is removed.
+- Tests check every section, its page number and each screenshot.
+
 ## v4.25
 - **Fix (v4.24 only):** Easy Setup said "An earlier Easy Setup was started" on every run and printed `profile_`. v4.24 lost the line that reads the saved state when the language question was removed. Now it only offers to continue when a run really was left unfinished. If you pressed Y on that question, nothing was changed: close the window and open Easy Setup again.
 - Tests: a check that the saved state is read before it is used, and CI fails if the whole-flow run mentions an earlier Easy Setup or prints `profile_`.

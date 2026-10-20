@@ -110,8 +110,8 @@ The main folder holds only three files to double-click (0, 1 and 2). Everything 
 <details>
 <summary><b>Manuals and guides</b></summary>
 
-- Manual: [English](docs/Manual_EN_v4.25.pdf) | [ภาษาไทย](docs/Manual_TH_v4.25.pdf)
-- NVIDIA driver settings, explained one by one: [English](docs/GPU_Driver_Guide_EN.pdf) | [ภาษาไทย](docs/GPU_Driver_Guide_TH.pdf)
+- Manual: [English](docs/Manual_EN_v4.26.pdf) | [ภาษาไทย](docs/Manual_TH_v4.26.pdf)
+- NVIDIA driver settings, step by step with screenshots (driver 582.78, GTX 1070): [English](docs/GPU_Driver_Guide_EN.pdf) | [ภาษาไทย](docs/GPU_Driver_Guide_TH.pdf)
 - [Changelog](CHANGELOG.md)
 
 The programs print English only. The Thai manual explains every message.
