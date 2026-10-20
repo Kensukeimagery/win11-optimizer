@@ -110,7 +110,7 @@
 <details>
 <summary><b>คู่มือและเอกสาร</b></summary>
 
-- คู่มือ: [ภาษาไทย](docs/Manual_TH_v4.26.pdf) | [English](docs/Manual_EN_v4.26.pdf)
+- คู่มือ: [ภาษาไทย](docs/Manual_TH_v4.27.pdf) | [English](docs/Manual_EN_v4.27.pdf)
 - คู่มือตั้งค่าไดรเวอร์การ์ดจอ NVIDIA ทีละขั้นพร้อมภาพหน้าจอ (ไดรเวอร์ 582.78, GTX 1070): [ภาษาไทย](docs/GPU_Driver_Guide_TH.pdf) | [English](docs/GPU_Driver_Guide_EN.pdf)
 - [รายการเปลี่ยนแปลง (Changelog)](CHANGELOG.md)
 

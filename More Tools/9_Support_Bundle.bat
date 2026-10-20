@@ -1,5 +1,5 @@
 @echo off
-title PC Optimizer - Support Bundle v4.26
+title PC Optimizer - Support Bundle v4.27
 color 0B
 for %%I in ("%~dp0..") do set "ROOTDIR=%%~fI"
 

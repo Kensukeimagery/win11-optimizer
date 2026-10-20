@@ -1,4 +1,4 @@
-# PC Optimizer v4.26 - Easy Setup (one button)
+# PC Optimizer v4.27 - Easy Setup (one button)
 # For a new Windows install, for people who never used an optimizer, and for people who do not know computers.
 # It walks through everything in the best order, in plain words, and asks only what it must:
 #   check for a newer version -> restore point -> remember how the PC is now -> internet -> Windows Update (guided)
@@ -7,6 +7,7 @@
 #   -Preview    show the plan and what would be done, change NOTHING
 #   -Yes        do not ask the first confirmation (tests)
 #   -NoPrompt   never wait for the keyboard: every question takes its default (tests)
+#   -SkipUpdate do not look for a newer version of this tool (step 1 is skipped; for test machines)
 #   -Mode safe|games|max|max13|ask   (safe = recommended settings only; games = also mouse, keyboard, timer and CPU boost; max = every optional tweak except Memory Integrity; max13 = max plus Memory Integrity off)
 # The messages are in tools\lang\easy_en.txt (UTF-8). This file itself is plain ASCII.
 param(
@@ -14,6 +15,7 @@ param(
     [switch]$Preview,
     [switch]$Yes,
     [switch]$NoPrompt,
+    [switch]$SkipUpdate,
     [ValidateSet('ask', 'safe', 'games', 'max', 'max13')][string]$Mode = 'ask'
 )
 
@@ -257,6 +259,7 @@ function Invoke-ToolQuiet([string]$Script, [string[]]$ToolArgs) {
 function Step-Update {
     SayT 'step_update_title' @() 'White'
     if ($Preview) { SayT 'preview_update' @() 'Yellow'; return 'preview' }
+    if ($SkipUpdate) { SayT 'skipped' @() 'DarkGray'; return 'skipped' }
     if (-not $script:Online) { SayT 'skip_offline' @() 'DarkGray'; return 'skipped' }
     $ans = Read-Choice (T 'ask_update') @('Y', 'N')
     if ($ans -ne 'Y') { SayT 'skipped' @() 'DarkGray'; return 'skipped' }

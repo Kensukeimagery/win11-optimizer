@@ -411,6 +411,37 @@ $drv = [IO.File]::ReadAllText((Join-Path $root 'tools\Driver_Check.ps1'))
 Assert ($drv -match '\[switch\]\$Auto' -and $drv -match '\[switch\]\$NoRestorePoint' -and $drv -match '\$ResultFile') 'the driver check has the automatic mode that Easy Setup uses'
 Assert ((Test-Path -LiteralPath (Join-Path $root '0_Easy_Setup (Run as Administrator).bat'))) 'the one-button file exists in the main folder'
 
+Write-Host '== VM test edition: the builder, the guest suite and the VM creator' -ForegroundColor Cyan
+foreach ($vf in 'tests\vm\Make_VM_Edition.ps1', 'tests\vm\Create_Test_VM.ps1', 'tests\vm\guest\vm_tests.ps1', 'tests\vm\guest\status_probe.ps1', 'tests\vm\guest\Run_VM_Tests (Run as Administrator).bat', 'tests\vm\guest\VM_README.txt') {
+    Assert (Test-Path -LiteralPath (Join-Path $root $vf)) ('the VM test file exists: ' + $vf)
+}
+$vmSuite = [IO.File]::ReadAllText((Join-Path $root 'tests\vm\guest\vm_tests.ps1'))
+Assert ($vmSuite.Contains('REFUSED: this is not a virtual machine') -and $vmSuite.Contains('IsVm')) 'the VM suite refuses to run on a physical PC'
+Assert ($vmSuite.Contains('-SkipUpdate')) 'the VM suite runs Easy Setup without the update check'
+$easySrc2 = [IO.File]::ReadAllText((Join-Path $root 'tools\Easy_Setup.ps1'))
+Assert ($easySrc2 -match '\[switch\]\$SkipUpdate' -and $easySrc2 -match 'if \(\$SkipUpdate\)') 'Easy Setup has -SkipUpdate (for test machines)'
+$vmDry = & powershell.exe -NoProfile -ExecutionPolicy Bypass -File (Join-Path $root 'tests\vm\guest\vm_tests.ps1') -DryRun 2>&1 | Out-String
+Assert ($LASTEXITCODE -eq 0 -and $vmDry.Contains('P2') -and $vmDry.Contains('P6') -and $vmDry -match 'Dry run') 'the VM suite lists its phases in a dry run and changes nothing'
+$vmTmp = Join-Path ([IO.Path]::GetTempPath()) ('vmedition_' + [guid]::NewGuid().ToString('N'))
+$vmOut = & powershell.exe -NoProfile -ExecutionPolicy Bypass -File (Join-Path $root 'tests\vm\Make_VM_Edition.ps1') -OutDir $vmTmp -Root $root 2>&1 | Out-String
+Assert ($LASTEXITCODE -eq 0 -and (Test-Path -LiteralPath (Join-Path $vmTmp 'VM_TEST\vm_tests.ps1')) -and (Test-Path -LiteralPath (Join-Path $vmTmp 'tools\Easy_Setup.ps1')) -and (Test-Path -LiteralPath (Join-Path $vmTmp 'tests\Test-RegRoundTrip.ps1'))) 'the builder makes the VM edition with the tool, the suite and the round-trip test'
+Assert (-not (Test-Path -LiteralPath (Join-Path $vmTmp 'docs')) -and -not (Test-Path -LiteralPath (Join-Path $vmTmp 'README.md')) -and -not (Test-Path -LiteralPath (Join-Path $vmTmp 'repair-tools')) -and -not (Test-Path -LiteralPath (Join-Path $vmTmp 'tests\Test-Repo.ps1'))) 'the VM edition leaves out the manuals, README, repair-tools and the repository tests'
+Assert ((Test-Path -LiteralPath (Join-Path $vmTmp 'VM_TEST_EDITION.txt')) -and (Test-Path -LiteralPath (Join-Path $vmTmp '_reports'))) 'the VM edition has its marker file and a reports folder'
+$vmBat = [IO.File]::ReadAllText((Join-Path $vmTmp 'Run_VM_Tests (Run as Administrator).bat'))
+Assert ($vmBat.Contains("`r`n") -and -not ($vmBat -match "[^`r]`n")) 'the VM suite launcher has CRLF line ends'
+$vmKeep = Join-Path $vmTmp '_reports\keep.txt'
+[IO.File]::WriteAllText($vmKeep, 'x')
+$null = & powershell.exe -NoProfile -ExecutionPolicy Bypass -File (Join-Path $root 'tests\vm\Make_VM_Edition.ps1') -OutDir $vmTmp -Root $root 2>&1
+Assert ((Test-Path -LiteralPath $vmKeep)) 'rebuilding the VM edition keeps the earlier reports'
+$vmUnrelated = Join-Path ([IO.Path]::GetTempPath()) ('vmunrel_' + [guid]::NewGuid().ToString('N'))
+New-Item -ItemType Directory -Path $vmUnrelated -Force | Out-Null
+[IO.File]::WriteAllText((Join-Path $vmUnrelated 'important.txt'), 'x')
+$null = & powershell.exe -NoProfile -ExecutionPolicy Bypass -File (Join-Path $root 'tests\vm\Make_VM_Edition.ps1') -OutDir $vmUnrelated -Root $root 2>&1
+Assert ((Test-Path -LiteralPath (Join-Path $vmUnrelated 'important.txt'))) 'the builder refuses to wipe a folder that is not an earlier VM edition'
+Remove-Item -LiteralPath $vmTmp, $vmUnrelated -Recurse -Force -ErrorAction SilentlyContinue
+$vmCreate = & powershell.exe -NoProfile -ExecutionPolicy Bypass -File (Join-Path $root 'tests\vm\Create_Test_VM.ps1') -Iso 'X:\none.iso' -DryRun 2>&1 | Out-String
+Assert ($LASTEXITCODE -eq 0 -and $vmCreate.Contains('createvm') -and $vmCreate.Contains('--tpm-type 2.0') -and $vmCreate.Contains('sharedfolder add') -and -not $vmCreate.Contains('unattended')) 'the VM creator prints its VBoxManage commands in a dry run (it never installs Windows for you)'
+
 Write-Host '== Folder layout: three files to click in the main folder, the other tools in More Tools' -ForegroundColor Cyan
 $rootBats = @(Get-ChildItem -LiteralPath $root -File -Filter '*.bat' | ForEach-Object { $_.Name })
 Assert ($rootBats.Count -eq 3 -and @($rootBats | Where-Object { $_ -like '0_Easy_Setup*' }).Count -eq 1 -and @($rootBats | Where-Object { $_ -like '1_Start_Here*' }).Count -eq 1 -and @($rootBats | Where-Object { $_ -like '2_Revert_Everything*' }).Count -eq 1) ('the main folder holds only the three files to click ' + ($rootBats -join ' | '))

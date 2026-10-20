@@ -1,5 +1,10 @@
 # Changelog
 
+## v4.27
+- **VM test edition (for testing only, not in the download ZIP).** `tests/vm/Make_VM_Edition.ps1` builds a trimmed copy of the tool (no manuals, pictures, GPU guide, repair-tools or README; about 330 KB) with an automatic test suite for use inside a virtual machine. The suite (`VM_TESTm_tests.ps1`, started with `Run_VM_Tests (Run as Administrator).bat`) runs the read-only tools, checks the support bundle, applies and undoes every tweak, drives the main menu, runs the Easy Setup profiles games, max and max13 and reads the settings back, undoes everything, and runs the whole Easy Setup flow for real (restore point, drivers, Windows Update). It writes one report and refuses to run on a physical PC. `tests/vm/Create_Test_VM.ps1` makes the empty VirtualBox machine (EFI, TPM 2.0, Secure Boot, shared folders); you install Windows yourself.
+- Easy Setup has a new switch `-SkipUpdate` (skips the update check; the VM suite and CI use it, so a test copy never replaces itself).
+- Tests check the builder, the guest suite (dry run), the VM creator (dry run) and that nothing is wiped by mistake.
+
 ## v4.26
 - **New NVIDIA driver settings guide (English and Thai, 20 pages each),** replacing the old 5-page one: Quick setup in nine steps, then every page of NVIDIA Control Panel step by step with annotated screenshots (Adjust image settings, the whole Manage 3D settings list in three parts, PhysX, desktop size, G-SYNC), the V-Sync / frame cap / Low Latency choice in two ready styles, Windows and monitor checks, driver update / clean install / roll back, a troubleshooting table, a one-page cheat sheet, the long explanation of every setting, a glossary and the sources. The screenshots are an example from driver 582.78 on a GTX 1070 (a security-only driver for Pascal); the advice applies to other GeForce cards, and a new section lists the options that RTX cards and newer drivers add (DLSS overrides, Smooth Motion, Resizable BAR, DLDSR, RTX Video, the NVIDIA App).
 - The guides use the same page design as the user manuals and are built with the same script (`python docs/src/build_manuals.py gpu_guide`). The old `style.css` is removed.
