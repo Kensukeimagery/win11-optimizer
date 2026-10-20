@@ -9,7 +9,7 @@
 <symbol id="i-stop" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M9 9l6 6M15 9l-6 6"/></symbol>
 </svg>
 <div class="page">
-<div class="cover-hero"><h1>NVIDIA Driver Settings Guide</h1><p>Every setting in NVIDIA Control Panel, in the right order, with a screenshot for each step. Written for the GeForce GTX 1070 and driver 582.78.</p><p class="ver">Part of Windows 11 Optimizer</p></div>
+<div class="cover-hero"><h1>NVIDIA Driver Settings Guide</h1><p>Every setting in NVIDIA Control Panel, in the right order, with a screenshot for each step. The screenshots are an example from driver 582.78 on a GeForce GTX 1070; the advice applies to other GeForce cards too.</p><p class="ver">Part of Windows 11 Optimizer</p></div>
 <div class="howto"><div><b>In a hurry?</b>Open "Quick setup". Nine short steps, about 10 minutes.</div><div><b>Want to see each screen?</b>Open "Step by step". Every page has a screenshot with numbered markers.</div><div><b>Something looks wrong?</b>Open "Troubleshooting". Find the symptom and the fix.</div></div>
 <h2>Contents</h2>
 <ul class="toc">
@@ -17,27 +17,28 @@
 <li><a href="#sec-quick">Quick setup in 9 steps</a><span class="dots"></span><span class="pg" data-sec="sec-quick">3</span></li>
 <li><a href="#sec-steps">Step by step, with screenshots</a><span class="dots"></span><span class="pg" data-sec="sec-steps">4</span></li>
 <li><a href="#sec-styles">Choose your style: V-Sync, frame cap, latency</a><span class="dots"></span><span class="pg" data-sec="sec-styles">11</span></li>
-<li><a href="#sec-windows">Windows and monitor checks</a><span class="dots"></span><span class="pg" data-sec="sec-windows">12</span></li>
-<li><a href="#sec-driver">The driver: update, clean install, roll back</a><span class="dots"></span><span class="pg" data-sec="sec-driver">13</span></li>
-<li><a href="#sec-trouble">Troubleshooting</a><span class="dots"></span><span class="pg" data-sec="sec-trouble">14</span></li>
-<li><a href="#sec-card">Cheat sheet: every value on one page</a><span class="dots"></span><span class="pg" data-sec="sec-card">15</span></li>
-<li><a href="#sec-ref">Every setting explained</a><span class="dots"></span><span class="pg" data-sec="sec-ref">16</span></li>
-<li><a href="#sec-gloss">Glossary</a><span class="dots"></span><span class="pg" data-sec="sec-gloss">18</span></li>
-<li><a href="#sec-src">Sources and limits</a><span class="dots"></span><span class="pg" data-sec="sec-src">19</span></li>
+<li><a href="#sec-other">Other cards and newer drivers</a><span class="dots"></span><span class="pg" data-sec="sec-other">12</span></li>
+<li><a href="#sec-windows">Windows and monitor checks</a><span class="dots"></span><span class="pg" data-sec="sec-windows">13</span></li>
+<li><a href="#sec-driver">The driver: update, clean install, roll back</a><span class="dots"></span><span class="pg" data-sec="sec-driver">14</span></li>
+<li><a href="#sec-trouble">Troubleshooting</a><span class="dots"></span><span class="pg" data-sec="sec-trouble">15</span></li>
+<li><a href="#sec-card">Cheat sheet: every value on one page</a><span class="dots"></span><span class="pg" data-sec="sec-card">16</span></li>
+<li><a href="#sec-ref">Every setting explained</a><span class="dots"></span><span class="pg" data-sec="sec-ref">17</span></li>
+<li><a href="#sec-gloss">Glossary</a><span class="dots"></span><span class="pg" data-sec="sec-gloss">19</span></li>
+<li><a href="#sec-src">Sources and limits</a><span class="dots"></span><span class="pg" data-sec="sec-src">20</span></li>
 </ul>
 </div>
 
 <div class="page">
 <div class="banner" id="sec-before"><h1>Before you start</h1><p>Five minutes of reading that save you time later.</p></div>
 <div class="callout info"><svg><use href="#i-info"/></svg><div class="body"><h3>What this guide covers, and what it does not</h3><p>It covers <b>NVIDIA Control Panel</b>, the driver settings that NVIDIA itself provides, plus the Windows and monitor settings that go with them. It never edits a game file or hooks into a game, so anti-cheat systems do not treat it as cheating.</p></div></div>
-<h2>Written for this setup</h2>
-<table class="gloss"><tr><th>Part</th><th>Used in the screenshots</th></tr>
-<tr><td>Graphics card</td><td>GeForce GTX 1070 (Pascal). Most pages are identical on GTX 10, GTX 16 and RTX cards. If an option is missing on your card, skip it.</td></tr>
-<tr><td>Driver</td><td>582.78, the Control Panel version shown in every screenshot.</td></tr>
+<h2>The example used in this guide</h2>
+<table class="gloss"><tr><th>Part</th><th>The screenshots show</th></tr>
+<tr><td>Graphics card</td><td>GeForce GTX 1070 (Pascal). The same pages exist on GTX 10, GTX 16 and RTX cards, so you can follow this guide with another card. If an option is missing on yours, skip it. Newer cards may have extra options: see "Other cards and newer drivers".</td></tr>
+<tr><td>Driver</td><td>Driver 582.78. Newer drivers look almost the same; rows can move or be added.</td></tr>
 <tr><td>Windows</td><td>Windows 11.</td></tr>
 <tr><td>Screen</td><td>A 144 Hz Adaptive-Sync (FreeSync) monitor connected with a <b>DisplayPort</b> cable, used as G-SYNC Compatible.</td></tr>
 </table>
-<h2>About driver 582.78</h2>
+<h2>About the example driver, 582.78</h2>
 <p>News sites report that 582.78 is a <b>GeForce Security Update Driver</b> for GeForce GTX 750 to GTX 10 series cards (Maxwell, Pascal and Volta), published at the end of September 2026. NVIDIA stopped Game Ready drivers for these cards in October 2025 and has announced security updates until October 2028. In plain words:</p>
 <ul>
 <li>The driver brings <b>no new game optimizations</b>. Nothing in this guide depends on a newer driver.</li>
@@ -209,6 +210,25 @@
 </div>
 
 <div class="page">
+<div class="banner" id="sec-other"><h1>Other cards and newer drivers</h1><p>The screenshots are an example from driver 582.78. Here is what changes on other cards and newer drivers.</p></div>
+<h2>What stays the same</h2>
+<p>The pages and rows in this guide exist on GTX 10, GTX 16 and RTX 20, 30, 40 and 50 cards. A few rows appear only when your card or screen supports them (for example Monitor Technology). The recommended values hold for all of them.</p>
+<h2>Options a newer card or driver may show</h2>
+<p>The 582.78 screenshots do not have these. Where they exist, leave them at their defaults unless you know why you want them.</p>
+<table><tr><th style="width:24%">Option</th><th style="width:21%">Where</th><th style="width:15%">Cards</th><th>What to do</th></tr>
+<tr><td>DLSS (Super Resolution, Frame Generation, Multi Frame Generation, model override)</td><td>The game's own menu; overrides in the NVIDIA App (Graphics)</td><td>RTX only. Frame Generation: RTX 40 and 50. Multi Frame Generation: RTX 50</td><td>Choose it in the game first. Use the NVIDIA App override only for games that lack the newer DLSS version. Frame Generation adds a little input delay: not for competitive games.</td></tr>
+<tr><td>Smooth Motion</td><td>NVIDIA App, Graphics, Program settings</td><td>RTX 40 and 50 (as reported by NVIDIA)</td><td>Adds a generated frame in DirectX 11, 12 and Vulkan games. Smoother picture, a little more input delay. Good for slow single-player games.</td></tr>
+<tr><td>Image Scaling and its Sharpen slider</td><td>Manage 3D settings</td><td>All</td><td>Off unless you play below native resolution. On an RTX card prefer the game's DLSS.</td></tr>
+<tr><td>DSR - Factors with "DL" entries (DLDSR)</td><td>Manage 3D settings</td><td>RTX</td><td>Off for normal play. Turn on only for a sharper picture in a game with FPS to spare.</td></tr>
+<tr><td>Resizable BAR</td><td>PC BIOS ("Above 4G Decoding" and "Resizable BAR")</td><td>RTX 30 and newer, some RTX 20 with a vBIOS update. Not Pascal</td><td>On, if your card, motherboard and BIOS support it. The Control Panel's System Information page shows whether it is active.</td></tr>
+<tr><td>RTX Video (upscaling and HDR for video)</td><td>Video, Adjust video image settings</td><td>RTX</td><td>For video playback only. It uses more power: leave the default unless you watch a lot of low-quality video.</td></tr>
+</table>
+<h2>NVIDIA Control Panel and the NVIDIA App</h2>
+<p>The <b>NVIDIA App</b> is a separate program from NVIDIA Control Panel. It replaces GeForce Experience and holds the per-game settings and the DLSS overrides. NVIDIA announced in 2025 that it was moving some of the most requested 3D settings into the app; the Control Panel is still there and is what this guide uses. Features that need an RTX card are not available on a GTX 10 series card, and a security-only driver such as 582.78 adds no features.</p>
+<p><b>A row you do not know?</b> Match settings by <b>name</b>, not by position: rows can move between driver versions. If a row of this guide is missing, skip it. If a new row appears, click it and read the <b>Description</b> box at the bottom of the page (visible in the screenshots). When in doubt leave the default.</p>
+</div>
+
+<div class="page">
 <div class="banner" id="sec-windows"><h1>Windows and monitor checks</h1><p>The driver is only half of the picture. Check these five places too.</p></div>
 <div class="step"><div class="no">1</div><div class="body"><h3>Windows refresh rate</h3><p>Settings, System, Display, <b>Advanced display</b>, choose the gaming screen, <b>Choose a refresh rate</b>: the highest value. (Tool menu H, "PC health", checks this for you.)</p></div></div>
 <div class="step"><div class="no">2</div><div class="body"><h3>Variable refresh rate in windowed games</h3><p>Settings, System, Display, <b>Graphics</b>, <b>Change default graphics settings</b>. Turn on <b>Optimizations for windowed games</b> (Windows 11). It lets G-SYNC work in borderless and windowed games that use DirectX 10 or 11.</p></div></div>
@@ -351,6 +371,7 @@
 <li><b>Setting names, options and defaults</b> come from NVIDIA Control Panel itself (the help text under each page, visible in the screenshots) and its well-known behavior.</li>
 <li><b>G-SYNC and frame cap:</b> the advice to enable G-SYNC and V-Sync in the Control Panel, switch V-Sync off in the game and cap a few FPS below the refresh rate is community-tested guidance from Blur Busters, "G-SYNC 101" (blurbusters.com/gsync/gsync101-input-lag-tests-and-settings). It is not an NVIDIA rule.</li>
 <li><b>Low Latency Mode:</b> works in DirectX 9 to 11 games and not in DirectX 12 or Vulkan, according to several hardware sites and forums. NVIDIA Reflex is described on NVIDIA's own Reflex page.</li>
+<li><b>Newer cards and the NVIDIA App:</b> DLSS overrides, Smooth Motion and the move of some 3D settings into the NVIDIA App come from NVIDIA's own news pages (nvidia.com/geforce/news, "NVIDIA App Update Adds DLSS 4 Overrides..." and the global DLSS overrides and RTX 40 Smooth Motion announcement) and Tom's Hardware. Resizable BAR and HDMI details come from general hardware knowledge: check your own card's specification.</li>
 <li><b>Driver 582.78:</b> reported by TweakTown, Guru3D and other news sites as a security-only driver for Maxwell, Pascal and Volta (GTX 750 to GTX 10 series). Searched on 20 October 2026. NVIDIA's own release notes were not available to this guide, so check nvidia.com for the exact notes.</li>
 <li><b>DisplayPort and HDMI:</b> G-SYNC Compatible over DisplayPort 1.2a or newer, and no HDMI variable refresh on Pascal cards, come from hardware sites (Wikipedia, Igor's Lab). Check your monitor's manual.</li>
 <li><b>Clean installation:</b> the steps follow common vendor documentation (for example Dell's support article about NVIDIA clean installation).</li>

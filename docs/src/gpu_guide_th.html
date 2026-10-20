@@ -9,7 +9,7 @@
 <symbol id="i-stop" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M9 9l6 6M15 9l-6 6"/></symbol>
 </svg>
 <div class="page">
-<div class="cover-hero"><h1>คู่มือตั้งค่าไดรเวอร์ NVIDIA</h1><p>ทุกค่าใน NVIDIA Control Panel เรียงตามลำดับที่ถูกต้อง พร้อมภาพหน้าจอทุกขั้นตอน เขียนสำหรับ GeForce GTX 1070 และไดรเวอร์ 582.78</p><p class="ver">ส่วนหนึ่งของ Windows 11 Optimizer</p></div>
+<div class="cover-hero"><h1>คู่มือตั้งค่าไดรเวอร์ NVIDIA</h1><p>ทุกค่าใน NVIDIA Control Panel เรียงตามลำดับที่ถูกต้อง พร้อมภาพหน้าจอทุกขั้นตอน ภาพหน้าจอเป็นตัวอย่างจากไดรเวอร์ 582.78 บน GeForce GTX 1070 และคำแนะนำใช้กับการ์ด GeForce รุ่นอื่นได้ด้วย</p><p class="ver">ส่วนหนึ่งของ Windows 11 Optimizer</p></div>
 <div class="howto"><div><b>รีบใช่ไหม?</b>เปิด "ตั้งค่าด่วน 9 ขั้น" ใช้เวลาราว 10 นาที</div><div><b>อยากเห็นทุกหน้าจอ?</b>เปิด "ทีละขั้นพร้อมภาพหน้าจอ" ทุกหน้ามีเลขสีส้มบนภาพ</div><div><b>มีอะไรผิดปกติ?</b>เปิด "แก้ปัญหา" หาอาการแล้วทำตามวิธีแก้</div></div>
 <h2>สารบัญ</h2>
 <ul class="toc">
@@ -17,27 +17,28 @@
 <li><a href="#sec-quick">ตั้งค่าด่วน 9 ขั้น</a><span class="dots"></span><span class="pg" data-sec="sec-quick">3</span></li>
 <li><a href="#sec-steps">ทีละขั้นพร้อมภาพหน้าจอ</a><span class="dots"></span><span class="pg" data-sec="sec-steps">4</span></li>
 <li><a href="#sec-styles">เลือกสไตล์: V-Sync, เพดานเฟรม, ความหน่วง</a><span class="dots"></span><span class="pg" data-sec="sec-styles">11</span></li>
-<li><a href="#sec-windows">เช็ก Windows และจอภาพ</a><span class="dots"></span><span class="pg" data-sec="sec-windows">12</span></li>
-<li><a href="#sec-driver">ไดรเวอร์: อัปเดต ติดตั้งใหม่หมด ย้อนกลับ</a><span class="dots"></span><span class="pg" data-sec="sec-driver">13</span></li>
-<li><a href="#sec-trouble">แก้ปัญหา</a><span class="dots"></span><span class="pg" data-sec="sec-trouble">14</span></li>
-<li><a href="#sec-card">สรุปค่าทั้งหมดในหน้าเดียว</a><span class="dots"></span><span class="pg" data-sec="sec-card">15</span></li>
-<li><a href="#sec-ref">อธิบายทุกค่าอย่างละเอียด</a><span class="dots"></span><span class="pg" data-sec="sec-ref">16</span></li>
-<li><a href="#sec-gloss">อธิบายศัพท์</a><span class="dots"></span><span class="pg" data-sec="sec-gloss">18</span></li>
-<li><a href="#sec-src">แหล่งข้อมูลและข้อจำกัด</a><span class="dots"></span><span class="pg" data-sec="sec-src">19</span></li>
+<li><a href="#sec-other">การ์ดรุ่นอื่นและไดรเวอร์ใหม่กว่า</a><span class="dots"></span><span class="pg" data-sec="sec-other">12</span></li>
+<li><a href="#sec-windows">เช็ก Windows และจอภาพ</a><span class="dots"></span><span class="pg" data-sec="sec-windows">13</span></li>
+<li><a href="#sec-driver">ไดรเวอร์: อัปเดต ติดตั้งใหม่หมด ย้อนกลับ</a><span class="dots"></span><span class="pg" data-sec="sec-driver">14</span></li>
+<li><a href="#sec-trouble">แก้ปัญหา</a><span class="dots"></span><span class="pg" data-sec="sec-trouble">15</span></li>
+<li><a href="#sec-card">สรุปค่าทั้งหมดในหน้าเดียว</a><span class="dots"></span><span class="pg" data-sec="sec-card">16</span></li>
+<li><a href="#sec-ref">อธิบายทุกค่าอย่างละเอียด</a><span class="dots"></span><span class="pg" data-sec="sec-ref">17</span></li>
+<li><a href="#sec-gloss">อธิบายศัพท์</a><span class="dots"></span><span class="pg" data-sec="sec-gloss">19</span></li>
+<li><a href="#sec-src">แหล่งข้อมูลและข้อจำกัด</a><span class="dots"></span><span class="pg" data-sec="sec-src">20</span></li>
 </ul>
 </div>
 
 <div class="page">
 <div class="banner" id="sec-before"><h1>ก่อนเริ่มใช้</h1><p>อ่านห้านาที ช่วยประหยัดเวลาทีหลัง</p></div>
 <div class="callout info"><svg><use href="#i-info"/></svg><div class="body"><h3>คู่มือนี้ครอบคลุมอะไร และไม่ครอบคลุมอะไร</h3><p>ครอบคลุม <b>NVIDIA Control Panel</b> ซึ่งเป็นการตั้งค่าไดรเวอร์ที่ NVIDIA ทำไว้เอง และการตั้งค่า Windows กับจอภาพที่เกี่ยวข้อง ไม่แก้ไฟล์เกมและไม่ฝังตัวเข้าไปในเกม ระบบ anti-cheat จึงไม่ถือว่าเป็นการโกง</p></div></div>
-<h2>เขียนสำหรับระบบนี้</h2>
-<table class="gloss"><tr><th>ส่วน</th><th>ที่ใช้ในภาพหน้าจอ</th></tr>
-<tr><td>การ์ดจอ</td><td>GeForce GTX 1070 (Pascal) หน้าส่วนใหญ่เหมือนกันบน GTX 10, GTX 16 และ RTX ถ้าการ์ดของคุณไม่มีตัวเลือกไหน ให้ข้ามไป</td></tr>
-<tr><td>ไดรเวอร์</td><td>582.78 คือเวอร์ชัน Control Panel ที่เห็นในทุกภาพ</td></tr>
+<h2>ตัวอย่างที่ใช้ในคู่มือนี้</h2>
+<table class="gloss"><tr><th>ส่วน</th><th>ภาพหน้าจอแสดง</th></tr>
+<tr><td>การ์ดจอ</td><td>GeForce GTX 1070 (Pascal) หน้าเดียวกันมีบน GTX 10, GTX 16 และ RTX จึงใช้คู่มือนี้กับการ์ดรุ่นอื่นได้ ถ้าการ์ดของคุณไม่มีตัวเลือกไหน ให้ข้ามไป การ์ดใหม่กว่าอาจมีตัวเลือกเพิ่ม ดู "การ์ดรุ่นอื่นและไดรเวอร์ใหม่กว่า"</td></tr>
+<tr><td>ไดรเวอร์</td><td>ไดรเวอร์ 582.78 ไดรเวอร์ใหม่กว่าหน้าตาเกือบเหมือนกัน แต่แถวอาจย้ายที่หรือมีเพิ่ม</td></tr>
 <tr><td>Windows</td><td>Windows 11</td></tr>
 <tr><td>จอภาพ</td><td>จอ 144 Hz ที่รองรับ Adaptive-Sync (FreeSync) ต่อด้วยสาย <b>DisplayPort</b> ใช้เป็น G-SYNC Compatible</td></tr>
 </table>
-<h2>เรื่องไดรเวอร์ 582.78</h2>
+<h2>เรื่องไดรเวอร์ตัวอย่าง 582.78</h2>
 <p>เว็บข่าวรายงานว่า 582.78 คือ <b>GeForce Security Update Driver</b> สำหรับการ์ด GeForce GTX 750 ถึง GTX 10 series (Maxwell, Pascal และ Volta) ออกปลายเดือนกันยายน 2026 NVIDIA หยุดทำไดรเวอร์ Game Ready ให้การ์ดกลุ่มนี้ตั้งแต่ตุลาคม 2025 และประกาศว่าจะออกอัปเดตความปลอดภัยถึงตุลาคม 2028 พูดง่ายๆ คือ:</p>
 <ul>
 <li>ไดรเวอร์นี้ <b>ไม่มีการปรับแต่งให้เกมใหม่</b> ไม่มีขั้นตอนไหนในคู่มือนี้ที่ต้องพึ่งไดรเวอร์ใหม่กว่า</li>
@@ -208,6 +209,25 @@
 </div>
 
 <div class="page">
+<div class="banner" id="sec-other"><h1>การ์ดรุ่นอื่นและไดรเวอร์ใหม่กว่า</h1><p>ภาพหน้าจอเป็นตัวอย่างจากไดรเวอร์ 582.78 ส่วนนี้บอกว่ากับการ์ดรุ่นอื่นและไดรเวอร์ใหม่กว่าจะต่างไปอย่างไร</p></div>
+<h2>สิ่งที่เหมือนเดิม</h2>
+<p>หน้าและแถวในคู่มือนี้มีบนการ์ด GTX 10, GTX 16 และ RTX 20, 30, 40, 50 บางแถวจะปรากฏเมื่อการ์ดหรือจอรองรับเท่านั้น (เช่น Monitor Technology) ค่าแนะนำใช้ได้กับทุกรุ่น</p>
+<h2>ตัวเลือกที่การ์ดหรือไดรเวอร์ใหม่กว่าอาจมี</h2>
+<p>ภาพหน้าจอ 582.78 ไม่มีตัวเลือกเหล่านี้ ถ้ามี ให้ปล่อยค่าเริ่มต้นไว้ เว้นแต่คุณรู้ว่าทำไมถึงอยากใช้</p>
+<table><tr><th style="width:24%">ตัวเลือก</th><th style="width:21%">อยู่ที่ไหน</th><th style="width:15%">การ์ด</th><th>ควรทำอย่างไร</th></tr>
+<tr><td>DLSS (Super Resolution, Frame Generation, Multi Frame Generation, model override)</td><td>เมนูในเกม และ override ใน NVIDIA App (Graphics)</td><td>เฉพาะ RTX Frame Generation: RTX 40 และ 50 Multi Frame Generation: RTX 50</td><td>เลือกในเกมก่อน ใช้ override ของ NVIDIA App เฉพาะเกมที่ไม่มี DLSS เวอร์ชันใหม่ Frame Generation เพิ่มความหน่วงเล็กน้อย ไม่เหมาะกับเกมแข่งขัน</td></tr>
+<tr><td>Smooth Motion</td><td>NVIDIA App, Graphics, Program settings</td><td>RTX 40 และ 50 (NVIDIA รายงาน)</td><td>สร้างเฟรมเพิ่มในเกม DirectX 11, 12 และ Vulkan ภาพลื่นขึ้น ความหน่วงเพิ่มเล็กน้อย เหมาะกับเกมเล่นคนเดียวจังหวะช้า</td></tr>
+<tr><td>Image Scaling และตัวเลื่อน Sharpen</td><td>Manage 3D settings</td><td>ทุกรุ่น</td><td>Off เว้นแต่เล่นต่ำกว่าความละเอียดเนทีฟ บนการ์ด RTX ให้ใช้ DLSS ของเกมก่อน</td></tr>
+<tr><td>DSR - Factors ที่มีรายการ "DL" (DLDSR)</td><td>Manage 3D settings</td><td>RTX</td><td>เล่นปกติให้ Off เปิดเมื่ออยากได้ภาพคมขึ้นในเกมที่มี FPS เหลือ</td></tr>
+<tr><td>Resizable BAR</td><td>BIOS ของเครื่อง ("Above 4G Decoding" และ "Resizable BAR")</td><td>RTX 30 ขึ้นไป และ RTX 20 บางรุ่นที่อัปเดต vBIOS ไม่รองรับบน Pascal</td><td>เปิด ถ้าการ์ด เมนบอร์ด และ BIOS รองรับ หน้า System Information ของ Control Panel แสดงว่าทำงานอยู่หรือไม่</td></tr>
+<tr><td>RTX Video (อัปสเกลและ HDR สำหรับวิดีโอ)</td><td>Video, Adjust video image settings</td><td>RTX</td><td>ใช้กับการดูวิดีโอเท่านั้น ใช้ไฟมากขึ้น ปล่อยค่าเริ่มต้นเว้นแต่ดูวิดีโอคุณภาพต่ำบ่อย</td></tr>
+</table>
+<h2>NVIDIA Control Panel กับ NVIDIA App</h2>
+<p><b>NVIDIA App</b> เป็นโปรแกรมแยกจาก NVIDIA Control Panel มาแทน GeForce Experience และเก็บการตั้งค่าต่อเกมกับ DLSS override NVIDIA ประกาศเมื่อปี 2025 ว่าย้ายค่า 3D ที่ผู้ใช้ขอมากที่สุดบางส่วนไปไว้ในแอป ส่วน Control Panel ยังอยู่และเป็นตัวที่คู่มือนี้ใช้ ฟีเจอร์ที่ต้องใช้การ์ด RTX ไม่มีบนการ์ด GTX 10 series และไดรเวอร์เฉพาะความปลอดภัยอย่าง 582.78 ไม่เพิ่มฟีเจอร์ใดๆ</p>
+<p><b>เจอแถวที่ไม่รู้จัก?</b> จับคู่ค่าด้วย <b>ชื่อ</b> ไม่ใช่ตำแหน่ง แถวอาจย้ายที่ระหว่างเวอร์ชันไดรเวอร์ ถ้าแถวในคู่มือนี้หายไป ให้ข้าม ถ้ามีแถวใหม่ ให้คลิกแล้วอ่านกล่อง <b>Description</b> ด้านล่างของหน้า (เห็นได้ในภาพหน้าจอ) ไม่แน่ใจให้ปล่อยค่าเริ่มต้น</p>
+</div>
+
+<div class="page">
 <div class="banner" id="sec-windows"><h1>เช็ก Windows และจอภาพ</h1><p>ไดรเวอร์เป็นแค่ครึ่งเดียวของภาพรวม เช็กห้าจุดนี้ด้วย</p></div>
 <div class="step"><div class="no">1</div><div class="body"><h3>Refresh rate ของ Windows</h3><p>Settings, System, Display, <b>Advanced display</b> เลือกจอเล่นเกม <b>Choose a refresh rate</b> เป็นค่าสูงสุด (เมนูเครื่องมือ H "PC health" ตรวจให้ได้)</p></div></div>
 <div class="step"><div class="no">2</div><div class="body"><h3>Variable refresh rate ในเกมแบบหน้าต่าง</h3><p>Settings, System, Display, <b>Graphics</b>, <b>Change default graphics settings</b> เปิด <b>Optimizations for windowed games</b> (Windows 11) ช่วยให้ G-SYNC ทำงานในเกม borderless และเกมหน้าต่างที่ใช้ DirectX 10 หรือ 11</p></div></div>
@@ -350,6 +370,7 @@
 <li><b>ชื่อค่า ตัวเลือก และค่าเริ่มต้น</b> มาจาก NVIDIA Control Panel เอง (ข้อความช่วยเหลือใต้แต่ละหน้า เห็นได้ในภาพหน้าจอ) และพฤติกรรมที่รู้จักกันดีของมัน</li>
 <li><b>G-SYNC และเพดานเฟรม:</b> คำแนะนำให้เปิด G-SYNC และ V-Sync ใน Control Panel ปิด V-Sync ในเกม และตั้งเพดานต่ำกว่า refresh rate ไม่กี่ FPS เป็นคำแนะนำที่ชุมชนทดสอบจาก Blur Busters "G-SYNC 101" (blurbusters.com/gsync/gsync101-input-lag-tests-and-settings) ไม่ใช่กฎของ NVIDIA</li>
 <li><b>Low Latency Mode:</b> ทำงานในเกม DirectX 9 ถึง 11 และไม่ทำงานใน DirectX 12 หรือ Vulkan ตามเว็บฮาร์ดแวร์และเว็บบอร์ดหลายแห่ง NVIDIA Reflex อธิบายไว้ในหน้า Reflex ของ NVIDIA เอง</li>
+<li><b>การ์ดใหม่กว่าและ NVIDIA App:</b> DLSS override, Smooth Motion และการย้ายค่า 3D บางส่วนไปไว้ใน NVIDIA App มาจากหน้าข่าวของ NVIDIA เอง (nvidia.com/geforce/news "NVIDIA App Update Adds DLSS 4 Overrides..." และประกาศ global DLSS overrides กับ Smooth Motion สำหรับ RTX 40) และ Tom's Hardware ส่วน Resizable BAR และรายละเอียด HDMI มาจากความรู้ฮาร์ดแวร์ทั่วไป ตรวจสเปกของการ์ดคุณเองอีกครั้ง</li>
 <li><b>ไดรเวอร์ 582.78:</b> TweakTown, Guru3D และเว็บข่าวอื่นรายงานว่าเป็นไดรเวอร์เฉพาะความปลอดภัยสำหรับ Maxwell, Pascal และ Volta (GTX 750 ถึง GTX 10 series) ค้นเมื่อ 20 ตุลาคม 2026 คู่มือนี้ไม่ได้ใช้ release notes ของ NVIDIA จึงควรเช็กที่ nvidia.com สำหรับรายละเอียดที่แน่ชัด</li>
 <li><b>DisplayPort และ HDMI:</b> G-SYNC Compatible ผ่าน DisplayPort 1.2a ขึ้นไป และการ์ด Pascal ไม่มี HDMI variable refresh มาจากเว็บฮาร์ดแวร์ (Wikipedia, Igor's Lab) ตรวจคู่มือจอของคุณอีกครั้ง</li>
 <li><b>Clean installation:</b> ขั้นตอนอ้างอิงเอกสารของผู้ผลิตทั่วไป (เช่นบทความสนับสนุนของ Dell เรื่องการติดตั้ง NVIDIA แบบ clean)</li>
