@@ -93,6 +93,9 @@ namespace Win11Optimizer
             new Tweak("13", "Optional", "Memory Integrity off", "Can raise FPS on some PCs but lowers protection against malware. Needs a restart.", true),
             new Tweak("15", "Optional", "Finer timer", "A finer system timer for smoother frame pacing. More battery use on laptops.", false),
             new Tweak("16", "Optional", "CPU boost", "Keeps the processor boosting. The PC runs hotter and louder; not for laptops.", false),
+            new Tweak("18", "Optional", "Drivers only from you", "Windows Update stops installing drivers by itself, so it cannot replace the graphics driver you chose. Update drivers yourself, for example with the Drivers tool.", false),
+            new Tweak("19", "Optional", "Startup programs start at once", "Programs that start with Windows begin right away instead of after about ten seconds. Takes effect at the next sign-in.", false),
+            new Tweak("20", "Optional", "Quick menus", "Menus open at once and hover reactions come sooner. Changes only how the desktop feels, not game speed. Takes effect after you sign out and in.", false),
             new Tweak("14", "Power", "CPU power options", "Unlocks hidden CPU power options and sets the plugged-in power plan. For desktops.", false)
         };
 

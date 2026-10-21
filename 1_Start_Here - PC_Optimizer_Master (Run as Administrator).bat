@@ -1,10 +1,10 @@
 @echo off
 setlocal EnableExtensions
-title PC Optimizer - Master Control v4.28
+title PC Optimizer - Master Control v4.29
 color 0B
 
 :: =====================================================================
-::  PC OPTIMIZER - MASTER CONTROL v4.28
+::  PC OPTIMIZER - MASTER CONTROL v4.29
 ::  Safety rules used in this file - they avoid the crashes seen in v3:
 ::   - no brackets inside ECHO text that sits inside IF or FOR blocks
 ::   - flat GOTO labels instead of nested IF / ELSE blocks
@@ -24,7 +24,7 @@ set "LOGDIR=%SCRIPT_DIR%Logs"
 if not exist "%LOGDIR%" mkdir "%LOGDIR%" >nul 2>&1
 set "LOGFILE=%LOGDIR%\OptimizerLog_%TS%.txt"
 set "BACKUPDIR=%SCRIPT_DIR%Backup\%TS%"
-echo PC Optimizer v4.28 Log - %date% %time% > "%LOGFILE%"
+echo PC Optimizer v4.29 Log - %date% %time% > "%LOGFILE%"
 if exist "%TOOLDIR%\Report_Maintain.ps1" powershell -NoProfile -ExecutionPolicy Bypass -File "%TOOLDIR%\Report_Maintain.ps1" -Root "%SCRIPT_DIR%." >nul 2>&1
 
 if not exist "%REGROOT%" goto NOREG
@@ -92,7 +92,7 @@ goto MENU
 :MENU
 cls
 echo ===================================================================
-echo    PC OPTIMIZER - MASTER CONTROL v4.28
+echo    PC OPTIMIZER - MASTER CONTROL v4.29
 echo    Log: OptimizerLog_%TS%.txt
 if "%ISLAPTOP%"=="1" echo    Laptop detected - tweaks 02 and 16 are not recommended on a laptop.
 if defined UPDMSG echo    %UPDMSG%
@@ -101,7 +101,7 @@ echo.
 echo   [E] EASY SETUP - one button for a new PC or first use (beginners start here)
 echo   -----------------------------------------------------------
 echo   [1] Recommended tweaks     - reg 01-08, safe for everyone
-echo   [2] Optional tweaks        - 09-13, 15, 16, asks you one by one
+echo   [2] Optional tweaks        - 09-13, 15, 16, 18-20, asks you one by one
 echo   [3] Base system setup      - power plan, services, SSD check,
 echo                                network per adapter, temp cleanup
 echo   [4] Power settings         - reg 14 + auto-set CPU, USB, PCIe
@@ -362,6 +362,29 @@ if /i not "%ans%"=="Y" echo   - Skipped 16
 if /i not "%ans%"=="Y" call :SETCHOICE 16 N
 
 echo.
+echo   #18 Windows Update stops installing drivers by itself, so it cannot replace the
+echo   graphics driver you installed. You then update drivers yourself, for example with
+echo   menu D. Security updates still install. Windows Update may say that some settings
+echo   are managed by your organization - that is this setting.
+set "ans="
+set /p "ans=  #18 Apply? Y/N: "
+if /i "%ans%"=="Y" call :IMPORTNUM 18
+if /i not "%ans%"=="Y" echo   - Skipped 18
+if /i not "%ans%"=="Y" call :SETCHOICE 18 N
+
+set "ans="
+set /p "ans=  #19 Programs that start with Windows begin at once, not after about 10 seconds. Apply? Y/N: "
+if /i "%ans%"=="Y" call :IMPORTNUM 19
+if /i not "%ans%"=="Y" echo   - Skipped 19
+if /i not "%ans%"=="Y" call :SETCHOICE 19 N
+
+set "ans="
+set /p "ans=  #20 Menus open at once and hover reactions come sooner. Apply? Y/N: "
+if /i "%ans%"=="Y" call :IMPORTNUM 20
+if /i not "%ans%"=="Y" echo   - Skipped 20
+if /i not "%ans%"=="Y" call :SETCHOICE 20 N
+
+echo.
 echo [Done] Optional tweaks step finished.
 pause
 goto :eof
@@ -599,6 +622,8 @@ echo    6  System responsiveness       13  Memory Integrity off
 echo    7  Delivery Optimization off   14  CPU power options unlock
 echo   15  Timer resolution            16  CPU boost aggressive
 echo   17  DNS servers - back to the DNS you had before
+echo   18  Driver updates via Windows Update  19  Startup apps start at once
+echo   20  Quick menus
 echo.
 echo    T  Network per-adapter tweak
 echo    S  Services - telemetry services back to the Windows defaults
@@ -873,6 +898,7 @@ goto END
 
 ::  Easy Setup entry. tools\Easy_Setup.ps1 starts this file as:  /easy safe   /easy games   /easy max   or   /easy max13
 ::  No questions and no pauses. Recommended tweaks, base setup, power settings, and for "games" also 10, 11, 15 and 16 (15 and 16 not on laptops).
+::  "max" adds 09, 12, 18, 19 and 20.
 :EASYSTART
 set "EASYMODE=1"
 set "EASYPROF=%~2"
@@ -894,6 +920,9 @@ if /i "%EASYPROF%"=="max13" goto EASYMAX
 call :SETCHOICE 09 N
 call :SETCHOICE 12 N
 call :SETCHOICE 13 N
+call :SETCHOICE 18 N
+call :SETCHOICE 19 N
+call :SETCHOICE 20 N
 if /i "%EASYPROF%"=="games" goto EASYGAMES
 call :SETCHOICE 10 N
 call :SETCHOICE 11 N
@@ -918,6 +947,9 @@ call :IMPORTNUM 09
 call :IMPORTNUM 10
 call :IMPORTNUM 11
 call :IMPORTNUM 12
+call :IMPORTNUM 18
+call :IMPORTNUM 19
+call :IMPORTNUM 20
 if /i "%EASYPROF%"=="max13" call :IMPORTNUM 13
 if /i not "%EASYPROF%"=="max13" call :SETCHOICE 13 N
 if "%ISLAPTOP%"=="1" goto EASYMAXLAPTOP

@@ -1,0 +1,5 @@
+Windows Registry Editor Version 5.00
+
+; UNDO 19 - remove the value, which is how Windows ships (the value does not exist by default).
+[HKEY_CURRENT_USER\SOFTWARE\Microsoft\Windows\CurrentVersion\Explorer\Serialize]
+"StartupDelayInMSec"=-

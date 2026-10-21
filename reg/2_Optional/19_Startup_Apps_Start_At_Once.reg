@@ -1,0 +1,9 @@
+Windows Registry Editor Version 5.00
+
+; 19 - Programs that start with Windows begin at once.
+; Windows waits about ten seconds after sign-in before it starts your startup programs.
+; This removes the wait. The desktop appears the same; the programs are ready sooner.
+; It does not make the PC start faster and does not change which programs start.
+; Takes effect at the next sign-in. Undo: menu 7, then 19.
+[HKEY_CURRENT_USER\SOFTWARE\Microsoft\Windows\CurrentVersion\Explorer\Serialize]
+"StartupDelayInMSec"=dword:00000000

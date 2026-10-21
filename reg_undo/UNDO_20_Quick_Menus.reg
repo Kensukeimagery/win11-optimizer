@@ -1,0 +1,8 @@
+Windows Registry Editor Version 5.00
+
+; UNDO 20 - Windows defaults: 400 ms for menus and for hover.
+[HKEY_CURRENT_USER\Control Panel\Desktop]
+"MenuShowDelay"="400"
+
+[HKEY_CURRENT_USER\Control Panel\Mouse]
+"MouseHoverTime"="400"

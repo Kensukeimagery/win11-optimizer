@@ -106,6 +106,37 @@ $dupNums = @($regFiles | Group-Object { $_.Name.Substring(0, 2) } | Where-Object
 Assert ($dupNums.Count -eq 0) 'no two tweak files share a number'
 
 Write-Host ''
+Write-Host '== Tweaks 18, 19 and 20 (drivers only from you, startup at once, quick menus)' -ForegroundColor Cyan
+function Get-RegText([string]$Dir, [string]$Prefix) {
+    $f = @(Get-ChildItem -LiteralPath (Join-Path $root $Dir) -Recurse -File -Filter ($Prefix + '_*.reg'))
+    if ($f.Count -ne 1) { return '' }
+    return [IO.File]::ReadAllText($f[0].FullName)
+}
+$r18 = Get-RegText 'reg' '18'; $u18 = Get-RegText 'reg_undo' 'UNDO_18'
+Assert ($r18 -match 'DriverSearching\]\s+"SearchOrderConfig"=dword:00000000' -and $r18 -match 'Policies\\Microsoft\\Windows\\WindowsUpdate\]\s+"ExcludeWUDriversInQualityUpdate"=dword:00000001') 'tweak 18 stops driver searching and sets the quality-update driver policy'
+Assert ($u18 -match '"SearchOrderConfig"=dword:00000001' -and $u18 -match '"ExcludeWUDriversInQualityUpdate"=-') 'undo 18 gives the Windows default back and removes the policy value'
+$r19 = Get-RegText 'reg' '19'; $u19 = Get-RegText 'reg_undo' 'UNDO_19'
+Assert ($r19 -match 'HKEY_CURRENT_USER\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Explorer\\Serialize\]\s+"StartupDelayInMSec"=dword:00000000' -and $u19 -match '"StartupDelayInMSec"=-') 'tweak 19 removes the startup delay and its undo deletes the value'
+$r20 = Get-RegText 'reg' '20'; $u20 = Get-RegText 'reg_undo' 'UNDO_20'
+Assert ($r20 -match '"MenuShowDelay"="0"' -and $r20 -match '"MouseHoverTime"="100"' -and $u20 -match '"MenuShowDelay"="400"' -and $u20 -match '"MouseHoverTime"="400"') 'tweak 20 sets quick menus (hover 100, not lower) and its undo gives the Windows 400'
+foreach ($rt in $r18, $r19, $r20) {
+    Assert (-not ($rt -match 'HKEY_LOCAL_MACHINE\\SYSTEM') -and -not ($rt -match 'Services')) 'the new tweaks touch no service or driver settings'
+}
+$mst3 = [IO.File]::ReadAllText((Join-Path $root '1_Start_Here - PC_Optimizer_Master (Run as Administrator).bat'))
+Assert ($mst3 -match 'call :IMPORTNUM 18' -and $mst3 -match 'call :IMPORTNUM 19' -and $mst3 -match 'call :IMPORTNUM 20') 'the main menu asks for 18, 19 and 20 and can import them'
+$easyMaxBlock = [regex]::Match($mst3, '(?s):EASYMAX\r?\n.*?:EASYMAXLAPTOP').Value
+Assert ($easyMaxBlock -match 'IMPORTNUM 18' -and $easyMaxBlock -match 'IMPORTNUM 19' -and $easyMaxBlock -match 'IMPORTNUM 20') 'the Maximum profile applies 18, 19 and 20'
+$easyOptBlock = [regex]::Match($mst3, '(?s):EASYOPT\r?\n.*?:EASYGAMES').Value
+Assert ($easyOptBlock -match 'SETCHOICE 18 N' -and $easyOptBlock -match 'SETCHOICE 19 N' -and $easyOptBlock -match 'SETCHOICE 20 N' -and $easyOptBlock -notmatch 'IMPORTNUM 1[89]') 'the safe and games profiles leave 18, 19 and 20 off and remember that'
+Assert ($mst3 -match '18  Driver updates via Windows Update' -and $mst3 -match '20  Quick menus') 'the revert menu lists 18, 19 and 20'
+$csSrc = [IO.File]::ReadAllText((Join-Path $root 'tools\Check_Status.ps1'))
+Assert ($csSrc -match "if \(\`$media -eq 'SSD'\)" -and $csSrc -match "'trim'" -and $csSrc -match 'fsutil\.exe behavior set DisableDeleteNotify 0') 'Check Status looks at SSD TRIM, only on an SSD, and can turn it back on'
+$locSrc = [IO.File]::ReadAllText((Join-Path $root 'app\Loc.cs'), [Text.Encoding]::UTF8)
+$coreSrc = [IO.File]::ReadAllText((Join-Path $root 'app\Core.cs'))
+$noThai = @([regex]::Matches($coreSrc, 'new Tweak\("\d\d", "\w+", "((?:[^"\\]|\\.)*)", "((?:[^"\\]|\\.)*)"') | ForEach-Object { $_.Groups[1].Value; $_.Groups[2].Value } | Where-Object { -not $locSrc.Contains('{ "' + $_ + '", "') })
+Assert ($noThai.Count -eq 0) ('every tweak name and description of the app has a Thai text ' + ($noThai -join ' | '))
+
+Write-Host ''
 Write-Host '== Check Status runs (read-only dry run)' -ForegroundColor Cyan
 try {
     $csPath = Join-Path $root 'tools\Check_Status.ps1'
@@ -450,7 +481,7 @@ param([string]$Suite)
 $ast = [System.Management.Automation.Language.Parser]::ParseFile($Suite, [ref]$null, [ref]$null)
 $funcs = @($ast.FindAll({ param($n) $n -is [System.Management.Automation.Language.FunctionDefinitionAst] -and ($n.Name -eq 'Get-SettingsState' -or $n.Name -eq 'Test-Profile') }, $true))
 $script:Root = 'X:\none'
-function Invoke-PsFile { param($a, $b, $c) [pscustomobject]@{ Out = "01|OK`r`n02|OK`r`n03|OK`r`n04|OK`r`n05|OK`r`n06|OK`r`n07|OK`r`n08|OK`r`n09|SKIPPED`r`n10|OK`r`n11|OK`r`n12|SKIPPED`r`n13|SKIPPED`r`n14|OK`r`n15|OK`r`nPLAN|OK`r`nPWR|OK`r`n16|OK`r`nPREF|UNKNOWN" } }
+function Invoke-PsFile { param($a, $b, $c) [pscustomobject]@{ Out = "01|OK`r`n02|OK`r`n03|OK`r`n04|OK`r`n05|OK`r`n06|OK`r`n07|OK`r`n08|OK`r`n09|SKIPPED`r`n10|OK`r`n11|OK`r`n12|SKIPPED`r`n13|SKIPPED`r`n14|OK`r`n15|OK`r`nPLAN|OK`r`nPWR|OK`r`n16|OK`r`n18|SKIPPED`r`n19|SKIPPED`r`n20|SKIPPED`r`nPREF|UNKNOWN" } }
 foreach ($f in $funcs) { . ([scriptblock]::Create($f.Extent.Text)) }
 $st = Get-SettingsState
 Write-Output ('' + $funcs.Count + ' ' + $st.OkTotal + ' ' + $st.Map.Count + ' ' + @(Test-Profile $st 'games').Count + ' ' + @(Test-Profile $st 'max').Count + ' ' + @(Test-Profile $st 'safe').Count)
@@ -458,7 +489,7 @@ Write-Output ('' + $funcs.Count + ' ' + $st.OkTotal + ' ' + $st.Map.Count + ' ' 
 [IO.File]::WriteAllText($vmUnitFile, $vmUnitText, (New-Object System.Text.UTF8Encoding($false)))
 $vmUnit = (& powershell.exe -NoProfile -ExecutionPolicy Bypass -File $vmUnitFile -Suite (Join-Path $root 'tests\vm\guest\vm_tests.ps1') 2>&1 | Out-String).Trim()
 Remove-Item -LiteralPath $vmUnitFile -Force -ErrorAction SilentlyContinue
-Assert ($vmUnit -eq '2 15 16 0 2 3') 'the VM suite reads the settings list and judges each Easy Setup profile correctly (made-up probe output)'
+Assert ($vmUnit -eq '2 15 19 0 5 3') 'the VM suite reads the settings list and judges each Easy Setup profile correctly (made-up probe output)'
 $vmDry = & powershell.exe -NoProfile -ExecutionPolicy Bypass -File (Join-Path $root 'tests\vm\guest\vm_tests.ps1') -DryRun 2>&1 | Out-String
 Assert ($LASTEXITCODE -eq 0 -and $vmDry.Contains('P2') -and $vmDry.Contains('P6') -and $vmDry -match 'Dry run') 'the VM suite lists its phases in a dry run and changes nothing'
 $vmTmp = Join-Path ([IO.Path]::GetTempPath()) ('vmedition_' + [guid]::NewGuid().ToString('N'))

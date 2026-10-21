@@ -1,0 +1,15 @@
+Windows Registry Editor Version 5.00
+
+; 18 - Windows Update no longer installs drivers by itself.
+; Why: after you install a graphics driver yourself, Windows Update can quietly replace it
+; with an older or generic one. This keeps the driver you chose.
+; Two settings: "never search Windows Update for drivers" and the policy "do not include
+; drivers with Windows quality updates". Security updates still install as before.
+; Afterwards you update drivers yourself (menu D in this tool, or the website of the maker).
+; Windows Update may show "Some settings are managed by your organization": that is the policy.
+; Undo: menu 7, then 18.
+[HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Windows\CurrentVersion\DriverSearching]
+"SearchOrderConfig"=dword:00000000
+
+[HKEY_LOCAL_MACHINE\SOFTWARE\Policies\Microsoft\Windows\WindowsUpdate]
+"ExcludeWUDriversInQualityUpdate"=dword:00000001

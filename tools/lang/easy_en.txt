@@ -113,9 +113,9 @@ ask_mem13_intro=   One more item lowers your protection: turning Memory Integrit
 ask_mem13=   Type YES to also turn Memory Integrity off, or N to skip it (Enter = N)
 profile_max=   Your answer: games, and every optional tweak except Memory Integrity.
 profile_max13=   Your answer: games, and every optional tweak including Memory Integrity off.
-plan_tweaks_max=Apply the safe speed settings plus every optional tweak except Memory Integrity (fullscreen, mouse, keyboard, Ndu, timer, CPU boost).
-plan_tweaks_max13=Apply the safe speed settings plus EVERY optional tweak, including turning Memory Integrity off.
-plan_tweaks_max_laptop=Apply the safe speed settings plus the optional tweaks that add no heat (laptop: no timer and no CPU boost; Memory Integrity only if you typed YES).
+plan_tweaks_max=Apply the safe speed settings plus every optional tweak except Memory Integrity (fullscreen, mouse, keyboard, Ndu, timer, CPU boost, drivers only from you, quick startup and menus).
+plan_tweaks_max13=Apply the safe speed settings plus EVERY optional tweak (drivers only from you, quick startup and menus too), including turning Memory Integrity off.
+plan_tweaks_max_laptop=Apply the safe speed settings plus the optional tweaks that add no heat (laptop: no timer and no CPU boost; drivers only from you, quick startup and menus are included; Memory Integrity only if you typed YES).
 profilename_safe=safe
 profilename_games=games
 profilename_max=maximum

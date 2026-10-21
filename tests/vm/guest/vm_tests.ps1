@@ -96,7 +96,7 @@ function Get-Tail([object]$Run, [int]$Count = 6) {
 }
 
 # Reads the settings state with the same code the Check Status tool uses.
-# Map: the numbered tweaks ('01'..'16') -> status. OkTotal: every item that reads OK (tweaks, power plan, power settings, services ...), the
+# Map: the numbered tweaks ('01'..'20') -> status. OkTotal: every item that reads OK (tweaks, power plan, power settings, services ...), the
 # number that Easy Setup shows as "speed settings in place".
 function Get-SettingsState {
     $r = Invoke-PsFile 'VM_TEST\status_probe.ps1' ('-Root "' + $script:Root + '"') 3
@@ -115,8 +115,8 @@ function Get-SettingsState {
 # What each Easy Setup profile must leave behind: tweaks that must read OK and tweaks that must not be applied. Returns the problems.
 function Test-Profile([object]$State, [string]$Profile) {
     $must = @('01', '02', '03', '04', '05', '06', '07', '08', '14')
-    $not = @('09', '10', '11', '12', '13', '15')
-    $extra = @{ safe = @(); games = @('10', '11', '15'); max = @('09', '10', '11', '12', '15'); max13 = @('09', '10', '11', '12', '13', '15') }[$Profile]
+    $not = @('09', '10', '11', '12', '13', '15', '18', '19', '20')
+    $extra = @{ safe = @(); games = @('10', '11', '15'); max = @('09', '10', '11', '12', '15', '18', '19', '20'); max13 = @('09', '10', '11', '12', '13', '15', '18', '19', '20') }[$Profile]
     $must += $extra
     $not = @($not | Where-Object { $extra -notcontains $_ })
     $bad = @()

@@ -1,0 +1,12 @@
+Windows Registry Editor Version 5.00
+
+; 20 - Menus open at once and hover reactions come sooner.
+; Windows waits 400 ms before it opens a sub-menu or reacts to the pointer resting on something.
+; This sets the menu wait to 0 and the hover wait to 100 ms (not lower: very short hover times
+; make thumbnails and tooltips flicker). It only changes how the desktop feels, not game speed.
+; Takes effect after you sign out and in again. Undo: menu 7, then 20.
+[HKEY_CURRENT_USER\Control Panel\Desktop]
+"MenuShowDelay"="0"
+
+[HKEY_CURRENT_USER\Control Panel\Mouse]
+"MouseHoverTime"="100"

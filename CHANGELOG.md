@@ -1,5 +1,16 @@
 # Changelog
 
+## v4.29
+- **Three new optional tweaks,** picked from a hand-made tuning pack and kept only where they are safe, useful and undoable. None of them raises FPS; they keep the PC predictable and make it feel quicker.
+  - **18 Drivers only from you** (`SearchOrderConfig = 0` and the policy `ExcludeWUDriversInQualityUpdate = 1`): Windows Update no longer installs drivers by itself, so it cannot replace the graphics driver you installed. Update drivers with menu D or the maker's website. Windows Update may show "Some settings are managed by your organization": that is this policy.
+  - **19 Startup programs start at once** (`StartupDelayInMSec = 0`): the programs in the startup list no longer wait about ten seconds after sign-in. Takes effect at the next sign-in; it does not make Windows boot faster.
+  - **20 Quick menus** (`MenuShowDelay = 0`, `MouseHoverTime = 100`): menus open at once and hover reactions come sooner. A feel change only. The hover time is not set lower on purpose (very short values make thumbnails flicker).
+- Each has an undo file (menu 7, then 18, 19 or 20; the Windows app has a switch for each), is asked one by one in menu 2 and 5, and is applied by the **Maximum** profile of Easy Setup only. The safe and games profiles leave them off.
+- **Check Status looks at SSD TRIM** (only when Windows is on an SSD): it reads `DisableDeleteNotify` and can turn TRIM back on. TRIM is on by default, so this only finds a setting somebody turned off.
+- Left out on purpose: smaller keyboard and mouse queues (no proof they lower lag, and they can drop input under load), 8.3 names off, Prefetch off, fixed GPU-scheduling and preemption values, game launch options and MSI mode (the NVIDIA driver already sets it).
+- Manuals and README list the new tweaks (cards, sources, "without official documentation" note); the app shows them in the Thai and English lists.
+- Tests: values and undo files of 18-20, the menu and Easy Setup profiles, the TRIM check, and a check that every tweak of the app has a Thai text. The VM suite knows which profile must leave 18-20 on. Not yet run in the VM.
+
 ## v4.28
 - **New: a Windows app, `Win11 Optimizer.exe`.** One small file (about 100 KB, no installer) in the main folder, next to the three `.bat` files. Click instead of typing: **Easy Setup** (it asks how you use the PC, then runs in its own window), one switch for each of the 16 tweaks with its state (On, Off, Changed by Windows), the tools (PC specs, PC health, System report and Support bundle show their result inside the window; Check status, Network test, Drivers and Clean up open their own window), the undo options, and the update check. Light or dark as Windows is set, and a switch for **English or Thai** in the side bar (kept for next time). A restore point is offered before the first change. It only starts the existing scripts, so nothing about what the tool does has changed. The program is not code-signed: SmartScreen may ask you to click More info, Run anyway; the `.bat` files still do the same.
 - It is built from the sources in `app/` (C#, WPF) with the compiler that ships with Windows (`powershell -File app\build.ps1`, nothing to download). The release job builds it and puts it in the ZIP; CI builds it and runs its self-test on every change. The `app/` sources are not part of the ZIP.

@@ -1,4 +1,4 @@
-# PC Optimizer v4.28 - Check Status
+# PC Optimizer v4.29 - Check Status
 # Compares the current PC settings with what the optimizer applies,
 # then offers to re-apply only the items that are missing or changed.
 param([string]$Root = '')
@@ -113,7 +113,7 @@ $script:Items = New-Object System.Collections.Generic.List[object]
 
 function Add-Item($Key, $Id, $Title, $Status, $Detail, $Kind, $FixType, $FixData) {
     # Kind: 'auto' = fix together with the others, 'ask' = always ask one by one
-    # FixType: reg, plan, pwr, pref, tcp, svc - or $null when nothing can be fixed
+    # FixType: reg, plan, pwr, pref, tcp, svc, trim - or $null when nothing can be fixed
     $script:Items.Add([pscustomobject]@{ Key = $Key; Id = $Id; Title = $Title; Status = $Status; Detail = $Detail; Kind = $Kind; FixType = $FixType; FixData = $FixData })
 }
 
@@ -275,6 +275,23 @@ function Invoke-Checks([string]$RegRoot, [string]$BackupDir) {
         }
     }
 
+    # --- TRIM on an SSD: Windows tells the drive which blocks are free. It is on by default; this finds it turned off.
+    if ($media -eq 'SSD') {
+        $trim = $null
+        try {
+            $trimText = (& fsutil.exe behavior query DisableDeleteNotify 2>$null) -join ' '
+            $trimMatch = [regex]::Match($trimText, 'DisableDeleteNotify\s*=\s*(\d)')
+            if ($trimMatch.Success) { $trim = [int]$trimMatch.Groups[1].Value }
+        } catch { }
+        if ($null -eq $trim) {
+            Add-Item 'TRIM' 'TRIM' 'SSD TRIM' 'UNKNOWN' 'could not read the TRIM setting' 'auto' $null $null
+        } elseif ($trim -eq 0) {
+            Add-Item 'TRIM' 'TRIM' 'SSD TRIM' 'OK' '' 'auto' $null $null
+        } else {
+            Add-Item 'TRIM' 'TRIM' 'SSD TRIM' 'CHANGED' 'TRIM is turned off (DisableDeleteNotify = 1), expected 0' 'auto' 'trim' $null
+        }
+    }
+
     # --- TCP settings on every network adapter
     $ifRoot = 'HKEY_LOCAL_MACHINE\SYSTEM\CurrentControlSet\Services\Tcpip\Parameters\Interfaces'
     if ((Get-Choice 'TCP') -eq 'N') {
@@ -375,6 +392,7 @@ function Invoke-Fix($Item, [string]$BackupDir) {
                 }
             }
             'svc'  { & sc.exe config $Item.FixData start= disabled *> $null; $ok = ($LASTEXITCODE -eq 0) }
+            'trim' { & fsutil.exe behavior set DisableDeleteNotify 0 *> $null; $ok = ($LASTEXITCODE -eq 0) }
         }
     } catch { $ok = $false }
     if ($ok) {
@@ -408,7 +426,7 @@ function Start-CheckStatus {
     $reportFile = New-ReportPath $script:RootDir 'CheckReport'
 
     Write-Log '==================================================================' 'Cyan'
-    Write-Log '   PC OPTIMIZER v4.28 - CHECK STATUS' 'Cyan'
+    Write-Log '   PC OPTIMIZER v4.29 - CHECK STATUS' 'Cyan'
     Write-Log ('   ' + (Get-Date -Format 'yyyy-MM-dd HH:mm') + '   Windows build ' + [Environment]::OSVersion.Version.ToString()) 'Cyan'
     Write-Log '==================================================================' 'Cyan'
     Write-Log ''
