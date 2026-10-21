@@ -194,7 +194,7 @@ jobs:
         shell: powershell
         run: |
           powershell -NoProfile -ExecutionPolicy Bypass -File app\build.ps1 -Out "$PWD\appout\Win11 Optimizer.exe"
-          $p = Start-Process -FilePath "$PWD\appout\Win11 Optimizer.exe" -ArgumentList '--selftest', '--out', "$PWD\appout\selftest.txt" -Wait -PassThru
+          $p = Start-Process -FilePath "$PWD\appout\Win11 Optimizer.exe" -ArgumentList '--selftest', '--out', "$PWD\appout\selftest.txt", '--root', "$PWD" -Wait -PassThru
           if (Test-Path "$PWD\appout\selftest.txt") { Get-Content "$PWD\appout\selftest.txt" }
           Write-Host ('exit code ' + $p.ExitCode)
           if ($p.ExitCode -ne 0) { exit 1 }
