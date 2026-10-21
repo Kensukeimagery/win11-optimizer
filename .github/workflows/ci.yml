@@ -190,6 +190,15 @@ jobs:
           }
           if (Test-Path 'More Tools\Logs') { Write-Host 'a Logs folder was made inside More Tools'; exit 1 }
 
+      - name: The Windows app builds and its self-test passes (status script, apply and revert of one tweak)
+        shell: powershell
+        run: |
+          powershell -NoProfile -ExecutionPolicy Bypass -File app\build.ps1 -Out "$PWD\appout\Win11 Optimizer.exe"
+          $p = Start-Process -FilePath "$PWD\appout\Win11 Optimizer.exe" -ArgumentList '--selftest', '--out', "$PWD\appout\selftest.txt" -Wait -PassThru
+          if (Test-Path "$PWD\appout\selftest.txt") { Get-Content "$PWD\appout\selftest.txt" }
+          Write-Host ('exit code ' + $p.ExitCode)
+          if ($p.ExitCode -ne 0) { exit 1 }
+
       - name: The Easy Setup report was written while it ran
         if: always()
         shell: powershell

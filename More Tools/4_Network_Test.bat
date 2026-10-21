@@ -1,5 +1,5 @@
 @echo off
-title PC Optimizer - Network Test v4.27
+title PC Optimizer - Network Test v4.28
 color 0B
 for %%I in ("%~dp0..") do set "ROOTDIR=%%~fI"
 

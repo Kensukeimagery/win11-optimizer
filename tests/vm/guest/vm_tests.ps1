@@ -233,6 +233,19 @@ if (-not $SkipEasyFull) {
     }
 }
 
+Add-Phase 'P7' 'The Windows app: self-test (status script, apply and revert of one tweak, run without a window)' {
+    $exe = Join-Path $script:Root 'Win11 Optimizer.exe'
+    if (-not (Test-Path -LiteralPath $exe)) { return (Result $false 'Win11 Optimizer.exe is not in the edition') }
+    $out = Join-Path $env:TEMP 'app_selftest.txt'
+    Remove-Item -LiteralPath $out -Force -ErrorAction SilentlyContinue
+    $r = Invoke-Child $exe ('--selftest --out "' + $out + '"') 12
+    $text = ''
+    if (Test-Path -LiteralPath $out) { $text = [IO.File]::ReadAllText($out) }
+    Save-Output 'P7' ([pscustomobject]@{ Out = $text })
+    $failed = @(($text -split "`r?`n") | Where-Object { $_ -like 'FAIL*' })
+    return (Result (($r.Exit -eq 0) -and -not $r.TimedOut -and $text.Contains('ALL PASSED')) ('exit ' + $r.Exit + ', ' + $r.Seconds + ' s. ' + ($failed -join ' | ')))
+}
+
 # --------------------------------------------------------------------------- run
 $facts = Get-VmFacts
 Say '==================================================================' 'Cyan'

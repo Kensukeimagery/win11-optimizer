@@ -67,6 +67,15 @@ $launch = Join-Path $env:TEMP 'launch_suite.ps1'
 & $vbm guestcontrol $Vm copyto @cred --target-directory 'C:\Users\Public\launch_suite.ps1' $launch 2>&1 | Out-Null
 & $vbm guestcontrol $Vm run @cred --exe 'C:\Windows\System32\WindowsPowerShell\v1.0\powershell.exe' --wait-stdout --wait-stderr --timeout 60000 -- powershell.exe -NoProfile -ExecutionPolicy Bypass -File C:\Users\Public\launch_suite.ps1 2>&1 | Out-Null
 
+# the first launch can come too early (right after the boot): if the suite has not started after a little while, start it again
+for ($try = 1; $try -le 3; $try++) {
+    Start-Sleep 60
+    $probe = & $vbm guestcontrol $Vm run @cred --exe 'C:\Windows\System32\cmd.exe' --wait-stdout --timeout 30000 -- cmd.exe /c 'if exist C:\Users\Public\vmtest_console.txt (echo started) else (echo waiting)' 2>&1
+    if (($probe -join ' ') -match 'started') { break }
+    Say ('The suite has not started yet, starting it again (' + $try + ')') 'Yellow'
+    & $vbm guestcontrol $Vm run @cred --exe 'C:\Windows\System32\WindowsPowerShell\v1.0\powershell.exe' --wait-stdout --wait-stderr --timeout 60000 -- powershell.exe -NoProfile -ExecutionPolicy Bypass -File C:\Users\Public\launch_suite.ps1 2>&1 | Out-Null
+}
+
 $stamp = Get-Date -Format 'yyyyMMdd_HHmmss'
 $out = Join-Path $Edition ('_reports\run_' + $stamp)
 New-Item -ItemType Directory -Path $out -Force | Out-Null

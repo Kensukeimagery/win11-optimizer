@@ -3,5 +3,6 @@
 /.gitattributes export-ignore
 /.gitignore export-ignore
 /tests export-ignore
+/app export-ignore
 # Answers fed to the menu in CI: keep CRLF exactly as written
 /tests/master_input.txt -text

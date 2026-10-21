@@ -1,10 +1,10 @@
 @echo off
 setlocal EnableExtensions
-title PC Optimizer - Master Control v4.27
+title PC Optimizer - Master Control v4.28
 color 0B
 
 :: =====================================================================
-::  PC OPTIMIZER - MASTER CONTROL v4.27
+::  PC OPTIMIZER - MASTER CONTROL v4.28
 ::  Safety rules used in this file - they avoid the crashes seen in v3:
 ::   - no brackets inside ECHO text that sits inside IF or FOR blocks
 ::   - flat GOTO labels instead of nested IF / ELSE blocks
@@ -24,13 +24,15 @@ set "LOGDIR=%SCRIPT_DIR%Logs"
 if not exist "%LOGDIR%" mkdir "%LOGDIR%" >nul 2>&1
 set "LOGFILE=%LOGDIR%\OptimizerLog_%TS%.txt"
 set "BACKUPDIR=%SCRIPT_DIR%Backup\%TS%"
-echo PC Optimizer v4.27 Log - %date% %time% > "%LOGFILE%"
+echo PC Optimizer v4.28 Log - %date% %time% > "%LOGFILE%"
 if exist "%TOOLDIR%\Report_Maintain.ps1" powershell -NoProfile -ExecutionPolicy Bypass -File "%TOOLDIR%\Report_Maintain.ps1" -Root "%SCRIPT_DIR%." >nul 2>&1
 
 if not exist "%REGROOT%" goto NOREG
 if not exist "%UNDOROOT%" echo [WARN] reg_undo folder not found - option 7 will not work.
 if not exist "%TOOLDIR%\Check_Status.ps1" echo [WARN] tools folder not found - option C and the restore point time limit will not work.
 if /i "%~1"=="/easy" goto EASYSTART
+if /i "%~1"=="/apply" goto APPLYONE
+if /i "%~1"=="/revert" goto REVERTONE
 goto STARTUP
 
 :NOADMIN
@@ -90,7 +92,7 @@ goto MENU
 :MENU
 cls
 echo ===================================================================
-echo    PC OPTIMIZER - MASTER CONTROL v4.27
+echo    PC OPTIMIZER - MASTER CONTROL v4.28
 echo    Log: OptimizerLog_%TS%.txt
 if "%ISLAPTOP%"=="1" echo    Laptop detected - tweaks 02 and 16 are not recommended on a laptop.
 if defined UPDMSG echo    %UPDMSG%
@@ -832,6 +834,43 @@ pause
 goto :eof
 
 :: ---------------------------------------------------------------------
+:: One tweak by number, no questions and no pauses (the Windows app uses these):   /apply 10   /revert 10
+:APPLYONE
+set "EASYMODE=1"
+set "ISLAPTOP=0"
+set "RN=0%~2"
+set "RN=%RN:~-2%"
+echo.
+if "%RN%"=="16" goto APPLYONEBOOST
+if "%RN%"=="14" goto APPLYONEPOWER
+call :IMPORTNUM %RN%
+goto APPLYONEDONE
+:APPLYONEBOOST
+call :BOOSTAPPLY
+goto APPLYONEDONE
+:APPLYONEPOWER
+call :POWER
+:APPLYONEDONE
+echo.
+echo   [Done] Tweak %RN% applied. A restart may be needed.
+goto END
+:REVERTONE
+set "EASYMODE=1"
+set "RN=0%~2"
+set "RN=%RN:~-2%"
+echo.
+if "%RN%"=="16" goto REVERTONEBOOST
+set "FOUNDREG="
+for /r "%UNDOROOT%" %%f in (UNDO_%RN%_*.reg) do call :UNDOONE "%%f"
+if not defined FOUNDREG echo   [WARN] No undo file matches that number.
+echo   [Done] Tweak %RN% reverted. A restart is recommended.
+goto END
+:REVERTONEBOOST
+if exist "%TOOLDIR%\Power_Boost.ps1" powershell -NoProfile -ExecutionPolicy Bypass -File "%TOOLDIR%\Power_Boost.ps1" -Action Undo
+call :SETCHOICE 16 N
+echo   [Done] Tweak 16 reverted.
+goto END
+
 ::  Easy Setup entry. tools\Easy_Setup.ps1 starts this file as:  /easy safe   /easy games   /easy max   or   /easy max13
 ::  No questions and no pauses. Recommended tweaks, base setup, power settings, and for "games" also 10, 11, 15 and 16 (15 and 16 not on laptops).
 :EASYSTART

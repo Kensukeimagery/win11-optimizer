@@ -14,3 +14,7 @@ DriverCleanReport_*
 SupportBundle_*
 PCHealth_*
 Logs/
+
+# the built Windows app (the release job builds it)
+app/bin/
+appout/

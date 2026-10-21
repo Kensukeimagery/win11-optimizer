@@ -49,6 +49,10 @@ $runBat = Join-Path $guest 'Run_VM_Tests (Run as Administrator).bat'
 $bat = [IO.File]::ReadAllText($runBat) -replace "`r?`n", "`r`n"
 [IO.File]::WriteAllText((Join-Path $OutDir 'Run_VM_Tests (Run as Administrator).bat'), $bat, (New-Object System.Text.UTF8Encoding($false)))
 
+# the Windows app, built from the sources (the VM suite runs its self-test)
+$appBuild = Join-Path $Root 'app\build.ps1'
+if (Test-Path -LiteralPath $appBuild) { & powershell.exe -NoProfile -ExecutionPolicy Bypass -File $appBuild -Out (Join-Path $OutDir 'Win11 Optimizer.exe') | Out-Null }
+
 # a marker, so nobody mistakes this copy for the real release
 $commit = ''
 try { $commit = (& git -C $Root rev-parse --short HEAD 2>$null) } catch { }

@@ -41,7 +41,7 @@ foreach ($lang in 'EN', 'TH') {
     $src = Join-Path $root ('docs\src\manual_' + $lang.ToLower() + '.html')
     Assert (([IO.File]::ReadAllText($src)).Contains($tagText)) ('manual source ' + $lang + ' mentions ' + $tagText)
     $mt = [IO.File]::ReadAllText($src)
-    foreach ($sec in 'before', 'quick', 'easy', 'which', 'undo', 'keep', 'trouble', 'gloss', 'faq', 'ref') {
+    foreach ($sec in 'before', 'quick', 'app', 'easy', 'which', 'undo', 'keep', 'trouble', 'gloss', 'faq', 'ref') {
         Assert (($mt.Contains('id="sec-' + $sec + '"')) -and ($mt -match ('data-sec="sec-' + $sec + '">[1-9]\d*<'))) ('manual ' + $lang + ' has section ' + $sec + ' with a page number in the contents')
     }
     Assert ($mt.Contains('Maximum')) ('manual ' + $lang + ' describes the Maximum profile')
@@ -356,7 +356,7 @@ try {
     $used = @([regex]::Matches($easySrc, "(?:SayT|T|Read-Choice \(T) '([a-z0-9_]+)'") | ForEach-Object { $_.Groups[1].Value }) + @([regex]::Matches($easySrc, "'((?:plan|preview)_[a-z_]+)'") | ForEach-Object { $_.Groups[1].Value }) | Sort-Object -Unique
     Assert (@($used | Where-Object { -not $enMap.ContainsKey($_) }).Count -eq 0) ('every message the script uses exists in English ' + (($used | Where-Object { -not $enMap.ContainsKey($_) }) -join ', '))
     Assert (@($enMap.Keys | Where-Object { ($enMap[$_] -replace '\{\d\}', '') -match '[{}]' }).Count -eq 0) 'no stray braces in the messages (they would break the formatting)'
-    Assert ((-not (Test-Path -LiteralPath (Join-Path $root 'tools\lang\easy_th.txt'))) -and -not ($easySrc -match '\$Lang') -and -not ($easySrc -match 'LangCode')) 'Easy Setup is English only: no language option and no Thai message file'
+    Assert ((-not (Test-Path -LiteralPath (Join-Path $root 'tools\lang\easy_th.txt'))) -and -not ($easySrc -match '\$Lang\b') -and -not ($easySrc -match 'LangCode')) 'Easy Setup is English only: no language option and no Thai message file'
     Assert ($easySrc.IndexOf('$st = Get-EasyState') -gt 0 -and $easySrc.IndexOf('$st = Get-EasyState') -lt $easySrc.IndexOf('$st.Done')) 'Easy Setup reads the saved state before it checks for a half-finished run (otherwise every run asks to continue)'
     & {
         . (Join-Path $root 'tools\Easy_Setup.ps1') -Root $root -Preview -NoPrompt
@@ -410,6 +410,28 @@ Assert ($mst2 -match ':EASYMAX' -and $mst2 -match 'if /i "%EASYPROF%"=="max13" c
 $drv = [IO.File]::ReadAllText((Join-Path $root 'tools\Driver_Check.ps1'))
 Assert ($drv -match '\[switch\]\$Auto' -and $drv -match '\[switch\]\$NoRestorePoint' -and $drv -match '\$ResultFile') 'the driver check has the automatic mode that Easy Setup uses'
 Assert ((Test-Path -LiteralPath (Join-Path $root '0_Easy_Setup (Run as Administrator).bat'))) 'the one-button file exists in the main folder'
+
+Write-Host '== Windows app (Win11 Optimizer.exe): sources, build, and what it relies on' -ForegroundColor Cyan
+foreach ($af in 'app\Program.cs', 'app\Core.cs', 'app\MainWindow.cs', 'app\Styles.xaml', 'app\app.manifest', 'app\icon.ico', 'app\build.ps1', 'tools\Gui_Status.ps1') {
+    Assert (Test-Path -LiteralPath (Join-Path $root $af)) ('the app file exists: ' + $af)
+}
+try { $null = [xml][IO.File]::ReadAllText((Join-Path $root 'app\Styles.xaml')); $null = [xml][IO.File]::ReadAllText((Join-Path $root 'app\app.manifest')); Assert $true 'the app styles and manifest are well-formed XML' } catch { Fail ('the app styles or manifest are not valid XML: ' + $_.Exception.Message) }
+$appManifest = [IO.File]::ReadAllText((Join-Path $root 'app\app.manifest'))
+Assert ($appManifest.Contains('requireAdministrator')) 'the app asks for administrator rights (the tool changes system settings)'
+$appCore = [IO.File]::ReadAllText((Join-Path $root 'app\Core.cs'))
+$missingInApp = @(Get-ChildItem -LiteralPath (Join-Path $root 'reg') -Recurse -File -Filter '*.reg' | ForEach-Object { $_.Name.Substring(0, 2) } | Where-Object { -not $appCore.Contains('new Tweak("' + $_ + '"') })
+Assert ($missingInApp.Count -eq 0 -and $appCore.Contains('new Tweak("16"')) ('every tweak of the reg folder (and 16) is listed in the app ' + ($missingInApp -join ', '))
+$masterApp = [IO.File]::ReadAllText((Join-Path $root '1_Start_Here - PC_Optimizer_Master (Run as Administrator).bat'))
+Assert ($masterApp -match 'if /i "%~1"=="/apply" goto APPLYONE' -and $masterApp -match 'if /i "%~1"=="/revert" goto REVERTONE' -and $masterApp -match ':APPLYONE' -and $masterApp -match ':REVERTONE') 'the main menu file has /apply and /revert (the app uses them)'
+Assert ([IO.File]::ReadAllText((Join-Path $root '.gitattributes')).Contains('/app export-ignore')) 'the app sources stay out of the download ZIP (the release job adds the built exe)'
+$appExe = Join-Path ([IO.Path]::GetTempPath()) ('app_' + [guid]::NewGuid().ToString('N') + '.exe')
+$appBuildOut = & powershell.exe -NoProfile -ExecutionPolicy Bypass -File (Join-Path $root 'app\build.ps1') -Out $appExe 2>&1 | Out-String
+Assert ($LASTEXITCODE -eq 0 -and (Test-Path -LiteralPath $appExe) -and (Get-Item -LiteralPath $appExe).Length -gt 50KB) ('the app compiles with the compiler that ships with Windows ' + $appBuildOut.Trim())
+if (Test-Path -LiteralPath $appExe) {
+    $appVer = (Get-Item -LiteralPath $appExe).VersionInfo.FileVersion
+    Assert ($appVer -like (([IO.File]::ReadAllText((Join-Path $root 'VERSION'))).Trim() + '*')) ('the exe carries the version of the tool (' + $appVer + ')')
+    Remove-Item -LiteralPath $appExe -Force -ErrorAction SilentlyContinue
+}
 
 Write-Host '== VM test edition: the builder, the guest suite and the VM creator' -ForegroundColor Cyan
 foreach ($vf in 'tests\vm\Run_In_VM.ps1', 'tests\vm\Make_VM_Edition.ps1', 'tests\vm\Create_Test_VM.ps1', 'tests\vm\guest\vm_tests.ps1', 'tests\vm\guest\status_probe.ps1', 'tests\vm\guest\Run_VM_Tests (Run as Administrator).bat', 'tests\vm\guest\VM_README.txt') {

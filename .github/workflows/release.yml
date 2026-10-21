@@ -34,6 +34,12 @@ jobs:
         run: |
           $tag = $env:GITHUB_REF_NAME
           git archive --format=zip --prefix="win11-optimizer-$tag/" -o "win11-optimizer-$tag.zip" HEAD
+          # the Windows app: built here from the app folder, added to the ZIP next to the other files
+          powershell -NoProfile -ExecutionPolicy Bypass -File app\build.ps1 -Out "$PWD\appout\Win11 Optimizer.exe"
+          Add-Type -AssemblyName System.IO.Compression.FileSystem
+          $zip = [IO.Compression.ZipFile]::Open("$PWD\win11-optimizer-$tag.zip", 'Update')
+          [void][IO.Compression.ZipFileExtensions]::CreateEntryFromFile($zip, "$PWD\appout\Win11 Optimizer.exe", "win11-optimizer-$tag/Win11 Optimizer.exe")
+          $zip.Dispose()
           Copy-Item "win11-optimizer-$tag.zip" win11-optimizer.zip
           $h = (Get-FileHash win11-optimizer.zip -Algorithm SHA256).Hash.ToLower()
           "$h  win11-optimizer.zip" | Out-File -FilePath win11-optimizer.zip.sha256 -Encoding ascii

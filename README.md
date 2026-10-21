@@ -21,11 +21,29 @@
 ## Start in 3 steps
 
 1. **Download** the ZIP with the green button above. You do not need a GitHub account. Right-click the ZIP, choose **Extract All**, and open the new folder. Do not run files from inside the ZIP.
-2. **Double-click** `0_Easy_Setup (Run as Administrator).bat` (right-click, then **Run as administrator**).
-3. **Answer one question** (do you mainly play games?), and read the plan. Press **Y** to start. Restart when it asks, then open the same file again and it continues.
+2. **Open `Win11 Optimizer.exe`** (Windows asks for administrator rights once) and press **Start Easy Setup**. You prefer the keyboard? Double-click `0_Easy_Setup (Run as Administrator).bat` instead (right-click, then **Run as administrator**).
+3. **Answer one question** (do you mainly play games?), and read the plan. Press **Y** to start. Restart when it asks, then start Easy Setup again and it continues.
 
 > [!NOTE]
 > Windows SmartScreen or your antivirus may warn about `.bat` files that change settings. That is normal for this kind of tool. Read the scripts first, they are plain text. Right-click the ZIP, open **Properties**, tick **Unblock** and press OK before you extract it to avoid a warning for every file. Never turn your antivirus off for this tool.
+
+## The window
+
+`Win11 Optimizer.exe` is a normal Windows program with nothing to install. It sits next to the folders of the tool and lets you click instead of typing: **Easy Setup**, one switch per tweak with its status, every tool, and the undo options. It follows light or dark mode and speaks **English or Thai** (switch in the side bar). It only starts the scripts of this repository, so everything below still applies.
+
+<table>
+  <tr>
+    <td width="50%"><img src="docs/img/app-home.png" alt="The home page: Easy Setup, how many settings are in place, restore point, undo, updates"></td>
+    <td width="50%"><img src="docs/img/app-tweaks.png" alt="The Tweaks page: one switch per tweak with its status"></td>
+  </tr>
+  <tr>
+    <td align="center"><sub>Home: Easy Setup and the state of your settings</sub></td>
+    <td align="center"><sub>Tweaks: one switch each, with an undo</sub></td>
+  </tr>
+</table>
+
+> [!NOTE]
+> The program is not code-signed, so SmartScreen may say "Windows protected your PC": click **More info**, then **Run anyway**, or use the `.bat` files, which do the same. The source is in [`app/`](app/) (about 1,500 lines of C#). `powershell -File app\build.ps1` builds it with the compiler that ships with Windows, so you can check that the exe matches.
 
 ## What it looks like
 
@@ -110,7 +128,7 @@ The main folder holds only three files to double-click (0, 1 and 2). Everything 
 <details>
 <summary><b>Manuals and guides</b></summary>
 
-- Manual: [English](docs/Manual_EN_v4.27.pdf) | [ภาษาไทย](docs/Manual_TH_v4.27.pdf)
+- Manual: [English](docs/Manual_EN_v4.28.pdf) | [ภาษาไทย](docs/Manual_TH_v4.28.pdf)
 - NVIDIA driver settings, step by step with screenshots (driver 582.78, GTX 1070): [English](docs/GPU_Driver_Guide_EN.pdf) | [ภาษาไทย](docs/GPU_Driver_Guide_TH.pdf)
 - [Changelog](CHANGELOG.md)
 
