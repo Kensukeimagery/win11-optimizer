@@ -95,14 +95,35 @@ function Get-Tail([object]$Run, [int]$Count = 6) {
     return (($l | Select-Object -Last $Count) -join ' | ')
 }
 
-# Reads the settings state with the same code the Check Status tool uses: returns @{ '09' = 'OK'; ... }
+# Reads the settings state with the same code the Check Status tool uses.
+# Map: the numbered tweaks ('01'..'16') -> status. OkTotal: every item that reads OK (tweaks, power plan, power settings, services ...), the
+# number that Easy Setup shows as "speed settings in place".
 function Get-SettingsState {
     $r = Invoke-PsFile 'VM_TEST\status_probe.ps1' ('-Root "' + $script:Root + '"') 3
     $map = @{}
-    foreach ($l in ([string]$r.Out -split "`r?`n")) { if ($l -match '^(\d\d)\|(\w+)\s*$') { $map[$Matches[1]] = $Matches[2] } }
-    return $map
+    $okTotal = 0
+    foreach ($l in ([string]$r.Out -split "`r?`n")) {
+        if ($l -match '^(\w+)\|(\w+)\s*$') {
+            $itemId = $Matches[1]; $itemStatus = $Matches[2]      # copy first: the next -match replaces $Matches
+            if ($itemStatus -eq 'OK') { $okTotal++ }
+            if ($itemId -match '^\d\d$') { $map[$itemId] = $itemStatus }
+        }
+    }
+    return [pscustomobject]@{ Map = $map; OkTotal = $okTotal }
 }
-function Count-Ok([hashtable]$Map) { return @($Map.Keys | Where-Object { $Map[$_] -eq 'OK' }).Count }
+
+# What each Easy Setup profile must leave behind: tweaks that must read OK and tweaks that must not be applied. Returns the problems.
+function Test-Profile([object]$State, [string]$Profile) {
+    $must = @('01', '02', '03', '04', '05', '06', '07', '08', '14')
+    $not = @('09', '10', '11', '12', '13', '15')
+    $extra = @{ safe = @(); games = @('10', '11', '15'); max = @('09', '10', '11', '12', '15'); max13 = @('09', '10', '11', '12', '13', '15') }[$Profile]
+    $must += $extra
+    $not = @($not | Where-Object { $extra -notcontains $_ })
+    $bad = @()
+    foreach ($id in $must) { if ($State.Map[$id] -ne 'OK') { $bad += ('tweak ' + $id + ' is ' + $State.Map[$id] + ', must be OK') } }
+    foreach ($id in $not) { if ($State.Map[$id] -eq 'OK') { $bad += ('tweak ' + $id + ' is applied, but this profile must not apply it') } }
+    return $bad
+}
 
 function Result([bool]$Ok, [string]$Detail) { return [pscustomobject]@{ Ok = $Ok; Detail = $Detail } }
 
@@ -172,32 +193,27 @@ Add-Phase 'P3' 'Main menu: starts, reverts one tweak, health, bundle, specs, exi
     $miss = @($need | Where-Object { -not ([string]$r.Out).Contains($_) })
     return (Result (($miss.Count -eq 0) -and -not $r.TimedOut) ('missing in the output: ' + ($miss -join ', ')))
 }
-foreach ($m in @(@('P4.1', 'games', 15), @('P4.2', 'max', 15), @('P4.3', 'max13', 15))) {
-    $pid2 = $m[0]; $mode = $m[1]; $minOk = $m[2]
-    Add-Phase $pid2 ('Easy Setup settings step, profile ' + $mode + ', then the settings must read OK') {
-            param($pid2, $mode, $minOk)
+foreach ($m in @(@('P4.1', 'games'), @('P4.2', 'max'), @('P4.3', 'max13'))) {
+    $pid2 = $m[0]; $mode = $m[1]
+    Add-Phase $pid2 ('Easy Setup settings step, profile ' + $mode + ', then the settings must read as that profile') {
+            param($pid2, $mode)
             $r = Invoke-Bat $bat1 ('/easy ' + $mode) '' 12
             Save-Output $pid2 $r
             if (-not ([string]$r.Out).Contains('The settings step is finished')) { return (Result $false ('the step did not finish. ' + (Get-Tail $r))) }
             $s = Get-SettingsState
-            $ok = Count-Ok $s
-            $bad = @()
-            if ($ok -lt $minOk) { $bad += ('only ' + $ok + ' settings OK') }
-            if ($mode -eq 'max' -and $s['13'] -eq 'OK') { $bad += 'tweak 13 applied without max13' }
-            if ($mode -eq 'max' -or $mode -eq 'max13') { foreach ($id in '09', '10', '11', '12', '15') { if ($s[$id] -ne 'OK') { $bad += ('tweak ' + $id + ' is ' + $s[$id]) } } }
-            if ($mode -eq 'max13' -and $s['13'] -ne 'OK') { $bad += ('tweak 13 is ' + $s['13']) }
-            return (Result ($bad.Count -eq 0) ($ok + ' settings OK. ' + ($bad -join '; ')))
-    } @($pid2, $mode, $minOk)
+            $bad = @(Test-Profile $s $mode)
+            return (Result ($bad.Count -eq 0) ([string]$s.OkTotal + ' items read OK. ' + ($bad -join '; ')))
+    } @($pid2, $mode)
 }
-Add-Phase 'P5' 'Undo everything with the undo files: no tweak may still read OK' {
+Add-Phase 'P5' 'Undo everything with the undo files: no numbered tweak may still read OK' {
     $fails = 0
     foreach ($f in @(Get-ChildItem -LiteralPath (Join-Path $script:Root 'reg_undo') -File -Filter 'UNDO_*.reg' | Sort-Object Name)) {
         & reg.exe import $f.FullName *> $null
         if ($LASTEXITCODE -ne 0) { $fails++ }
     }
     $s = Get-SettingsState
-    $ok = Count-Ok $s
-    return (Result (($fails -eq 0) -and ($ok -eq 0)) ('import failures ' + $fails + ', still OK after undo: ' + $ok))
+    $still = @(@($s.Map.Keys) | Where-Object { $_ -ne '16' -and $s.Map[$_] -eq 'OK' } | Sort-Object)   # 16 (CPU boost) is a power setting, not a .reg file
+    return (Result (($fails -eq 0) -and ($still.Count -eq 0)) ('import failures ' + $fails + ', still OK after undo: ' + ($still -join ', ')))
 }
 if (-not $SkipEasyFull) {
     Add-Phase 'P6' 'Easy Setup, the whole flow for real (restore point, drivers, Windows Update, settings, summary)' {
@@ -210,8 +226,10 @@ if (-not $SkipEasyFull) {
         $s = Get-SettingsState
         $rp = $false
         try { $rp = @(Get-ComputerRestorePoint -ErrorAction Stop | Where-Object { $_.Description -eq 'Before_PC_Optimizer' }).Count -gt 0 } catch { }
-        $ok = Count-Ok $s
-        return (Result (($ok -ge 15) -and $rp) ($ok + ' settings OK, restore point Before_PC_Optimizer present: ' + $rp + ', ' + $r.Seconds + ' s'))
+        $bad = @(Test-Profile $s 'safe')
+        if (-not $rp) { $bad += 'the restore point Before_PC_Optimizer is missing' }
+        if ($s.OkTotal -lt 18) { $bad += ('only ' + $s.OkTotal + ' items read OK, expected 18 or more') }
+        return (Result ($bad.Count -eq 0) ([string]$s.OkTotal + ' items read OK, restore point present: ' + $rp + ', ' + $r.Seconds + ' s. ' + ($bad -join '; ')))
     }
 }
 
@@ -244,7 +262,7 @@ foreach ($p in $phases) {
     $t0 = Get-Date
     Say ('>> ' + $p.Id + '  ' + $p.Name) 'White'
     $res = $null
-    try { $res = & $p.Body @($p.PhaseArgs) } catch { $res = Result $false ('exception: ' + $_.Exception.Message) }
+    try { $pa = @($p.PhaseArgs); $res = & $p.Body @pa } catch { $res = Result $false ('exception: ' + $_.Exception.Message) }
     if ($null -eq $res -or $res.PSObject.Properties.Name -notcontains 'Ok') { $res = Result $false 'the phase returned nothing' }
     $sec = [int]((Get-Date) - $t0).TotalSeconds
     $st = $(if ($res.Ok) { 'PASS' } else { 'FAIL' })

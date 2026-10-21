@@ -412,7 +412,7 @@ Assert ($drv -match '\[switch\]\$Auto' -and $drv -match '\[switch\]\$NoRestorePo
 Assert ((Test-Path -LiteralPath (Join-Path $root '0_Easy_Setup (Run as Administrator).bat'))) 'the one-button file exists in the main folder'
 
 Write-Host '== VM test edition: the builder, the guest suite and the VM creator' -ForegroundColor Cyan
-foreach ($vf in 'tests\vm\Make_VM_Edition.ps1', 'tests\vm\Create_Test_VM.ps1', 'tests\vm\guest\vm_tests.ps1', 'tests\vm\guest\status_probe.ps1', 'tests\vm\guest\Run_VM_Tests (Run as Administrator).bat', 'tests\vm\guest\VM_README.txt') {
+foreach ($vf in 'tests\vm\Run_In_VM.ps1', 'tests\vm\Make_VM_Edition.ps1', 'tests\vm\Create_Test_VM.ps1', 'tests\vm\guest\vm_tests.ps1', 'tests\vm\guest\status_probe.ps1', 'tests\vm\guest\Run_VM_Tests (Run as Administrator).bat', 'tests\vm\guest\VM_README.txt') {
     Assert (Test-Path -LiteralPath (Join-Path $root $vf)) ('the VM test file exists: ' + $vf)
 }
 $vmSuite = [IO.File]::ReadAllText((Join-Path $root 'tests\vm\guest\vm_tests.ps1'))
@@ -420,6 +420,23 @@ Assert ($vmSuite.Contains('REFUSED: this is not a virtual machine') -and $vmSuit
 Assert ($vmSuite.Contains('-SkipUpdate')) 'the VM suite runs Easy Setup without the update check'
 $easySrc2 = [IO.File]::ReadAllText((Join-Path $root 'tools\Easy_Setup.ps1'))
 Assert ($easySrc2 -match '\[switch\]\$SkipUpdate' -and $easySrc2 -match 'if \(\$SkipUpdate\)') 'Easy Setup has -SkipUpdate (for test machines)'
+# the suite's settings parser and profile rules, tested here with a made-up probe output (a real run needs a VM)
+# (run in a child PowerShell: the functions use $script:Root, which is the same variable as this script's $root)
+$vmUnitFile = Join-Path ([IO.Path]::GetTempPath()) ('vmunit_' + [guid]::NewGuid().ToString('N') + '.ps1')
+$vmUnitText = @'
+param([string]$Suite)
+$ast = [System.Management.Automation.Language.Parser]::ParseFile($Suite, [ref]$null, [ref]$null)
+$funcs = @($ast.FindAll({ param($n) $n -is [System.Management.Automation.Language.FunctionDefinitionAst] -and ($n.Name -eq 'Get-SettingsState' -or $n.Name -eq 'Test-Profile') }, $true))
+$script:Root = 'X:\none'
+function Invoke-PsFile { param($a, $b, $c) [pscustomobject]@{ Out = "01|OK`r`n02|OK`r`n03|OK`r`n04|OK`r`n05|OK`r`n06|OK`r`n07|OK`r`n08|OK`r`n09|SKIPPED`r`n10|OK`r`n11|OK`r`n12|SKIPPED`r`n13|SKIPPED`r`n14|OK`r`n15|OK`r`nPLAN|OK`r`nPWR|OK`r`n16|OK`r`nPREF|UNKNOWN" } }
+foreach ($f in $funcs) { . ([scriptblock]::Create($f.Extent.Text)) }
+$st = Get-SettingsState
+Write-Output ('' + $funcs.Count + ' ' + $st.OkTotal + ' ' + $st.Map.Count + ' ' + @(Test-Profile $st 'games').Count + ' ' + @(Test-Profile $st 'max').Count + ' ' + @(Test-Profile $st 'safe').Count)
+'@
+[IO.File]::WriteAllText($vmUnitFile, $vmUnitText, (New-Object System.Text.UTF8Encoding($false)))
+$vmUnit = (& powershell.exe -NoProfile -ExecutionPolicy Bypass -File $vmUnitFile -Suite (Join-Path $root 'tests\vm\guest\vm_tests.ps1') 2>&1 | Out-String).Trim()
+Remove-Item -LiteralPath $vmUnitFile -Force -ErrorAction SilentlyContinue
+Assert ($vmUnit -eq '2 15 16 0 2 3') 'the VM suite reads the settings list and judges each Easy Setup profile correctly (made-up probe output)'
 $vmDry = & powershell.exe -NoProfile -ExecutionPolicy Bypass -File (Join-Path $root 'tests\vm\guest\vm_tests.ps1') -DryRun 2>&1 | Out-String
 Assert ($LASTEXITCODE -eq 0 -and $vmDry.Contains('P2') -and $vmDry.Contains('P6') -and $vmDry -match 'Dry run') 'the VM suite lists its phases in a dry run and changes nothing'
 $vmTmp = Join-Path ([IO.Path]::GetTempPath()) ('vmedition_' + [guid]::NewGuid().ToString('N'))
