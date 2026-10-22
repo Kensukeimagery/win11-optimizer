@@ -55,8 +55,16 @@ namespace Win11Optimizer
     <Border Background='{DynamicResource Surface}' BorderBrush='{DynamicResource Line}' BorderThickness='0,0,1,0'>
       <DockPanel Margin='16,22,16,16'>
         <StackPanel DockPanel.Dock='Top' Orientation='Horizontal' Margin='6,0,0,26'>
-          <Border Width='32' Height='32' CornerRadius='9' Background='{DynamicResource Accent}'>
-            <Path Data='M 9,16.5 L 14,21 L 23,11' Stroke='White' StrokeThickness='2.6' StrokeStartLineCap='Round' StrokeEndLineCap='Round' StrokeLineJoin='Round'/>
+          <Border Width='32' Height='32' CornerRadius='8'>
+            <Border.Background>
+              <LinearGradientBrush StartPoint='0,0' EndPoint='1,1'><GradientStop Color='#1769FF' Offset='0'/><GradientStop Color='#19D3FF' Offset='1'/></LinearGradientBrush>
+            </Border.Background>
+            <Canvas Width='32' Height='32'>
+              <Path Data='M 7.22,22.67 A 10.13,10.13 0 0 1 23.76,11.09' Stroke='White' StrokeThickness='2.4' StrokeStartLineCap='Round' StrokeEndLineCap='Round'/>
+              <Path Data='M 23.76,11.09 A 10.13,10.13 0 0 1 24.78,22.67' Stroke='#FF7A3D' StrokeThickness='2.4' StrokeStartLineCap='Round' StrokeEndLineCap='Round'/>
+              <Line X1='16' Y1='17.6' X2='20.59' Y2='11.05' Stroke='White' StrokeThickness='1.87' StrokeStartLineCap='Round' StrokeEndLineCap='Round'/>
+              <Ellipse Canvas.Left='13.87' Canvas.Top='15.47' Width='4.27' Height='4.27' Fill='White'/>
+            </Canvas>
           </Border>
           <StackPanel Margin='12,0,0,0' VerticalAlignment='Center'>
             <TextBlock Text='Windows 11' FontSize='12' Foreground='{DynamicResource Muted}'/>

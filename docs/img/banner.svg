@@ -4,18 +4,18 @@
 <rect width="1280" height="300" fill="url(#grid)"/>
 <rect x="0" y="294" width="1280" height="6" fill="url(#bar)"/>
 <rect x="80" y="68" width="120" height="120" rx="28" fill="url(#mk)"/>
-<path d="M104.0 136.0 A36 36 0 0 1 176.0 136.0" fill="none" stroke="#ffffff" stroke-width="9" stroke-linecap="round" stroke-opacity="0.95"/>
-<line x1="140.0" y1="136.0" x2="164.0" y2="110.0" stroke="#ffffff" stroke-width="8" stroke-linecap="round"/>
-<circle cx="140.0" cy="136.0" r="8" fill="#ffffff"/>
-<rect x="104.0" y="156.0" width="72" height="7" rx="3.5" fill="#ffffff" fill-opacity="0.55"/>
+<path d="M107.09 153.00 A38.00 38.00 0 0 1 169.11 109.57" fill="none" stroke="#ffffff" stroke-width="9.00" stroke-linecap="round" stroke-opacity="0.95"/>
+<path d="M169.11 109.57 A38.00 38.00 0 0 1 172.91 153.00" fill="none" stroke="#ff7a3d" stroke-width="9.00" stroke-linecap="round"/>
+<line x1="140.0" y1="134.0" x2="157.20729309053138" y2="109.42543867133024" stroke="#ffffff" stroke-width="7.00" stroke-linecap="round"/>
+<circle cx="140" cy="134" r="8.00" fill="#ffffff"/>
 <text x="244" y="128" font-family="'Segoe UI', 'Helvetica Neue', Arial, sans-serif" font-size="74" font-weight="700" fill="#ffffff" letter-spacing="-1.5">win11-optimizer</text>
 <text x="246" y="182" font-family="'Segoe UI', 'Helvetica Neue', Arial, sans-serif" font-size="30" fill="#a9bde0">Safe, reversible tuning for Windows 11 gaming PCs</text>
-<rect x="246" y="213" width="203" height="40" rx="20" fill="#0d1a30" stroke="#2f5da8" stroke-width="1.5"/>
-<text x="265" y="240" font-family="'Segoe UI', 'Helvetica Neue', Arial, sans-serif" font-size="21" fill="#d6e6ff">Restore point first</text>
+<rect x="246.0" y="213" width="203" height="40" rx="20" fill="#0d1a30" stroke="#2f5da8" stroke-width="1.5"/>
+<text x="265.0" y="240" font-family="'Segoe UI', 'Helvetica Neue', Arial, sans-serif" font-size="21" fill="#d6e6ff">Restore point first</text>
 <rect x="463.0" y="213" width="249" height="40" rx="20" fill="#0d1a30" stroke="#2f5da8" stroke-width="1.5"/>
 <text x="482.0" y="240" font-family="'Segoe UI', 'Helvetica Neue', Arial, sans-serif" font-size="21" fill="#d6e6ff">Undo for every change</text>
-<rect x="726.015625" y="213" width="169" height="40" rx="20" fill="#0d1a30" stroke="#2f5da8" stroke-width="1.5"/>
-<text x="745.015625" y="240" font-family="'Segoe UI', 'Helvetica Neue', Arial, sans-serif" font-size="21" fill="#d6e6ff">Thai + English</text>
-<rect x="909.015625" y="213" width="203" height="40" rx="20" fill="#0d1a30" stroke="#2f5da8" stroke-width="1.5"/>
-<text x="928.015625" y="240" font-family="'Segoe UI', 'Helvetica Neue', Arial, sans-serif" font-size="21" fill="#d6e6ff">Open source, MIT</text>
+<rect x="726.0" y="213" width="169" height="40" rx="20" fill="#0d1a30" stroke="#2f5da8" stroke-width="1.5"/>
+<text x="745.0" y="240" font-family="'Segoe UI', 'Helvetica Neue', Arial, sans-serif" font-size="21" fill="#d6e6ff">Thai + English</text>
+<rect x="909.0" y="213" width="203" height="40" rx="20" fill="#0d1a30" stroke="#2f5da8" stroke-width="1.5"/>
+<text x="928.0" y="240" font-family="'Segoe UI', 'Helvetica Neue', Arial, sans-serif" font-size="21" fill="#d6e6ff">Open source, MIT</text>
 </svg>

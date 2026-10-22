@@ -1,5 +1,10 @@
 # Changelog
 
+## v4.31
+- **One logo everywhere.** The banner showed a gauge, the program showed a check mark. Now all of them show the same new mark, a gauge pushed into the red zone (performance, running at full speed): the README banner, the GitHub social preview, the icon of `Win11 Optimizer.exe` and the logo in the window (light and dark). The mark is drawn by one script, `docs/src/make_logo.py` (banner, social preview and icon); the window logo is the same drawing in XAML.
+- The pictures of the window in the README and the manuals are new.
+- Nothing else changed: the tweaks, tools and tests are as in v4.30.
+
 ## v4.30
 - **Five new optional tweaks (21 to 25),** found by reading what the well-known tuning tools (winutil, Sophia Script) and Microsoft's own pages offer and keeping only what is documented or harmless and can be undone:
   - **21 Windowed-game optimization:** turns on the Windows 11 setting "Optimizations for windowed games" (Microsoft documents it: DirectX 10 and 11 games in a window or borderless window use the flip model, with lower frame latency). It is one flag inside a text value that also holds other graphics choices (Auto HDR, the chosen graphics card). A helper script (`tools\Game_Settings.ps1`) changes only that flag and keeps the rest; undo puts it back to what it was. A plain `.reg` file would have overwritten the other flags, so this one is not a `.reg` file.
