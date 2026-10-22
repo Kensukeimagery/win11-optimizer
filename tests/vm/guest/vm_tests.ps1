@@ -223,6 +223,7 @@ Add-Phase 'P5b' 'Undo the helper-script tweaks (16, 21, 22) with /revert: none m
     $log = ''
     foreach ($n in '16', '21', '22') { $r = Invoke-Bat $bat1 ('/apply ' + $n) '' 6; $log += [string]$r.Out }
     $mid = [string](Get-ItemProperty -Path $gfxKey -Name 'DirectXUserGlobalSettings').DirectXUserGlobalSettings
+    $sMid = Get-SettingsState    # right after the apply: 21 must read OK, 22 OK (or UNKNOWN when no adapter offers the setting)
     foreach ($n in '16', '21', '22') { $r = Invoke-Bat $bat1 ('/revert ' + $n) '' 6; $log += [string]$r.Out }
     Save-Output 'P5b' ([pscustomobject]@{ Out = $log })
     $end = [string](Get-ItemProperty -Path $gfxKey -Name 'DirectXUserGlobalSettings' -ErrorAction SilentlyContinue).DirectXUserGlobalSettings
@@ -232,7 +233,9 @@ Add-Phase 'P5b' 'Undo the helper-script tweaks (16, 21, 22) with /revert: none m
     if ($mid -notmatch 'AutoHDREnable=0' -or $mid -notmatch 'SwapEffectUpgradeEnable=1') { $bad += ('after apply the value is "' + $mid + '"') }
     if ($end -ne 'AutoHDREnable=0;') { $bad += ('after undo the value is "' + $end + '", it was "AutoHDREnable=0;"') }
     if ($still.Count -gt 0) { $bad += ('still reads OK after /revert: ' + ($still -join ', ')) }
-    return (Result ($bad.Count -eq 0) ('21 is ' + $s.Map['21'] + ', 22 is ' + $s.Map['22'] + ', 16 is ' + $s.Map['16'] + '. ' + ($bad -join '; ')))
+    if ($sMid.Map['21'] -ne 'OK') { $bad += ('21 read ' + $sMid.Map['21'] + ' right after /apply 21, expected OK') }
+    if (@('OK', 'UNKNOWN') -notcontains $sMid.Map['22']) { $bad += ('22 read ' + $sMid.Map['22'] + ' right after /apply 22, expected OK or UNKNOWN') }
+    return (Result ($bad.Count -eq 0) ('after apply: 21 ' + $sMid.Map['21'] + ', 22 ' + $sMid.Map['22'] + '; after revert: 21 ' + $s.Map['21'] + ', 22 ' + $s.Map['22'] + ', 16 ' + $s.Map['16'] + '. ' + ($bad -join '; ')))
 }
 if (-not $SkipEasyFull) {
     Add-Phase 'P6' 'Easy Setup, the whole flow for real (restore point, drivers, Windows Update, settings, summary)' {
