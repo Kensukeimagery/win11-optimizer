@@ -872,7 +872,7 @@ goto :eof
 
 :SYSREPORT
 if not exist "%TOOLDIR%\System_Report.ps1" goto SRMISSING
-powershell -NoProfile -ExecutionPolicy Bypass -File "%TOOLDIR%\System_Report.ps1" -Root "%SCRIPT_DIR%."
+powershell -NoProfile -ExecutionPolicy Bypass -File "%TOOLDIR%\System_Report.ps1" -Root "%SCRIPT_DIR%." < nul
 pause
 goto :eof
 :SRMISSING
@@ -882,7 +882,7 @@ goto :eof
 
 :SPECSRUN
 if not exist "%TOOLDIR%\PC_Specs.ps1" goto SPECSMISSING
-powershell -NoProfile -ExecutionPolicy Bypass -File "%TOOLDIR%\PC_Specs.ps1" -Root "%SCRIPT_DIR%."
+powershell -NoProfile -ExecutionPolicy Bypass -File "%TOOLDIR%\PC_Specs.ps1" -Root "%SCRIPT_DIR%." < nul
 pause
 goto :eof
 :SPECSMISSING
@@ -892,7 +892,7 @@ goto :eof
 
 :HEALTHRUN
 if not exist "%TOOLDIR%\PC_Health.ps1" goto HEALTHMISSING
-powershell -NoProfile -ExecutionPolicy Bypass -File "%TOOLDIR%\PC_Health.ps1" -Root "%SCRIPT_DIR%."
+powershell -NoProfile -ExecutionPolicy Bypass -File "%TOOLDIR%\PC_Health.ps1" -Root "%SCRIPT_DIR%." < nul
 pause
 goto :eof
 :HEALTHMISSING
@@ -923,7 +923,7 @@ goto :eof
 
 :BUNDLERUN
 if not exist "%TOOLDIR%\Support_Bundle.ps1" goto BUNDLEMISSING
-powershell -NoProfile -ExecutionPolicy Bypass -File "%TOOLDIR%\Support_Bundle.ps1" -Root "%SCRIPT_DIR%."
+powershell -NoProfile -ExecutionPolicy Bypass -File "%TOOLDIR%\Support_Bundle.ps1" -Root "%SCRIPT_DIR%." < nul
 pause
 goto :eof
 :BUNDLEMISSING

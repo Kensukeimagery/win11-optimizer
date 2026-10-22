@@ -246,6 +246,9 @@ $maxBlock = [regex]::Match($mst4, '(?s):EASYMAX\r?\n.*?:END\r?\n').Value
 Assert ($maxBlock -match 'GFXAPPLY' -and $maxBlock -match 'IMPORTNUM 23' -and $maxBlock -match 'IMPORTNUM 24' -and $maxBlock -match 'IMPORTNUM 25' -and $maxBlock -match 'NICAPPLY' -and $maxBlock -match 'SETCHOICE 22 N') 'the Maximum profile adds 21 to 25 (22 not on a laptop)'
 $safeBlock = [regex]::Match($mst4, '(?s):EASYOPT\r?\n.*?:EASYGAMES\r?\n').Value
 Assert ($safeBlock -match 'SETCHOICE 21 N' -and $safeBlock -match 'SETCHOICE 22 N' -and $safeBlock -match 'SETCHOICE 23 N' -and $safeBlock -match 'SETCHOICE 24 N' -and $safeBlock -match 'SETCHOICE 25 N' -and $safeBlock -notmatch 'GFXAPPLY' -and $safeBlock -notmatch 'NICAPPLY') 'the safe profile leaves 21 to 25 off and remembers that'
+foreach ($quietTool in 'System_Report', 'PC_Specs', 'PC_Health', 'Support_Bundle') {
+    Assert ($mst4 -match ('(?m)^powershell -NoProfile -ExecutionPolicy Bypass -File "%TOOLDIR%\\' + $quietTool + '\.ps1" -Root "%SCRIPT_DIR%\." < nul\r?$')) ('the menu starts ' + $quietTool + ' with no input attached: it never asks anything, and a tool that reads the piped input would swallow the next menu answers')
+}
 $pfssd = [regex]::Match($mst4, '(?s):PFSSD\r?\n.*?goto :eof').Value
 Assert ($pfssd -ne '' -and $pfssd -notmatch 'EnablePrefetcher') 'the menu no longer switches the Prefetcher off on an SSD (Windows manages it there)'
 $csSrc2 = [IO.File]::ReadAllText((Join-Path $root 'tools\Check_Status.ps1'))
