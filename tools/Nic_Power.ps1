@@ -1,7 +1,9 @@
 # PC Optimizer v4.30 - network card power saving (optional tweak 22)
-# Stops Windows from switching off your network adapters to save power ("Allow the computer to turn off this device
-# to save power"). A card that goes to sleep can drop the connection for a moment, which shows up as lag spikes
-# or a lost match in online games. Only adapters that offer the setting are touched.
+# Stops Windows from switching off your network adapters to save power: the Device Manager checkbox "Allow the computer
+# to turn off this device to save power" on the Power Management tab of the adapter. A card that goes to sleep can drop
+# the connection for a moment, which shows up as lag spikes or a lost match in online games.
+# The checkbox is the Enable value of the WMI class MSPower_DeviceEnable (root\wmi), one instance per device.
+# (The PowerShell cmdlet Set-NetAdapterPowerManagement has no parameter for it.) Only adapters that offer it are touched.
 # The adapters that had it switched on are remembered, so Undo switches on exactly those again.
 #   -Action Apply | Undo | Query
 # Exit codes: 0 = done, 1 = failed, 2 = not administrator, 3 = no adapter offers this setting.
@@ -18,14 +20,17 @@ function Test-Admin {
 }
 
 function Get-NicState {
-    # one entry per physical adapter that offers the setting: Name, Guid, Sleep ('Enabled' = Windows may switch it off)
+    # one entry per physical adapter that offers the setting: Name, Guid, Sleep ('Enabled' = Windows may switch it off), Inst
     $list = New-Object System.Collections.Generic.List[object]
+    $inst = @()
+    try { $inst = @(Get-CimInstance -Namespace 'root\wmi' -ClassName MSPower_DeviceEnable -ErrorAction Stop) } catch { }
     foreach ($ad in @(Get-NetAdapter -Physical -ErrorAction SilentlyContinue)) {
-        try {
-            $pm = Get-NetAdapterPowerManagement -Name $ad.Name -ErrorAction Stop
-            $v = [string]$pm.AllowComputerToTurnOffDevice
-            if ($v -eq 'Enabled' -or $v -eq 'Disabled') { $list.Add([pscustomobject]@{ Name = $ad.Name; Guid = [string]$ad.InterfaceGuid; Sleep = $v }) }
-        } catch { }
+        $pnp = [string]$ad.PnPDeviceID
+        if ($pnp -eq '') { continue }
+        # the instance name is the PnP device id plus a suffix such as _0
+        $m = @($inst | Where-Object { ([string]$_.InstanceName).StartsWith($pnp, [StringComparison]::OrdinalIgnoreCase) }) | Select-Object -First 1
+        if ($null -eq $m) { continue }
+        $list.Add([pscustomobject]@{ Name = $ad.Name; Guid = [string]$ad.InterfaceGuid; Sleep = $(if ($m.Enable) { 'Enabled' } else { 'Disabled' }); Inst = $m })
     }
     return $list.ToArray()   # not @($list): on Windows PowerShell 5.1 that fails with "Argument types do not match"
 }
@@ -53,7 +58,7 @@ if ($Action -eq 'Apply') {
             New-ItemProperty -Path $StateKey -Name $n.Guid -Value $n.Name -PropertyType String -Force | Out-Null
         }
         try {
-            Set-NetAdapterPowerManagement -Name $n.Name -AllowComputerToTurnOffDevice Disabled -ErrorAction Stop
+            Set-CimInstance -InputObject $n.Inst -Property @{ Enable = $false } -ErrorAction Stop
             $changed++
         } catch { $failed++; Write-Host ('   [FAILED] ' + $n.Name + ': ' + $_.Exception.Message) }
     }
@@ -76,7 +81,7 @@ $failed = 0
 foreach ($n in $nics) {
     if ($saved -notcontains $n.Guid) { continue }
     try {
-        Set-NetAdapterPowerManagement -Name $n.Name -AllowComputerToTurnOffDevice Enabled -ErrorAction Stop
+        Set-CimInstance -InputObject $n.Inst -Property @{ Enable = $true } -ErrorAction Stop
         Remove-ItemProperty -Path $StateKey -Name $n.Guid -ErrorAction SilentlyContinue
     } catch { $failed++; Write-Host ('   [FAILED] ' + $n.Name + ': ' + $_.Exception.Message) }
 }

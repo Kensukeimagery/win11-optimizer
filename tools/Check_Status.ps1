@@ -274,15 +274,17 @@ function Invoke-Checks([string]$RegRoot, [string]$BackupDir) {
     }
 
     # --- optional 22: network adapters are not switched off to save power (only adapters that offer the setting count)
+    # (the same lookup as tools\Nic_Power.ps1: the Enable value of the WMI class MSPower_DeviceEnable, matched by PnP device id)
     $nicSleep = New-Object System.Collections.Generic.List[string]
     $nicStay = 0
     try {
+        $nicInst = @(Get-CimInstance -Namespace 'root\wmi' -ClassName MSPower_DeviceEnable -ErrorAction Stop)
         foreach ($ad in @(Get-NetAdapter -Physical -ErrorAction Stop)) {
-            $pm = $null
-            try { $pm = Get-NetAdapterPowerManagement -Name $ad.Name -ErrorAction Stop } catch { }
-            if ($null -eq $pm) { continue }
-            $sleepState = [string]$pm.AllowComputerToTurnOffDevice
-            if ($sleepState -eq 'Enabled') { $nicSleep.Add($ad.Name) } elseif ($sleepState -eq 'Disabled') { $nicStay++ }
+            $pnp = [string]$ad.PnPDeviceID
+            if ($pnp -eq '') { continue }
+            $m = @($nicInst | Where-Object { ([string]$_.InstanceName).StartsWith($pnp, [StringComparison]::OrdinalIgnoreCase) }) | Select-Object -First 1
+            if ($null -eq $m) { continue }
+            if ($m.Enable) { $nicSleep.Add($ad.Name) } else { $nicStay++ }
         }
     } catch { $nicSleep.Clear(); $nicStay = 0 }
     if ($nicSleep.Count -eq 0 -and $nicStay -eq 0) {

@@ -148,7 +148,7 @@ foreach ($rt in $r23, $r24, $r25) { Assert ($rt -match 'HKEY_CURRENT_USER' -and 
 $gsText = [IO.File]::ReadAllText((Join-Path $root 'tools\Game_Settings.ps1'))
 $nicText = [IO.File]::ReadAllText((Join-Path $root 'tools\Nic_Power.ps1'))
 Assert ($gsText -match "ValidateSet\('Apply', 'Undo', 'Query'\)" -and $gsText -match 'Prev_SWAP' -and $gsText -match 'SwapEffectUpgradeEnable') 'the windowed-games helper has Apply, Undo and Query and remembers the earlier state'
-Assert ($nicText -match "ValidateSet\('Apply', 'Undo', 'Query'\)" -and $nicText -match 'AllowComputerToTurnOffDevice' -and $nicText -match 'exit 3' -and $nicText -match 'NicPrev') 'the network adapter helper has Apply, Undo and Query, skips PCs without the setting and remembers the earlier state'
+Assert ($nicText -match "ValidateSet\('Apply', 'Undo', 'Query'\)" -and $nicText -match 'MSPower_DeviceEnable' -and $nicText -match 'exit 3' -and $nicText -match 'NicPrev') 'the network adapter helper has Apply, Undo and Query, skips PCs without the setting and remembers the earlier state'
 $gsUnitFile = Join-Path ([IO.Path]::GetTempPath()) ('gsunit_' + [guid]::NewGuid().ToString('N') + '.ps1')
 $gsUnitText = @'
 param([string]$Script)
@@ -210,17 +210,21 @@ if ($isAdminHere) {
     $nicFlowFile = Join-Path ([IO.Path]::GetTempPath()) ('nicflow_' + [guid]::NewGuid().ToString('N') + '.ps1')
     $nicFlowText = @'
 param([string]$Script)
-$script:Sleep = @{ A1 = 'Enabled'; A2 = 'Disabled'; A3 = 'Unsupported'; A4 = 'Enabled' }
-function Get-NetAdapter { param([switch]$Physical, $ErrorAction) foreach ($n in 'A1', 'A2', 'A3', 'A4') { [pscustomobject]@{ Name = $n; InterfaceGuid = '{guid-' + $n + '}' } } }
-function Get-NetAdapterPowerManagement { param($Name, $ErrorAction) [pscustomobject]@{ AllowComputerToTurnOffDevice = $script:Sleep[$Name] } }
-function Set-NetAdapterPowerManagement { param($Name, $AllowComputerToTurnOffDevice, $ErrorAction) $script:Sleep[$Name] = [string]$AllowComputerToTurnOffDevice }
+# made-up adapters A1..A4 and the WMI instances of three of them (A3 offers no setting); the instance name is the PnP id plus _0
+$global:Insts = @(
+    [pscustomobject]@{ InstanceName = 'PCI\A1_0'; Enable = $true },
+    [pscustomobject]@{ InstanceName = 'PCI\A2_0'; Enable = $false },
+    [pscustomobject]@{ InstanceName = 'PCI\A4_0'; Enable = $true })
+function Get-NetAdapter { param([switch]$Physical, $ErrorAction) foreach ($n in 'A1', 'A2', 'A3', 'A4') { [pscustomobject]@{ Name = $n; InterfaceGuid = '{guid-' + $n + '}'; PnPDeviceID = 'PCI\' + $n } } }
+function Get-CimInstance { param($Namespace, $ClassName, $ErrorAction) $global:Insts }
+function Set-CimInstance { param($InputObject, $Property, $ErrorAction) $InputObject.Enable = [bool]$Property.Enable }
 $k = 'HKCU:\Software\PCOptimizerTest_' + [guid]::NewGuid().ToString('N')
-function Show { return (($script:Sleep.Keys | Sort-Object | ForEach-Object { $_ + '=' + $script:Sleep[$_] }) -join ',') }
+function Show { return (($global:Insts | ForEach-Object { $_.InstanceName.Substring(4, 2) + '=' + $_.Enable }) -join ',') }
 $res = @()
 & $Script -Action Apply -StateKey $k | Out-Null; $res += ('apply=' + $LASTEXITCODE + ' ' + (Show))
 & $Script -Action Apply -StateKey $k | Out-Null; $res += ('again=' + $LASTEXITCODE)
 & $Script -Action Undo -StateKey $k | Out-Null; $res += ('undo=' + $LASTEXITCODE + ' ' + (Show) + ' key=' + (Test-Path $k))
-$script:Sleep = @{ A1 = 'Unsupported'; A2 = 'Unsupported'; A3 = 'Unsupported'; A4 = 'Unsupported' }
+$global:Insts = @()
 & $Script -Action Apply -StateKey $k | Out-Null; $res += ('none=' + $LASTEXITCODE)
 Remove-Item -Path $k -Recurse -Force -ErrorAction SilentlyContinue
 Write-Output ($res -join ' | ')
@@ -228,7 +232,7 @@ Write-Output ($res -join ' | ')
     [IO.File]::WriteAllText($nicFlowFile, $nicFlowText, (New-Object System.Text.UTF8Encoding($false)))
     $nicFlow = (& powershell.exe -NoProfile -ExecutionPolicy Bypass -File $nicFlowFile -Script (Join-Path $root 'tools\Nic_Power.ps1') 2>&1 | Out-String).Trim()
     Remove-Item -LiteralPath $nicFlowFile -Force -ErrorAction SilentlyContinue
-    Assert ($nicFlow -eq 'apply=0 A1=Disabled,A2=Disabled,A3=Unsupported,A4=Disabled | again=0 | undo=0 A1=Enabled,A2=Disabled,A3=Unsupported,A4=Enabled key=False | none=3') ('the network adapter helper switches off only what it found on, undo switches those on again, and a PC without the setting is left alone (' + $nicFlow + ')')
+    Assert ($nicFlow -eq 'apply=0 A1=False,A2=False,A4=False | again=0 | undo=0 A1=True,A2=False,A4=True key=False | none=3') ('the network adapter helper switches off only what it found on, undo switches those on again, and a PC without the setting is left alone (' + $nicFlow + ')')
 } else {
     Write-Host '  [SKIP] the network adapter flow test needs administrator rights (it runs on the CI machine)' -ForegroundColor DarkGray
 }
