@@ -1,4 +1,4 @@
-# PC Optimizer v4.29 - Check Status
+# PC Optimizer v4.30 - Check Status
 # Compares the current PC settings with what the optimizer applies,
 # then offers to re-apply only the items that are missing or changed.
 param([string]$Root = '')
@@ -113,8 +113,21 @@ $script:Items = New-Object System.Collections.Generic.List[object]
 
 function Add-Item($Key, $Id, $Title, $Status, $Detail, $Kind, $FixType, $FixData) {
     # Kind: 'auto' = fix together with the others, 'ask' = always ask one by one
-    # FixType: reg, plan, pwr, pref, tcp, svc, trim - or $null when nothing can be fixed
+    # FixType: reg, plan, pwr, pref, tcp, svc, trim, gfx, nic - or $null when nothing can be fixed
     $script:Items.Add([pscustomobject]@{ Key = $Key; Id = $Id; Title = $Title; Status = $Status; Detail = $Detail; Kind = $Kind; FixType = $FixType; FixData = $FixData })
+}
+
+function Add-OptionalItem([string]$Id, [string]$Title, [string]$State, [string]$Detail, $FixType) {
+    # For the optional tweaks that are not plain .reg files (21, 22). State: 'on', 'off' or 'unknown'.
+    # They are never fixed on their own: they are asked about one by one, like the other optional tweaks.
+    $choice = Get-Choice $Id
+    $key = 'OPT' + $Id
+    if ($State -eq 'unknown') { Add-Item $key $Id $Title 'UNKNOWN' $Detail 'ask' $null $null; return }
+    if ($State -eq 'on') { Add-Item $key $Id $Title 'OK' '' 'ask' $null $null; return }
+    $status = 'CHANGED'
+    if ($choice -eq 'N') { $status = 'SKIPPED'; $Detail = 'you chose not to use this' }
+    elseif ($choice -eq '') { $status = 'NOT CHOSEN'; $Detail = 'optional - never applied or answered' }
+    Add-Item $key $Id $Title $status $Detail 'ask' $FixType $null
 }
 
 function Get-RegTweakStatus($File) {
@@ -250,6 +263,38 @@ function Invoke-Checks([string]$RegRoot, [string]$BackupDir) {
         }
     }
 
+    # --- optional 21: optimizations for windowed games (one flag inside a text value that also holds other graphics flags)
+    $gfxText = ''
+    try { $gfxText = [string](Get-ItemProperty -Path 'HKCU:\Software\Microsoft\DirectX\UserGpuPreferences' -Name 'DirectXUserGlobalSettings' -ErrorAction Stop).DirectXUserGlobalSettings } catch { }
+    $swap = [regex]::Match($gfxText, '(?i)(?:^|;)\s*SwapEffectUpgradeEnable\s*=\s*(\d)')
+    if ($swap.Success -and $swap.Groups[1].Value -eq '1') {
+        Add-OptionalItem '21' 'Optimizations for windowed games' 'on' '' 'gfx'
+    } else {
+        Add-OptionalItem '21' 'Optimizations for windowed games' 'off' ('flag is ' + $(if ($swap.Success) { $swap.Groups[1].Value } else { 'not set' }) + ', expected 1') 'gfx'
+    }
+
+    # --- optional 22: network adapters are not switched off to save power (only adapters that offer the setting count)
+    $nicSleep = New-Object System.Collections.Generic.List[string]
+    $nicStay = 0
+    try {
+        foreach ($ad in @(Get-NetAdapter -Physical -ErrorAction Stop)) {
+            $pm = $null
+            try { $pm = Get-NetAdapterPowerManagement -Name $ad.Name -ErrorAction Stop } catch { }
+            if ($null -eq $pm) { continue }
+            $sleepState = [string]$pm.AllowComputerToTurnOffDevice
+            if ($sleepState -eq 'Enabled') { $nicSleep.Add($ad.Name) } elseif ($sleepState -eq 'Disabled') { $nicStay++ }
+        }
+    } catch { $nicSleep.Clear(); $nicStay = 0 }
+    if ($nicSleep.Count -eq 0 -and $nicStay -eq 0) {
+        Add-OptionalItem '22' 'Network adapters stay on' 'unknown' 'no network adapter offers this setting' $null
+    } elseif ($nicSleep.Count -eq 0) {
+        Add-OptionalItem '22' 'Network adapters stay on' 'on' '' 'nic'
+    } else {
+        $more = ''
+        if ($nicSleep.Count -gt 1) { $more = '  (+' + ($nicSleep.Count - 1) + ' more)' }
+        Add-OptionalItem '22' 'Network adapters stay on' 'off' ($nicSleep[0] + ' may be switched off by Windows' + $more) 'nic'
+    }
+
     # --- prefetcher, by disk type
     # the drive Windows is installed on, not just "disk 0" (disk 0 can be a data drive of another type)
     $media = ''
@@ -259,14 +304,16 @@ function Invoke-Checks([string]$RegRoot, [string]$BackupDir) {
     } catch { }
     $pfKey = 'HKEY_LOCAL_MACHINE\SYSTEM\CurrentControlSet\Control\Session Manager\Memory Management\PrefetchParameters'
     $want = $null
-    if ($media -eq 'SSD') { $want = 0 } elseif ($media -eq 'HDD') { $want = 3 }
+    # Windows manages the prefetcher on an SSD itself, so 3 (the Windows default) is right on both kinds of drive;
+    # 0 on an SSD (set by an older version of this tool, or by hand) is accepted too and is never "fixed".
+    if ($media -eq 'SSD' -or $media -eq 'HDD') { $want = 3 }
     if ((Get-Choice 'PREF') -eq 'N') {
         Add-Item 'PREF' 'PREF' 'Prefetcher' 'SKIPPED' 'you put the Windows default back' 'auto' $null $null
     } elseif ($null -eq $want) {
         Add-Item 'PREF' 'PREF' 'Prefetcher' 'UNKNOWN' 'disk type could not be detected' 'auto' $null $null
     } else {
         $cur = Get-RegValue $pfKey 'EnablePrefetcher'
-        if ($cur -is [int] -and $cur -eq $want) {
+        if ($cur -is [int] -and ($cur -eq $want -or ($media -eq 'SSD' -and $cur -eq 0))) {
             Add-Item 'PREF' 'PREF' ('Prefetcher for ' + $media) 'OK' '' 'auto' $null $null
         } else {
             $shown = 'not set'
@@ -393,6 +440,20 @@ function Invoke-Fix($Item, [string]$BackupDir) {
             }
             'svc'  { & sc.exe config $Item.FixData start= disabled *> $null; $ok = ($LASTEXITCODE -eq 0) }
             'trim' { & fsutil.exe behavior set DisableDeleteNotify 0 *> $null; $ok = ($LASTEXITCODE -eq 0) }
+            'gfx' {
+                $helper = Join-Path $PSScriptRoot 'Game_Settings.ps1'
+                if (Test-Path -LiteralPath $helper) {
+                    & powershell.exe -NoProfile -ExecutionPolicy Bypass -File $helper -Action Apply *> $null
+                    $ok = ($LASTEXITCODE -eq 0)
+                }
+            }
+            'nic' {
+                $helper = Join-Path $PSScriptRoot 'Nic_Power.ps1'
+                if (Test-Path -LiteralPath $helper) {
+                    & powershell.exe -NoProfile -ExecutionPolicy Bypass -File $helper -Action Apply *> $null
+                    $ok = ($LASTEXITCODE -eq 0)
+                }
+            }
         }
     } catch { $ok = $false }
     if ($ok) {
@@ -426,7 +487,7 @@ function Start-CheckStatus {
     $reportFile = New-ReportPath $script:RootDir 'CheckReport'
 
     Write-Log '==================================================================' 'Cyan'
-    Write-Log '   PC OPTIMIZER v4.29 - CHECK STATUS' 'Cyan'
+    Write-Log '   PC OPTIMIZER v4.30 - CHECK STATUS' 'Cyan'
     Write-Log ('   ' + (Get-Date -Format 'yyyy-MM-dd HH:mm') + '   Windows build ' + [Environment]::OSVersion.Version.ToString()) 'Cyan'
     Write-Log '==================================================================' 'Cyan'
     Write-Log ''

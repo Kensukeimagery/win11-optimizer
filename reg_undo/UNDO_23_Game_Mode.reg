@@ -1,0 +1,6 @@
+Windows Registry Editor Version 5.00
+
+; UNDO 23 - remove the values, which is how Windows ships (Game Mode is then on by default).
+[HKEY_CURRENT_USER\Software\Microsoft\GameBar]
+"AllowAutoGameMode"=-
+"AutoGameModeEnabled"=-

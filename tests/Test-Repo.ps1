@@ -137,6 +137,115 @@ $noThai = @([regex]::Matches($coreSrc, 'new Tweak\("\d\d", "\w+", "((?:[^"\\]|\\
 Assert ($noThai.Count -eq 0) ('every tweak name and description of the app has a Thai text ' + ($noThai -join ' | '))
 
 Write-Host ''
+Write-Host '== Tweaks 21 to 25 (windowed games, network adapters, Game Mode, End task, background apps) and the Prefetcher' -ForegroundColor Cyan
+$r23 = Get-RegText 'reg' '23'; $u23 = Get-RegText 'reg_undo' 'UNDO_23'
+Assert ($r23 -match 'GameBar\]\s+"AllowAutoGameMode"=dword:00000001\s+"AutoGameModeEnabled"=dword:00000001' -and $u23 -match '"AllowAutoGameMode"=-' -and $u23 -match '"AutoGameModeEnabled"=-') 'tweak 23 turns Game Mode on and its undo removes the two values'
+$r24 = Get-RegText 'reg' '24'; $u24 = Get-RegText 'reg_undo' 'UNDO_24'
+Assert ($r24 -match 'TaskbarDeveloperSettings\]\s+"TaskbarEndTask"=dword:00000001' -and $u24 -match '"TaskbarEndTask"=-') 'tweak 24 adds End task to the taskbar menu and its undo removes the value'
+$r25 = Get-RegText 'reg' '25'; $u25 = Get-RegText 'reg_undo' 'UNDO_25'
+Assert ($r25 -match 'BackgroundAccessApplications\]\s+"GlobalUserDisabled"=dword:00000001' -and $u25 -match '"GlobalUserDisabled"=-') 'tweak 25 stops Store apps in the background and its undo removes the value'
+foreach ($rt in $r23, $r24, $r25) { Assert ($rt -match 'HKEY_CURRENT_USER' -and $rt -notmatch 'HKEY_LOCAL_MACHINE') 'tweaks 23 to 25 change only the settings of the current user' }
+$gsText = [IO.File]::ReadAllText((Join-Path $root 'tools\Game_Settings.ps1'))
+$nicText = [IO.File]::ReadAllText((Join-Path $root 'tools\Nic_Power.ps1'))
+Assert ($gsText -match "ValidateSet\('Apply', 'Undo', 'Query'\)" -and $gsText -match 'Prev_SWAP' -and $gsText -match 'SwapEffectUpgradeEnable') 'the windowed-games helper has Apply, Undo and Query and remembers the earlier state'
+Assert ($nicText -match "ValidateSet\('Apply', 'Undo', 'Query'\)" -and $nicText -match 'AllowComputerToTurnOffDevice' -and $nicText -match 'exit 3' -and $nicText -match 'NicPrev') 'the network adapter helper has Apply, Undo and Query, skips PCs without the setting and remembers the earlier state'
+$gsUnitFile = Join-Path ([IO.Path]::GetTempPath()) ('gsunit_' + [guid]::NewGuid().ToString('N') + '.ps1')
+$gsUnitText = @'
+param([string]$Script)
+. $Script
+$a = Set-FlagValue 'HighPerfAdapter=10DE&2684;AutoHDREnable=1;' 'SwapEffectUpgradeEnable' '1'
+$b = Set-FlagValue 'SwapEffectUpgradeEnable=0;AutoHDREnable=1' 'SwapEffectUpgradeEnable' '1'
+$c = Remove-FlagValue 'AutoHDREnable=0;SwapEffectUpgradeEnable=1;' 'SwapEffectUpgradeEnable'
+$d = Remove-FlagValue 'SwapEffectUpgradeEnable=1;' 'SwapEffectUpgradeEnable'
+$e = Get-FlagValue 'AutoHDREnable=0;SwapEffectUpgradeEnable=1;' 'SwapEffectUpgradeEnable'
+$f = Set-FlagValue '' 'SwapEffectUpgradeEnable' '1'
+Write-Output ($a + '|' + $b + '|' + $c + '|[' + $d + ']|' + $e + '|' + $f)
+'@
+[IO.File]::WriteAllText($gsUnitFile, $gsUnitText, (New-Object System.Text.UTF8Encoding($false)))
+$gsUnit = (& powershell.exe -NoProfile -ExecutionPolicy Bypass -File $gsUnitFile -Script (Join-Path $root 'tools\Game_Settings.ps1') 2>&1 | Out-String).Trim()
+Remove-Item -LiteralPath $gsUnitFile -Force -ErrorAction SilentlyContinue
+Assert ($gsUnit -eq 'HighPerfAdapter=10DE&2684;AutoHDREnable=1;SwapEffectUpgradeEnable=1;|SwapEffectUpgradeEnable=1;AutoHDREnable=1;|AutoHDREnable=0;|[]|1|SwapEffectUpgradeEnable=1;') ('the windowed-games helper changes only its own flag inside the shared graphics value and keeps the others (' + $gsUnit + ')')
+# both helpers can be asked what the state is without changing anything: they must answer without an error
+$gsQuery = (& powershell.exe -NoProfile -ExecutionPolicy Bypass -File (Join-Path $root 'tools\Game_Settings.ps1') -Action Query 2>&1 | Out-String)
+$nicQuery = (& powershell.exe -NoProfile -ExecutionPolicy Bypass -File (Join-Path $root 'tools\Nic_Power.ps1') -Action Query 2>&1 | Out-String)
+Assert ($gsQuery -match 'Optimizations for windowed games' -and $gsQuery -notmatch 'Exception|At line|Argument') ('the windowed-games helper answers a Query without an error (' + $gsQuery.Trim() + ')')
+Assert (($nicQuery -match 'adapter' -or $nicQuery -match 'stays on' -or $nicQuery -match 'switch it off') -and $nicQuery -notmatch 'Exception|At line|Argument') ('the network adapter helper answers a Query without an error (' + $nicQuery.Trim() + ')')
+# the whole Apply and Undo flow of the windowed-games helper, against a temporary registry key (nothing real is touched)
+$gsFlowFile = Join-Path ([IO.Path]::GetTempPath()) ('gsflow_' + [guid]::NewGuid().ToString('N') + '.ps1')
+$gsFlowText = @'
+param([string]$Script)
+$k = 'HKCU:\Software\PCOptimizerTest_' + [guid]::NewGuid().ToString('N')
+$g = $k + '\Gfx'; $s = $k + '\State'
+New-Item -Path $g -Force | Out-Null
+function Get-Gfx { try { [string](Get-ItemProperty -Path $g -Name 'DirectXUserGlobalSettings' -ErrorAction Stop).DirectXUserGlobalSettings } catch { '<none>' } }
+$res = @()
+# 1. a value that holds another graphics flag: it must survive the apply and the undo
+New-ItemProperty -Path $g -Name 'DirectXUserGlobalSettings' -Value 'AutoHDREnable=0;' -PropertyType String -Force | Out-Null
+& powershell.exe -NoProfile -ExecutionPolicy Bypass -File $Script -Action Apply -GfxKey $g -StateKey $s | Out-Null
+$res += ('apply=' + $LASTEXITCODE + ' ' + (Get-Gfx))
+& powershell.exe -NoProfile -ExecutionPolicy Bypass -File $Script -Action Apply -GfxKey $g -StateKey $s | Out-Null    # a second apply must not forget the original state
+& powershell.exe -NoProfile -ExecutionPolicy Bypass -File $Script -Action Undo -GfxKey $g -StateKey $s | Out-Null
+$res += ('undo=' + $LASTEXITCODE + ' ' + (Get-Gfx))
+# 2. no value at all: undo removes the value again
+Remove-ItemProperty -Path $g -Name 'DirectXUserGlobalSettings' -ErrorAction SilentlyContinue
+& powershell.exe -NoProfile -ExecutionPolicy Bypass -File $Script -Action Apply -GfxKey $g -StateKey $s | Out-Null
+$res += (Get-Gfx)
+& powershell.exe -NoProfile -ExecutionPolicy Bypass -File $Script -Action Undo -GfxKey $g -StateKey $s | Out-Null
+$res += (Get-Gfx)
+# 3. the flag was explicitly 0 before: undo puts the 0 back
+New-ItemProperty -Path $g -Name 'DirectXUserGlobalSettings' -Value 'SwapEffectUpgradeEnable=0;AutoHDREnable=1;' -PropertyType String -Force | Out-Null
+& powershell.exe -NoProfile -ExecutionPolicy Bypass -File $Script -Action Apply -GfxKey $g -StateKey $s | Out-Null
+& powershell.exe -NoProfile -ExecutionPolicy Bypass -File $Script -Action Undo -GfxKey $g -StateKey $s | Out-Null
+$res += (Get-Gfx)
+Remove-Item -Path $k -Recurse -Force -ErrorAction SilentlyContinue
+Write-Output ($res -join ' | ')
+'@
+[IO.File]::WriteAllText($gsFlowFile, $gsFlowText, (New-Object System.Text.UTF8Encoding($false)))
+$gsFlow = (& powershell.exe -NoProfile -ExecutionPolicy Bypass -File $gsFlowFile -Script (Join-Path $root 'tools\Game_Settings.ps1') 2>&1 | Out-String).Trim()
+Remove-Item -LiteralPath $gsFlowFile -Force -ErrorAction SilentlyContinue
+Assert ($gsFlow -eq 'apply=0 AutoHDREnable=0;SwapEffectUpgradeEnable=1; | undo=0 AutoHDREnable=0; | SwapEffectUpgradeEnable=1; | <none> | SwapEffectUpgradeEnable=0;AutoHDREnable=1;') ('the windowed-games helper applies and undoes only its own flag in every starting state (' + $gsFlow + ')')
+# the network adapter helper against made-up adapters (it needs administrator rights, so this runs on the CI machine and is skipped for a normal user)
+$isAdminHere = ([Security.Principal.WindowsPrincipal][Security.Principal.WindowsIdentity]::GetCurrent()).IsInRole([Security.Principal.WindowsBuiltInRole]::Administrator)
+if ($isAdminHere) {
+    $nicFlowFile = Join-Path ([IO.Path]::GetTempPath()) ('nicflow_' + [guid]::NewGuid().ToString('N') + '.ps1')
+    $nicFlowText = @'
+param([string]$Script)
+$script:Sleep = @{ A1 = 'Enabled'; A2 = 'Disabled'; A3 = 'Unsupported'; A4 = 'Enabled' }
+function Get-NetAdapter { param([switch]$Physical, $ErrorAction) foreach ($n in 'A1', 'A2', 'A3', 'A4') { [pscustomobject]@{ Name = $n; InterfaceGuid = '{guid-' + $n + '}' } } }
+function Get-NetAdapterPowerManagement { param($Name, $ErrorAction) [pscustomobject]@{ AllowComputerToTurnOffDevice = $script:Sleep[$Name] } }
+function Set-NetAdapterPowerManagement { param($Name, $AllowComputerToTurnOffDevice, $ErrorAction) $script:Sleep[$Name] = [string]$AllowComputerToTurnOffDevice }
+$k = 'HKCU:\Software\PCOptimizerTest_' + [guid]::NewGuid().ToString('N')
+function Show { return (($script:Sleep.Keys | Sort-Object | ForEach-Object { $_ + '=' + $script:Sleep[$_] }) -join ',') }
+$res = @()
+& $Script -Action Apply -StateKey $k | Out-Null; $res += ('apply=' + $LASTEXITCODE + ' ' + (Show))
+& $Script -Action Apply -StateKey $k | Out-Null; $res += ('again=' + $LASTEXITCODE)
+& $Script -Action Undo -StateKey $k | Out-Null; $res += ('undo=' + $LASTEXITCODE + ' ' + (Show) + ' key=' + (Test-Path $k))
+$script:Sleep = @{ A1 = 'Unsupported'; A2 = 'Unsupported'; A3 = 'Unsupported'; A4 = 'Unsupported' }
+& $Script -Action Apply -StateKey $k | Out-Null; $res += ('none=' + $LASTEXITCODE)
+Remove-Item -Path $k -Recurse -Force -ErrorAction SilentlyContinue
+Write-Output ($res -join ' | ')
+'@
+    [IO.File]::WriteAllText($nicFlowFile, $nicFlowText, (New-Object System.Text.UTF8Encoding($false)))
+    $nicFlow = (& powershell.exe -NoProfile -ExecutionPolicy Bypass -File $nicFlowFile -Script (Join-Path $root 'tools\Nic_Power.ps1') 2>&1 | Out-String).Trim()
+    Remove-Item -LiteralPath $nicFlowFile -Force -ErrorAction SilentlyContinue
+    Assert ($nicFlow -eq 'apply=0 A1=Disabled,A2=Disabled,A3=Unsupported,A4=Disabled | again=0 | undo=0 A1=Enabled,A2=Disabled,A3=Unsupported,A4=Enabled key=False | none=3') ('the network adapter helper switches off only what it found on, undo switches those on again, and a PC without the setting is left alone (' + $nicFlow + ')')
+} else {
+    Write-Host '  [SKIP] the network adapter flow test needs administrator rights (it runs on the CI machine)' -ForegroundColor DarkGray
+}
+$mst4 = [IO.File]::ReadAllText((Join-Path $root '1_Start_Here - PC_Optimizer_Master (Run as Administrator).bat'))
+Assert ($mst4 -match ':GFXAPPLY' -and $mst4 -match ':NICAPPLY' -and $mst4 -match 'if errorlevel 3 goto NICNA' -and $mst4 -match 'Game_Settings.ps1' -and $mst4 -match 'Nic_Power.ps1') 'the main menu applies 21 and 22 through their helpers (22 is skipped when no adapter offers it)'
+Assert ($mst4 -match 'if "%RN%"=="21" goto REVERTGFX' -and $mst4 -match 'if "%RN%"=="22" goto REVERTNIC' -and $mst4 -match 'if "%RN%"=="21" goto APPLYONEGFX' -and $mst4 -match 'if "%RN%"=="22" goto REVERTONENIC') 'revert, /apply and /revert know 21 and 22'
+$gamesBlock = [regex]::Match($mst4, '(?s):EASYGAMES\r?\n.*?:EASYMAX\r?\n').Value
+Assert ($gamesBlock -match 'GFXAPPLY' -and $gamesBlock -match 'IMPORTNUM 23' -and $gamesBlock -match 'NICAPPLY' -and $gamesBlock -match 'SETCHOICE 22 N' -and $gamesBlock -notmatch 'IMPORTNUM 24' -and $gamesBlock -notmatch 'IMPORTNUM 25') 'the games profile adds 21, 23 and (not on a laptop) 22, and leaves 24 and 25 off'
+$maxBlock = [regex]::Match($mst4, '(?s):EASYMAX\r?\n.*?:END\r?\n').Value
+Assert ($maxBlock -match 'GFXAPPLY' -and $maxBlock -match 'IMPORTNUM 23' -and $maxBlock -match 'IMPORTNUM 24' -and $maxBlock -match 'IMPORTNUM 25' -and $maxBlock -match 'NICAPPLY' -and $maxBlock -match 'SETCHOICE 22 N') 'the Maximum profile adds 21 to 25 (22 not on a laptop)'
+$safeBlock = [regex]::Match($mst4, '(?s):EASYOPT\r?\n.*?:EASYGAMES\r?\n').Value
+Assert ($safeBlock -match 'SETCHOICE 21 N' -and $safeBlock -match 'SETCHOICE 22 N' -and $safeBlock -match 'SETCHOICE 23 N' -and $safeBlock -match 'SETCHOICE 24 N' -and $safeBlock -match 'SETCHOICE 25 N' -and $safeBlock -notmatch 'GFXAPPLY' -and $safeBlock -notmatch 'NICAPPLY') 'the safe profile leaves 21 to 25 off and remembers that'
+$pfssd = [regex]::Match($mst4, '(?s):PFSSD\r?\n.*?goto :eof').Value
+Assert ($pfssd -ne '' -and $pfssd -notmatch 'EnablePrefetcher') 'the menu no longer switches the Prefetcher off on an SSD (Windows manages it there)'
+$csSrc2 = [IO.File]::ReadAllText((Join-Path $root 'tools\Check_Status.ps1'))
+Assert ($csSrc2 -match "Add-OptionalItem '21'" -and $csSrc2 -match "Add-OptionalItem '22'" -and $csSrc2 -match "'gfx'" -and $csSrc2 -match "'nic'" -and $csSrc2 -match "\`$media -eq 'SSD' -and \`$cur -eq 0") 'Check Status lists 21 and 22, can re-apply them, and accepts an SSD Prefetcher of 0 without calling it wrong'
+Write-Host ''
 Write-Host '== Check Status runs (read-only dry run)' -ForegroundColor Cyan
 try {
     $csPath = Join-Path $root 'tools\Check_Status.ps1'
@@ -147,6 +256,7 @@ try {
     $missingIds = @($allNums | Where-Object { $ids -notcontains $_ })
     Assert ($missingIds.Count -eq 0) ('every tweak number is checked (missing: ' + ($missingIds -join ', ') + ')')
     Assert ($script:Items.Count -gt 15) ('Check Status produced ' + $script:Items.Count + ' items')
+    Assert (($ids -contains '21') -and ($ids -contains '22')) 'Check Status lists the two helper-script tweaks 21 and 22'
 } catch {
     Fail ('Check Status dry run threw: ' + $_.Exception.Message)
 }
@@ -451,7 +561,7 @@ $appManifest = [IO.File]::ReadAllText((Join-Path $root 'app\app.manifest'))
 Assert ($appManifest.Contains('requireAdministrator')) 'the app asks for administrator rights (the tool changes system settings)'
 $appCore = [IO.File]::ReadAllText((Join-Path $root 'app\Core.cs'))
 $missingInApp = @(Get-ChildItem -LiteralPath (Join-Path $root 'reg') -Recurse -File -Filter '*.reg' | ForEach-Object { $_.Name.Substring(0, 2) } | Where-Object { -not $appCore.Contains('new Tweak("' + $_ + '"') })
-Assert ($missingInApp.Count -eq 0 -and $appCore.Contains('new Tweak("16"')) ('every tweak of the reg folder (and 16) is listed in the app ' + ($missingInApp -join ', '))
+Assert ($missingInApp.Count -eq 0 -and $appCore.Contains('new Tweak("16"') -and $appCore.Contains('new Tweak("21"') -and $appCore.Contains('new Tweak("22"')) ('every tweak of the reg folder (and 16) is listed in the app ' + ($missingInApp -join ', '))
 $masterApp = [IO.File]::ReadAllText((Join-Path $root '1_Start_Here - PC_Optimizer_Master (Run as Administrator).bat'))
 Assert ($masterApp -match 'if /i "%~1"=="/apply" goto APPLYONE' -and $masterApp -match 'if /i "%~1"=="/revert" goto REVERTONE' -and $masterApp -match ':APPLYONE' -and $masterApp -match ':REVERTONE') 'the main menu file has /apply and /revert (the app uses them)'
 Assert ([IO.File]::ReadAllText((Join-Path $root '.gitattributes')).Contains('/app export-ignore')) 'the app sources stay out of the download ZIP (the release job adds the built exe)'
@@ -481,7 +591,7 @@ param([string]$Suite)
 $ast = [System.Management.Automation.Language.Parser]::ParseFile($Suite, [ref]$null, [ref]$null)
 $funcs = @($ast.FindAll({ param($n) $n -is [System.Management.Automation.Language.FunctionDefinitionAst] -and ($n.Name -eq 'Get-SettingsState' -or $n.Name -eq 'Test-Profile') }, $true))
 $script:Root = 'X:\none'
-function Invoke-PsFile { param($a, $b, $c) [pscustomobject]@{ Out = "01|OK`r`n02|OK`r`n03|OK`r`n04|OK`r`n05|OK`r`n06|OK`r`n07|OK`r`n08|OK`r`n09|SKIPPED`r`n10|OK`r`n11|OK`r`n12|SKIPPED`r`n13|SKIPPED`r`n14|OK`r`n15|OK`r`nPLAN|OK`r`nPWR|OK`r`n16|OK`r`n18|SKIPPED`r`n19|SKIPPED`r`n20|SKIPPED`r`nPREF|UNKNOWN" } }
+function Invoke-PsFile { param($a, $b, $c) [pscustomobject]@{ Out = "01|OK`r`n02|OK`r`n03|OK`r`n04|OK`r`n05|OK`r`n06|OK`r`n07|OK`r`n08|OK`r`n09|SKIPPED`r`n10|OK`r`n11|OK`r`n12|SKIPPED`r`n13|SKIPPED`r`n14|OK`r`n15|OK`r`nPLAN|OK`r`nPWR|OK`r`n16|OK`r`n18|SKIPPED`r`n19|SKIPPED`r`n20|SKIPPED`r`n21|SKIPPED`r`n22|UNKNOWN`r`n23|SKIPPED`r`n24|SKIPPED`r`n25|SKIPPED`r`nPREF|UNKNOWN" } }
 foreach ($f in $funcs) { . ([scriptblock]::Create($f.Extent.Text)) }
 $st = Get-SettingsState
 Write-Output ('' + $funcs.Count + ' ' + $st.OkTotal + ' ' + $st.Map.Count + ' ' + @(Test-Profile $st 'games').Count + ' ' + @(Test-Profile $st 'max').Count + ' ' + @(Test-Profile $st 'safe').Count)
@@ -489,7 +599,7 @@ Write-Output ('' + $funcs.Count + ' ' + $st.OkTotal + ' ' + $st.Map.Count + ' ' 
 [IO.File]::WriteAllText($vmUnitFile, $vmUnitText, (New-Object System.Text.UTF8Encoding($false)))
 $vmUnit = (& powershell.exe -NoProfile -ExecutionPolicy Bypass -File $vmUnitFile -Suite (Join-Path $root 'tests\vm\guest\vm_tests.ps1') 2>&1 | Out-String).Trim()
 Remove-Item -LiteralPath $vmUnitFile -Force -ErrorAction SilentlyContinue
-Assert ($vmUnit -eq '2 15 19 0 5 3') 'the VM suite reads the settings list and judges each Easy Setup profile correctly (made-up probe output)'
+Assert ($vmUnit -eq '2 15 24 2 9 3') 'the VM suite reads the settings list and judges each Easy Setup profile correctly (made-up probe output)'
 $vmDry = & powershell.exe -NoProfile -ExecutionPolicy Bypass -File (Join-Path $root 'tests\vm\guest\vm_tests.ps1') -DryRun 2>&1 | Out-String
 Assert ($LASTEXITCODE -eq 0 -and $vmDry.Contains('P2') -and $vmDry.Contains('P6') -and $vmDry -match 'Dry run') 'the VM suite lists its phases in a dry run and changes nothing'
 $vmTmp = Join-Path ([IO.Path]::GetTempPath()) ('vmedition_' + [guid]::NewGuid().ToString('N'))

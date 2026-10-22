@@ -1,10 +1,10 @@
 @echo off
 setlocal EnableExtensions
-title PC Optimizer - Master Control v4.29
+title PC Optimizer - Master Control v4.30
 color 0B
 
 :: =====================================================================
-::  PC OPTIMIZER - MASTER CONTROL v4.29
+::  PC OPTIMIZER - MASTER CONTROL v4.30
 ::  Safety rules used in this file - they avoid the crashes seen in v3:
 ::   - no brackets inside ECHO text that sits inside IF or FOR blocks
 ::   - flat GOTO labels instead of nested IF / ELSE blocks
@@ -24,7 +24,7 @@ set "LOGDIR=%SCRIPT_DIR%Logs"
 if not exist "%LOGDIR%" mkdir "%LOGDIR%" >nul 2>&1
 set "LOGFILE=%LOGDIR%\OptimizerLog_%TS%.txt"
 set "BACKUPDIR=%SCRIPT_DIR%Backup\%TS%"
-echo PC Optimizer v4.29 Log - %date% %time% > "%LOGFILE%"
+echo PC Optimizer v4.30 Log - %date% %time% > "%LOGFILE%"
 if exist "%TOOLDIR%\Report_Maintain.ps1" powershell -NoProfile -ExecutionPolicy Bypass -File "%TOOLDIR%\Report_Maintain.ps1" -Root "%SCRIPT_DIR%." >nul 2>&1
 
 if not exist "%REGROOT%" goto NOREG
@@ -92,7 +92,7 @@ goto MENU
 :MENU
 cls
 echo ===================================================================
-echo    PC OPTIMIZER - MASTER CONTROL v4.29
+echo    PC OPTIMIZER - MASTER CONTROL v4.30
 echo    Log: OptimizerLog_%TS%.txt
 if "%ISLAPTOP%"=="1" echo    Laptop detected - tweaks 02 and 16 are not recommended on a laptop.
 if defined UPDMSG echo    %UPDMSG%
@@ -101,7 +101,7 @@ echo.
 echo   [E] EASY SETUP - one button for a new PC or first use (beginners start here)
 echo   -----------------------------------------------------------
 echo   [1] Recommended tweaks     - reg 01-08, safe for everyone
-echo   [2] Optional tweaks        - 09-13, 15, 16, 18-20, asks you one by one
+echo   [2] Optional tweaks        - 09-13, 15, 16, 18-25, asks you one by one
 echo   [3] Base system setup      - power plan, services, SSD check,
 echo                                network per adapter, temp cleanup
 echo   [4] Power settings         - reg 14 + auto-set CPU, USB, PCIe
@@ -385,6 +385,44 @@ if /i not "%ans%"=="Y" echo   - Skipped 20
 if /i not "%ans%"=="Y" call :SETCHOICE 20 N
 
 echo.
+echo   #21 Turns on the Windows 11 setting Optimizations for windowed games: DirectX 10 and 11
+echo   games in a window or a borderless window get lower frame latency. Your other graphics
+echo   settings are kept.
+set "ans="
+set /p "ans=  #21 Apply? Y/N: "
+if /i "%ans%"=="Y" call :GFXAPPLY
+if /i not "%ans%"=="Y" echo   - Skipped 21
+if /i not "%ans%"=="Y" call :SETCHOICE 21 N
+
+echo.
+echo   #22 Windows no longer switches off your network adapters to save power. A card that
+echo   sleeps can drop the connection for a moment, which shows as lag in online games.
+if "%ISLAPTOP%"=="1" echo   Laptop detected: a little more battery use. Not recommended.
+set "ans="
+set /p "ans=  #22 Apply? Y/N: "
+if /i "%ans%"=="Y" call :NICAPPLY
+if /i not "%ans%"=="Y" echo   - Skipped 22
+if /i not "%ans%"=="Y" call :SETCHOICE 22 N
+
+set "ans="
+set /p "ans=  #23 Make sure Windows Game Mode is on. Apply? Y/N: "
+if /i "%ans%"=="Y" call :IMPORTNUM 23
+if /i not "%ans%"=="Y" echo   - Skipped 23
+if /i not "%ans%"=="Y" call :SETCHOICE 23 N
+
+set "ans="
+set /p "ans=  #24 Add End task to the taskbar right-click menu - needs Windows 11 23H2 or newer. Apply? Y/N: "
+if /i "%ans%"=="Y" call :IMPORTNUM 24
+if /i not "%ans%"=="Y" echo   - Skipped 24
+if /i not "%ans%"=="Y" call :SETCHOICE 24 N
+
+set "ans="
+set /p "ans=  #25 Store apps may not run in the background. Apply? Y/N: "
+if /i "%ans%"=="Y" call :IMPORTNUM 25
+if /i not "%ans%"=="Y" echo   - Skipped 25
+if /i not "%ans%"=="Y" call :SETCHOICE 25 N
+
+echo.
 echo [Done] Optional tweaks step finished.
 pause
 goto :eof
@@ -407,6 +445,40 @@ echo     [ERROR] The CPU boost settings could not be applied.
 goto :eof
 :BOOSTMISSING
 echo     [WARN] tools\Power_Boost.ps1 was not found, 16 was skipped.
+goto :eof
+
+:: ---------------------------------------------------------------------
+:GFXAPPLY
+echo   - Applying 21 Optimizations for windowed games...
+if not exist "%TOOLDIR%\Game_Settings.ps1" goto GFXMISSING
+powershell -NoProfile -ExecutionPolicy Bypass -File "%TOOLDIR%\Game_Settings.ps1" -Action Apply
+if errorlevel 1 goto GFXFAIL
+call :SETCHOICE 21 Y
+goto :eof
+:GFXFAIL
+echo     [ERROR] The graphics setting could not be applied.
+goto :eof
+:GFXMISSING
+echo     [WARN] tools\Game_Settings.ps1 was not found, 21 was skipped.
+goto :eof
+
+:NICAPPLY
+echo   - Applying 22 Network adapters stay on...
+if not exist "%TOOLDIR%\Nic_Power.ps1" goto NICMISSING
+powershell -NoProfile -ExecutionPolicy Bypass -File "%TOOLDIR%\Nic_Power.ps1" -Action Apply
+if errorlevel 3 goto NICNA
+if errorlevel 1 goto NICFAIL
+call :SETCHOICE 22 Y
+goto :eof
+:NICNA
+echo     [SKIPPED] No network adapter on this PC offers this setting.
+call :SETCHOICE 22 N
+goto :eof
+:NICFAIL
+echo     [ERROR] The network adapter setting could not be applied.
+goto :eof
+:NICMISSING
+echo     [WARN] tools\Nic_Power.ps1 was not found, 22 was skipped.
 goto :eof
 
 :: ---------------------------------------------------------------------
@@ -490,8 +562,7 @@ if /i "%MEDIATYPE%"=="HDD" goto PFHDD
 echo    [SKIPPED] Disk type unknown - Prefetcher left unchanged.
 goto :eof
 :PFSSD
-reg add "%PFKEY%" /v EnablePrefetcher /t REG_DWORD /d 0 /f >> "%LOGFILE%" 2>&1
-echo    [OK] SSD - Prefetcher turned off.
+echo    [OK] SSD - Prefetcher left as Windows has it. Windows manages it on an SSD itself.
 call :SETCHOICE PREF Y
 goto :eof
 :PFHDD
@@ -623,7 +694,9 @@ echo    7  Delivery Optimization off   14  CPU power options unlock
 echo   15  Timer resolution            16  CPU boost aggressive
 echo   17  DNS servers - back to the DNS you had before
 echo   18  Driver updates via Windows Update  19  Startup apps start at once
-echo   20  Quick menus
+echo   20  Quick menus                 21  Windowed-games optimization
+echo   22  Network adapters stay on    23  Game Mode on
+echo   24  End task in the taskbar     25  Background apps off
 echo.
 echo    T  Network per-adapter tweak
 echo    S  Services - telemetry services back to the Windows defaults
@@ -644,6 +717,8 @@ set "RN=0%RV%"
 set "RN=%RN:~-2%"
 if "%RN%"=="16" goto REVERTBOOST
 if "%RN%"=="17" goto REVERTDNS
+if "%RN%"=="21" goto REVERTGFX
+if "%RN%"=="22" goto REVERTNIC
 set "FOUNDREG="
 for /r "%UNDOROOT%" %%f in (UNDO_%RN%_*.reg) do call :UNDOONE "%%f"
 if not defined FOUNDREG echo    [WARN] No undo file matches that choice.
@@ -674,6 +749,20 @@ goto :eof
 if not exist "%TOOLDIR%\Power_Boost.ps1" echo    [WARN] tools\Power_Boost.ps1 was not found.
 if exist "%TOOLDIR%\Power_Boost.ps1" powershell -NoProfile -ExecutionPolicy Bypass -File "%TOOLDIR%\Power_Boost.ps1" -Action Undo
 call :SETCHOICE 16 N
+pause
+goto :eof
+
+:REVERTGFX
+if not exist "%TOOLDIR%\Game_Settings.ps1" echo    [WARN] tools\Game_Settings.ps1 was not found.
+if exist "%TOOLDIR%\Game_Settings.ps1" powershell -NoProfile -ExecutionPolicy Bypass -File "%TOOLDIR%\Game_Settings.ps1" -Action Undo
+call :SETCHOICE 21 N
+pause
+goto :eof
+
+:REVERTNIC
+if not exist "%TOOLDIR%\Nic_Power.ps1" echo    [WARN] tools\Nic_Power.ps1 was not found.
+if exist "%TOOLDIR%\Nic_Power.ps1" powershell -NoProfile -ExecutionPolicy Bypass -File "%TOOLDIR%\Nic_Power.ps1" -Action Undo
+call :SETCHOICE 22 N
 pause
 goto :eof
 
@@ -868,10 +957,18 @@ set "RN=%RN:~-2%"
 echo.
 if "%RN%"=="16" goto APPLYONEBOOST
 if "%RN%"=="14" goto APPLYONEPOWER
+if "%RN%"=="21" goto APPLYONEGFX
+if "%RN%"=="22" goto APPLYONENIC
 call :IMPORTNUM %RN%
 goto APPLYONEDONE
 :APPLYONEBOOST
 call :BOOSTAPPLY
+goto APPLYONEDONE
+:APPLYONEGFX
+call :GFXAPPLY
+goto APPLYONEDONE
+:APPLYONENIC
+call :NICAPPLY
 goto APPLYONEDONE
 :APPLYONEPOWER
 call :POWER
@@ -885,6 +982,8 @@ set "RN=0%~2"
 set "RN=%RN:~-2%"
 echo.
 if "%RN%"=="16" goto REVERTONEBOOST
+if "%RN%"=="21" goto REVERTONEGFX
+if "%RN%"=="22" goto REVERTONENIC
 set "FOUNDREG="
 for /r "%UNDOROOT%" %%f in (UNDO_%RN%_*.reg) do call :UNDOONE "%%f"
 if not defined FOUNDREG echo   [WARN] No undo file matches that number.
@@ -895,10 +994,20 @@ if exist "%TOOLDIR%\Power_Boost.ps1" powershell -NoProfile -ExecutionPolicy Bypa
 call :SETCHOICE 16 N
 echo   [Done] Tweak 16 reverted.
 goto END
+:REVERTONEGFX
+if exist "%TOOLDIR%\Game_Settings.ps1" powershell -NoProfile -ExecutionPolicy Bypass -File "%TOOLDIR%\Game_Settings.ps1" -Action Undo
+call :SETCHOICE 21 N
+echo   [Done] Tweak 21 reverted.
+goto END
+:REVERTONENIC
+if exist "%TOOLDIR%\Nic_Power.ps1" powershell -NoProfile -ExecutionPolicy Bypass -File "%TOOLDIR%\Nic_Power.ps1" -Action Undo
+call :SETCHOICE 22 N
+echo   [Done] Tweak 22 reverted.
+goto END
 
 ::  Easy Setup entry. tools\Easy_Setup.ps1 starts this file as:  /easy safe   /easy games   /easy max   or   /easy max13
-::  No questions and no pauses. Recommended tweaks, base setup, power settings, and for "games" also 10, 11, 15 and 16 (15 and 16 not on laptops).
-::  "max" adds 09, 12, 18, 19 and 20.
+::  No questions and no pauses. Recommended tweaks, base setup, power settings, and for "games" also 10, 11, 21, 23, 15, 16 and 22 (15, 16 and 22 not on laptops).
+::  "max" adds 09, 12, 18, 19, 20, 24 and 25.
 :EASYSTART
 set "EASYMODE=1"
 set "EASYPROF=%~2"
@@ -923,23 +1032,32 @@ call :SETCHOICE 13 N
 call :SETCHOICE 18 N
 call :SETCHOICE 19 N
 call :SETCHOICE 20 N
+call :SETCHOICE 24 N
+call :SETCHOICE 25 N
 if /i "%EASYPROF%"=="games" goto EASYGAMES
 call :SETCHOICE 10 N
 call :SETCHOICE 11 N
 call :SETCHOICE 15 N
 call :SETCHOICE 16 N
+call :SETCHOICE 21 N
+call :SETCHOICE 22 N
+call :SETCHOICE 23 N
 goto :eof
 :EASYGAMES
 call :IMPORTNUM 10
 call :IMPORTNUM 11
+call :GFXAPPLY
+call :IMPORTNUM 23
 if "%ISLAPTOP%"=="1" goto EASYGAMESLAPTOP
 call :IMPORTNUM 15
 call :BOOSTAPPLY
+call :NICAPPLY
 goto :eof
 :EASYGAMESLAPTOP
-echo   - Laptop: 15 and 16 skipped (more heat and battery use)
+echo   - Laptop: 15, 16 and 22 skipped (more heat and battery use)
 call :SETCHOICE 15 N
 call :SETCHOICE 16 N
+call :SETCHOICE 22 N
 goto :eof
 :EASYMAX
 :: Maximum: every optional tweak. 13 (Memory Integrity off) only for max13, which Easy Setup starts after a typed YES.
@@ -950,16 +1068,22 @@ call :IMPORTNUM 12
 call :IMPORTNUM 18
 call :IMPORTNUM 19
 call :IMPORTNUM 20
+call :GFXAPPLY
+call :IMPORTNUM 23
+call :IMPORTNUM 24
+call :IMPORTNUM 25
 if /i "%EASYPROF%"=="max13" call :IMPORTNUM 13
 if /i not "%EASYPROF%"=="max13" call :SETCHOICE 13 N
 if "%ISLAPTOP%"=="1" goto EASYMAXLAPTOP
 call :IMPORTNUM 15
 call :BOOSTAPPLY
+call :NICAPPLY
 goto :eof
 :EASYMAXLAPTOP
-echo   - Laptop: 15 and 16 skipped (more heat and battery use)
+echo   - Laptop: 15, 16 and 22 skipped (more heat and battery use)
 call :SETCHOICE 15 N
 call :SETCHOICE 16 N
+call :SETCHOICE 22 N
 goto :eof
 :END
 echo.

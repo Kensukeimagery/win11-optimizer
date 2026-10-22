@@ -1,0 +1,9 @@
+Windows Registry Editor Version 5.00
+
+; 24 - Add "End task" to the right-click menu of a program in the taskbar.
+; When a game freezes full screen you can close it from the taskbar without opening Task Manager.
+; This is the Windows 11 setting "End Task" under Settings - System - For developers.
+; Windows 11 23H2 or newer. It changes nothing about speed; it is a convenience.
+; Undo: menu 7, then 24.
+[HKEY_CURRENT_USER\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced\TaskbarDeveloperSettings]
+"TaskbarEndTask"=dword:00000001

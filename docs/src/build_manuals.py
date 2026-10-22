@@ -8,6 +8,8 @@ import io
 import os
 import re
 import subprocess
+import shutil
+import tempfile
 import sys
 
 import pymupdf
@@ -25,8 +27,14 @@ def print_pdf(html_path, pdf_path):
     if os.path.exists(pdf_path):
         os.remove(pdf_path)
     url = 'file:///' + html_path.replace('\\', '/')
-    subprocess.run([EDGE, '--headless', '--disable-gpu', '--no-pdf-header-footer', '--generate-pdf-document-outline',
-                    '--print-to-pdf=' + pdf_path, url], check=True, timeout=180)
+    # an own profile folder: with Edge (or a WebView2 program) already running, a headless start without one hands the job
+    # to that running instance and exits without writing the PDF
+    profile = tempfile.mkdtemp(prefix='edge_pdf_')
+    try:
+        subprocess.run([EDGE, '--headless', '--disable-gpu', '--no-pdf-header-footer', '--generate-pdf-document-outline',
+                        '--user-data-dir=' + profile, '--print-to-pdf=' + pdf_path, url], check=True, timeout=180)
+    finally:
+        shutil.rmtree(profile, ignore_errors=True)
     if not os.path.exists(pdf_path):
         raise RuntimeError('Edge did not write ' + pdf_path)
 

@@ -96,6 +96,11 @@ namespace Win11Optimizer
             new Tweak("18", "Optional", "Drivers only from you", "Windows Update stops installing drivers by itself, so it cannot replace the graphics driver you chose. Update drivers yourself, for example with the Drivers tool.", false),
             new Tweak("19", "Optional", "Startup programs start at once", "Programs that start with Windows begin right away instead of after about ten seconds. Takes effect at the next sign-in.", false),
             new Tweak("20", "Optional", "Quick menus", "Menus open at once and hover reactions come sooner. Changes only how the desktop feels, not game speed. Takes effect after you sign out and in.", false),
+            new Tweak("21", "Optional", "Windowed-game optimization", "Windows 11 shows DirectX 10 and 11 games in a window or borderless window with lower frame latency. Your other graphics settings are kept.", false),
+            new Tweak("22", "Optional", "Network adapters stay on", "Windows no longer switches off your network adapters to save power, which can cause lag spikes in online games. A little more battery use on laptops.", false),
+            new Tweak("23", "Optional", "Game Mode on", "Makes sure Windows Game Mode is on, so Windows favours the game in front.", false),
+            new Tweak("24", "Optional", "End task in the taskbar", "Adds End task to the taskbar right-click menu, to close a frozen game quickly. Windows 11 23H2 or newer.", false),
+            new Tweak("25", "Optional", "Background apps off", "Store apps may not run in the background. Desktop programs such as Steam and Discord are not affected. The effect varies by Windows build.", false),
             new Tweak("14", "Power", "CPU power options", "Unlocks hidden CPU power options and sets the plugged-in power plan. For desktops.", false)
         };
 

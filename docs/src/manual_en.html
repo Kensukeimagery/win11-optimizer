@@ -1,7 +1,7 @@
 <!doctype html>
-<html lang="en"><head><meta charset="utf-8"><title>Windows 11 Optimizer - User Manual v4.29</title>
+<html lang="en"><head><meta charset="utf-8"><title>Windows 11 Optimizer - User Manual v4.30</title>
 <link rel="stylesheet" href="manual.css">
-<style>@page { @top-right { content: "User manual v4.29"; font: 8pt "Segoe UI", "Leelawadee UI", Tahoma, sans-serif; color: #465065; } }</style></head><body>
+<style>@page { @top-right { content: "User manual v4.30"; font: 8pt "Segoe UI", "Leelawadee UI", Tahoma, sans-serif; color: #465065; } }</style></head><body>
 <svg width="0" height="0" style="position:absolute" aria-hidden="true">
 <symbol id="i-info" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 11v5.2M12 7.7h.01"/></symbol>
 <symbol id="i-tip" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M8 12.6l2.7 2.7L16.2 9.6"/></symbol>
@@ -12,7 +12,7 @@
 <symbol id="i-bat" viewBox="0 0 24 24"><path d="M7 3.5h7l4 4V19a1.5 1.5 0 0 1-1.5 1.5h-9A1.5 1.5 0 0 1 6 19V5A1.5 1.5 0 0 1 7 3.5z"/><path d="M14 3.5V8h4.5M9.5 12.6l2 1.7-2 1.7M13 16.4h2.4"/></symbol>
 </svg>
 <div class="page">
-<div class="cover-hero"><h1>Windows 11 Optimizer</h1><p>Safe, reversible tuning for Windows 11 gaming PCs. One button does the job in the right order, and every change can be undone.</p><p class="ver">User manual, version v4.29</p></div>
+<div class="cover-hero"><h1>Windows 11 Optimizer</h1><p>Safe, reversible tuning for Windows 11 gaming PCs. One button does the job in the right order, and every change can be undone.</p><p class="ver">User manual, version v4.30</p></div>
 <div class="howto"><div><b>New here?</b>Open Quick start. Six steps, about 30 minutes, most of it waiting.</div><div><b>Something went wrong?</b>Open Troubleshooting. Find your symptom and follow the fix.</div><div><b>Want every detail?</b>The Reference at the back lists each tweak and each tool.</div></div>
 <h2>Contents</h2>
 <ul class="toc">
@@ -87,7 +87,7 @@
 <p class="see"><b>You should see</b> a black window titled "Easy Setup".</p></div></div>
 
 <div class="step"><div class="no">4</div><div class="body"><h3>Answer one question</h3>
-<ul><li>"Do you mainly play games on this PC?" Press <b>Enter</b> for No, or <b>Y</b> for Yes. A Yes adds the mouse, keyboard, timer and CPU boost tweaks, and opens a second question: <b>Maximum</b> applies every optional tweak at once (this includes 18, 19 and 20: drivers only from you, startup programs at once, quick menus). Turning Memory Integrity off (tweak 13) needs its own typed <b>YES</b>, because it lowers protection.</li>
+<ul><li>"Do you mainly play games on this PC?" Press <b>Enter</b> for No, or <b>Y</b> for Yes. A Yes adds the mouse, keyboard, timer, CPU boost, windowed-game optimization, Game Mode and network adapter tweaks, and opens a second question: <b>Maximum</b> applies every optional tweak at once (this includes 18 to 25: drivers only from you, startup programs at once, quick menus, windowed-game optimization, network adapters, Game Mode, End task, background apps). Turning Memory Integrity off (tweak 13) needs its own typed <b>YES</b>, because it lowers protection.</li>
 <li>Not sure? Press Enter. You can add the optional tweaks later (main menu, key 2).</li>
 <li>Read the plan and press <b>Y</b> to start.</li></ul></div></div>
 <div class="console"><span class="c">==================================================================
@@ -152,7 +152,7 @@
 <figure><img src="../img/app-home.png" alt="The home page of the app" style="max-width:72%"><figcaption>The home page: Easy Setup, how many settings are in place, restore point, undo and updates.</figcaption></figure>
 <table><tr><th style="width:22%">Page</th><th>What you do there</th></tr>
 <tr><td>Home</td><td>Press <b>Start Easy Setup</b>, choose how you use the PC, and it runs in its own window. Below it you see how many settings are in place, and <b>Fix them</b> if Windows changed some back.</td></tr>
-<tr><td>Tweaks</td><td>One switch per tweak (01 to 16 and 18 to 20) with its state: On, Off or Changed by Windows. A restore point is offered before the first change. <b>Turn on all recommended</b> applies tweaks 01 to 08.</td></tr>
+<tr><td>Tweaks</td><td>One switch per tweak (01 to 16 and 18 to 25) with its state: On, Off or Changed by Windows. A restore point is offered before the first change. <b>Turn on all recommended</b> applies tweaks 01 to 08.</td></tr>
 <tr><td>Tools</td><td>PC specs, PC health, System report and Support bundle run inside the window and show their result. Network test, Drivers, Clean up and Check status open their own window because they ask you questions.</td></tr>
 <tr><td>Undo</td><td>Turn one tweak off on the Tweaks page, roll the PC back with System Restore, or open the Backup and Logs folders.</td></tr>
 <tr><td>About</td><td>Version, the manuals, GitHub and the update check.</td></tr>
@@ -171,7 +171,7 @@
 <tr><td>5</td><td>Windows Update</td><td>Opens Windows Update. You press Check for updates, install everything and restart if it asks.</td><td>Updates can change settings, so they come first.</td></tr>
 <tr><td>6</td><td>Drivers</td><td>Installs the recommended drivers from Windows Update (network, sound, Bluetooth, chipset). No full driver copy: the restore point covers it. If the graphics card only has the basic driver, opens the maker's download page.</td><td>The same safe system as 7_Driver_Check.</td></tr>
 <tr><td>7</td><td>Restart</td><td>Offered only when Windows needs it. Run the file again to continue.</td><td>New drivers need it.</td></tr>
-<tr><td>8</td><td>Safe speed settings</td><td>Menu 1, 3 and 4. The gaming answer adds mouse, keyboard, timer resolution and CPU boost. Maximum also adds fullscreen exclusive, the Ndu fix, drivers only from you, startup programs at once and quick menus. A laptop skips what makes it hotter or drains the battery.</td><td>Last, so updates and drivers cannot undo them.</td></tr>
+<tr><td>8</td><td>Safe speed settings</td><td>Menu 1, 3 and 4. The gaming answer adds mouse, keyboard, timer resolution, CPU boost, windowed-game optimization, Game Mode and the network adapter setting. Maximum also adds fullscreen exclusive, the Ndu fix, drivers only from you, startup programs at once, quick menus, End task and background apps. A laptop skips what makes it hotter or drains the battery.</td><td>Last, so updates and drivers cannot undo them.</td></tr>
 <tr><td>9</td><td>Faster DNS</td><td>Optional network test and DNS choice. The default is no.</td><td>Small effect, never forced.</td></tr>
 <tr><td>10</td><td>Check and summary</td><td>Settings in place before and after, devices without a driver, things worth a look, how to undo, and a restart reminder.</td><td>You see the result on one page.</td></tr>
 </table>
@@ -184,7 +184,7 @@
 <table><tr><th style="width:34%">Your situation</th><th style="width:22%">Open or press</th><th>What happens</th></tr>
 <tr><td>New Windows, first time, or not sure</td><td><b>0_Easy_Setup</b> (or <b>E</b> in the menu)</td><td>Everything in the right order, with a plan, a restore point and a summary.</td></tr>
 <tr><td>Windows update reset some settings</td><td><b>C</b></td><td>Lists what changed and puts it back after you confirm.</td></tr>
-<tr><td>I want to choose each optional tweak (09 to 20) myself</td><td><b>2</b>, or <b>5</b> for the whole set</td><td>Asks one by one. Tweak 13 needs a typed YES.</td></tr>
+<tr><td>I want to choose each optional tweak (09 to 25) myself</td><td><b>2</b>, or <b>5</b> for the whole set</td><td>Asks one by one. Tweak 13 needs a typed YES.</td></tr>
 <tr><td>I want every optional tweak without questions</td><td>Easy Setup, then Yes to games, then Yes to Maximum</td><td>One go. Memory Integrity off (13) still needs its own typed YES.</td></tr>
 <tr><td>One tweak feels wrong (for example the mouse)</td><td><b>7</b>, then the number</td><td>Puts back the Windows default for that one tweak.</td></tr>
 <tr><td>Everything feels wrong</td><td><b>2_Revert_Everything</b></td><td>Rolls the whole PC back with System Restore. It restarts the PC.</td></tr>
@@ -195,7 +195,7 @@
 </table>
 <h2>Easy Setup (E) compared with Run Everything (5)</h2>
 <table><tr><th style="width:30%"></th><th style="width:35%">E: Easy Setup</th><th>5: Run Everything</th></tr>
-<tr><td>Settings it applies</td><td>Tweaks 01-08, base setup, power settings. The games answer adds 10, 11, 15, 16. Maximum adds 09, 12, 18, 19 and 20. Tweak 13 only after a typed YES.</td><td>Tweaks 01-08, base setup, power settings, and it asks about 09 to 20 one by one.</td></tr>
+<tr><td>Settings it applies</td><td>Tweaks 01-08, base setup, power settings. The games answer adds 10, 11, 15, 16, 21, 22 and 23. Maximum adds 09, 12, 18 to 20, 24 and 25 as well. Tweak 13 only after a typed YES.</td><td>Tweaks 01-08, base setup, power settings, and it asks about 09 to 25 one by one.</td></tr>
 <tr><td>Questions</td><td>One or two at the start</td><td>One per optional tweak</td></tr>
 <tr><td>Also does</td><td>Update check, Windows Update guide, drivers, DNS choice, before and after summary, continues after a restart</td><td>Nothing else</td></tr>
 <tr><td>Time</td><td>20 to 40 minutes</td><td>A few minutes</td></tr>
@@ -232,7 +232,7 @@
 <tr><td>OK</td><td>The value is still as the script set it.</td><td>Nothing.</td></tr>
 <tr><td>CHANGED</td><td>A value was changed, for example by a Windows update.</td><td>Can re-apply it.</td></tr>
 <tr><td>MISSING</td><td>The value is not there at all.</td><td>Can re-apply it.</td></tr>
-<tr><td>NOT CHOSEN</td><td>An optional tweak (09-13, 15, 16, 18-20) you never answered.</td><td>Asks: Y apply, N not now, X never ask again.</td></tr>
+<tr><td>NOT CHOSEN</td><td>An optional tweak (09-13, 15, 16, 18-25) you never answered.</td><td>Asks: Y apply, N not now, X never ask again.</td></tr>
 <tr><td>SKIPPED</td><td>You skipped or reverted it.</td><td>Does not ask or change it.</td></tr>
 <tr><td>UNKNOWN</td><td>Cannot be read, or this PC does not have the option.</td><td>Information only.</td></tr>
 </table>
@@ -322,7 +322,7 @@
 <tr><td>S_PC_Specs.bat, 8_PC_Health.bat, 9_Support_Bundle.bat</td><td>Read-only: your PC on one page, a health check (crashes, drives, battery, refresh rate, RAM and cable speed), and ONE file with the reports for a problem report (private details replaced, nothing sent). No administrator rights needed.</td></tr>
 <tr><td>tools/</td><td>PowerShell helpers used by the menu, the status check, the two tools above, the DNS change and the updater. Do not delete.</td></tr>
 <tr><td>reg/1_Recommended</td><td>Files 01-08: safe for most PCs.</td></tr>
-<tr><td>reg/2_Optional</td><td>Files 09-13, 15 and 18-20: the script asks about each one. (16 is a power setting, see the optional tweaks.)</td></tr>
+<tr><td>reg/2_Optional</td><td>Files 09-13, 15, 18-20 and 23-25: the script asks about each one. (16, 21 and 22 are set by helper scripts, not .reg files; see the optional tweaks.)</td></tr>
 <tr><td>reg/3_Power</td><td>File 14: unlocks hidden CPU options in Power Options.</td></tr>
 <tr><td>reg_undo/</td><td>One undo file per tweak (Windows defaults), used by menu 7.</td></tr>
 <tr><td>repair-tools/</td><td>Four stand-alone repair tools. Unrelated to the Master menu.</td></tr>
@@ -333,7 +333,7 @@
 <table><tr><th style="width:8%">Key</th><th>What it does</th></tr>
 <tr><td><b>E</b></td><td>Easy Setup: one button for a new PC or first use</td></tr>
 <tr><td><b>1</b></td><td>Recommended tweaks 01-08, safe for everyone</td></tr>
-<tr><td><b>2</b></td><td>Optional tweaks 09-13, 15, 16, 18-20, asked one by one</td></tr>
+<tr><td><b>2</b></td><td>Optional tweaks 09-13, 15, 16, 18-25, asked one by one</td></tr>
 <tr><td><b>3</b></td><td>Base setup: power plan, services, SSD check, network per adapter, temp cleanup</td></tr>
 <tr><td><b>4</b></td><td>Power settings: tweak 14 and the automatic CPU, USB and PCIe settings</td></tr>
 <tr><td><b>5</b></td><td>Run everything: restore point, then 1, 2, 3 and 4</td></tr>
@@ -355,7 +355,7 @@
 </table>
 <figure><img src="../img/main-menu.png" alt="The main menu" style="max-width:76%"><figcaption>The main menu (1_Start_Here). E is Easy Setup. Every tool in More Tools has a key here.</figcaption></figure>
 <h2>Status check: what it checks and its limits</h2>
-<p class="small"><b>What it checks:</b> all 18 .reg files (read from the same files that are applied), the power plan (Ultimate Performance, or High Performance if Ultimate is unavailable), the four power values, Prefetcher (SSD must be 0, HDD must be 3), TcpAckFrequency and TCPNoDelay on every adapter, and the DiagTrack / dmwappushservice services. Optional 15, 16 and (once used) 17 are checked too (16: boost mode 2 and preference 0 while plugged in). On an SSD it also reads whether TRIM is on (it is by default) and can turn it back on.<br>
+<p class="small"><b>What it checks:</b> all 21 .reg files (read from the same files that are applied), the power plan (Ultimate Performance, or High Performance if Ultimate is unavailable), the four power values, Prefetcher (3 is the Windows default; 0 on an SSD is accepted), TcpAckFrequency and TCPNoDelay on every adapter, and the DiagTrack / dmwappushservice services. Optional 15, 16, 21, 22 and (once used) 17 are checked too (16: boost mode 2 and preference 0 while plugged in). On an SSD it also reads whether TRIM is on (it is by default) and can turn it back on.<br>
 <b>Limits:</b> it tells you a value is still there, not that it still has an effect (item 08 can show OK on a GPU that does not support GPU scheduling). Values under GameConfigStore (01, 09) are rewritten by Windows and the Xbox Game Bar, so CHANGED there is common. Adding a new VPN or Wi-Fi adapter makes Network show CHANGED until it is configured.</p>
 <div class="banner later"><h1>.reg files, group 1: Recommended (01-08)</h1><p>Menu 1. Meant to be safe for most PCs</p></div>
 <div class="card"><div class="t"><span class="n">01</span>GameBar_DVR_Off</div><ul><li>Turns off Xbox Game Bar background recording (Game DVR), at user and policy level. Game Mode is kept on (v3 turned it off by mistake).</li></ul><div class="h">Helps: gives back CPU, GPU and disk time used for constant recording. No official Microsoft documentation for these values.</div></div>
@@ -366,7 +366,7 @@
 <div class="card"><div class="t"><span class="n">06</span>System_Responsiveness</div><ul><li>Menus appear instantly, frozen apps are closed faster, lighter animations and visual effects.</li><li>NTFS last-access time stamps off; the classic Copy To / Move To right-click entries restored.</li></ul><div class="h">Helps: Windows feels quicker, fewer needless disk writes.</div></div>
 <div class="card"><div class="t"><span class="n">07</span>Delivery_Optimization_Off</div><ul><li>DODownloadMode = 0.</li></ul><div class="h">Helps: Windows Update does not upload updates to other PCs while you play online.</div></div>
 <div class="card"><div class="t"><span class="n">08</span>GPU_Scheduling_On</div><ul><li>HwSchMode = 2 turns on hardware-accelerated GPU scheduling. Needs a restart and a supported GPU and driver; unsupported systems ignore it.</li></ul><div class="h">Helps: slightly lower CPU-to-GPU latency. Microsoft says most users should not expect a big change.</div></div>
-<div class="banner later"><h1>Optional tweaks (09-13, 15, 16, 18-20)</h1><p>The script asks about each one. Answer for how you actually play</p></div>
+<div class="banner later"><h1>Optional tweaks (09-13, 15, 16, 18-25)</h1><p>The script asks about each one. Answer for how you actually play</p></div>
 <div class="card opt"><div class="t"><span class="n">09</span>Fullscreen_Exclusive</div><ul><li>Forces true Fullscreen Exclusive instead of letting Windows convert games to borderless.</li><li>Answer Y only if fullscreen games stutter or hang on alt-tab. Some newer games work better the default way.</li></ul><div class="h">Helps: lower input lag in older games that support Fullscreen Exclusive.</div></div>
 <div class="card opt"><div class="t"><span class="n">10</span>Mouse_No_Acceleration</div><ul><li>Turns off Enhance Pointer Precision so the mouse moves 1:1.</li></ul><div class="h">Helps: consistent aim in shooters.</div></div>
 <div class="card opt"><div class="t"><span class="n">11</span>Keyboard_Fast_Repeat</div><ul><li>KeyboardDelay = 0 (shortest delay before repeat). Flags = 122 stops the Filter Keys pop-up when Shift is held for 8 seconds in a game.</li></ul><div class="h">Helps: faster key response and no interrupting pop-up.</div></div>
@@ -377,6 +377,11 @@
 <div class="card opt"><div class="t"><span class="n">18</span>Driver_Updates_Via_Windows_Update_Off</div><ul><li>Sets SearchOrderConfig = 0 (Windows does not search Windows Update for drivers) and the policy ExcludeWUDriversInQualityUpdate = 1 (quality updates leave drivers out). Security updates still install.</li><li>Windows Update may show "Some settings are managed by your organization": that is this policy. From now on you update drivers yourself: menu D, or the website of the maker. Undo: menu 7, then 18.</li></ul><div class="h">Helps: Windows can no longer quietly replace the graphics driver you installed with an older or generic one. It does not make anything faster by itself.</div></div>
 <div class="card opt"><div class="t"><span class="n">19</span>Startup_Apps_Start_At_Once</div><ul><li>Sets StartupDelayInMSec = 0. Windows normally waits about ten seconds after sign-in before it starts the programs in your startup list; this removes the wait. It does not change which programs start.</li><li>Takes effect at the next sign-in. Undo: menu 7, then 19 (the value is removed, as in Windows).</li></ul><div class="h">Helps: your startup programs are ready sooner after sign-in. It does not make Windows boot faster and it has no effect on games. The value comes from the tweaking community.</div></div>
 <div class="card opt"><div class="t"><span class="n">20</span>Quick_Menus</div><ul><li>MenuShowDelay = 0 (Windows: 400 ms) and MouseHoverTime = 100 (Windows: 400 ms). Sub-menus open at once and things that react to the pointer resting on them react sooner. The hover time is not set lower on purpose: very short values make thumbnails and tooltips flicker.</li><li>Takes effect after you sign out and in. Undo: menu 7, then 20.</li></ul><div class="h">Helps: the desktop feels quicker. This is a feel change only; it does not raise FPS.</div></div>
+<div class="card opt"><div class="t"><span class="n">21</span>Windowed_Games_Optimization (helper script, no .reg file)</div><ul><li>Turns on the Windows 11 setting "Optimizations for windowed games" (Settings - System - Display - Graphics). Windows then shows DirectX 10 and 11 games that run in a window or a borderless window with the modern flip model. Microsoft says this reduces frame latency and lets variable refresh rate and Auto HDR work there.</li><li>The setting is one flag inside a text value that also holds other graphics choices (Auto HDR, the chosen graphics card). Only that flag is changed, everything else is kept, and menu 7, then 21 puts the flag back to what it was. On many PCs Windows already has it on; then you will see no change.</li></ul><div class="h">Helps: lower latency in borderless-window games that use DirectX 10 or 11. Microsoft's page covers those two only, not fullscreen exclusive games.</div></div>
+<div class="card opt"><div class="t"><span class="n">22</span>Network_Adapters_Stay_On (helper script, no .reg file)</div><ul><li>Switches off "Allow the computer to turn off this device to save power" on every network adapter that offers it. A card that goes to sleep can drop the link for a moment; in an online game that shows as a lag spike or a lost match.</li><li>The adapters that had it on are remembered, so menu 7, then 22 turns on exactly those again. Adapters that do not offer the setting are left alone, and a PC with none skips this tweak. Laptops use a little more battery, so Easy Setup skips it on a laptop.</li></ul><div class="h">Helps: a steadier connection in online games. It does not raise your speed or lower your ping when the connection is already steady.</div></div>
+<div class="card opt"><div class="t"><span class="n">23</span>Game_Mode_On</div><ul><li>Sets AllowAutoGameMode = 1 and AutoGameModeEnabled = 1. Game Mode is on by default in Windows 11; this puts it back on if a tool or the PC maker turned it off. Windows then favours the game in the front.</li><li>Undo: menu 7, then 23 (the values are removed, which is how Windows ships).</li></ul><div class="h">Helps: a small effect, mostly on weaker PCs. It costs nothing.</div></div>
+<div class="card opt"><div class="t"><span class="n">24</span>End_Task_On_Taskbar</div><ul><li>Sets TaskbarEndTask = 1, the Windows 11 setting "End Task" (Settings - System - For developers). A program in the taskbar then has "End task" in its right-click menu.</li><li>Needs Windows 11 23H2 or newer. Undo: menu 7, then 24.</li></ul><div class="h">Helps: closing a frozen game without opening Task Manager. A convenience, not a speed-up.</div></div>
+<div class="card opt"><div class="t"><span class="n">25</span>Background_Apps_Off</div><ul><li>Sets GlobalUserDisabled = 1, the old global switch "Let apps run in the background", so Microsoft Store apps (weather, mail, news) stop refreshing while you play. Desktop programs such as Steam, Discord and game launchers are not affected.</li><li>The newest Windows 11 builds lean on the per-app setting in Settings - Apps, so the effect varies. Undo: menu 7, then 25.</li></ul><div class="h">Helps: a little less background work. Do not expect an FPS change.</div></div>
 <div class="banner later"><h1>Group 3: Power (14) and automatic settings</h1><p>Menu 4 does the whole job, no manual setup</p></div>
 <div class="card"><div class="t"><span class="n">14</span>Unlock_CPU_Power_Settings</div><ul><li>Makes visible the CPU options Windows hides: core parking, maximum frequency, boost mode, energy performance preference.</li><li>Merges files 11 and 12 of v3 and drops entries that are normally visible.</li></ul></div>
 <div class="card"><div class="t"><span class="n">P</span>What menu 4 then sets with powercfg</div><ul><li>Minimum processor state = 100%. Core parking minimum = 100% (cores never sleep).</li><li>USB selective suspend = off. PCIe Link State Power Management = off.</li><li>Plugged-in values only; the battery profile on a laptop is not touched.</li></ul><div class="h">Helps: CPU and GPU do not switch to power-saving states mid-game.</div></div>
@@ -384,7 +389,7 @@
 <table><tr><th>Item</th><th>What it does</th><th>Note</th></tr>
 <tr><td>Power plan</td><td>Uses Ultimate Performance; High Performance if that is missing; leaves Balanced if neither exists.</td><td>The plan GUID is remembered, so repeat runs do not create duplicates (v3 did).</td></tr>
 <tr><td>Services</td><td>Windows Search and Print Spooler on; DiagTrack and dmwappushservice off.</td><td>"already running" in the log is normal.</td></tr>
-<tr><td>Prefetcher</td><td>Checks the type of the drive Windows is installed on (C:) first: SSD off, HDD on, unknown type left alone.</td><td>Stops you disabling it on an HDD, which would slow it down.</td></tr>
+<tr><td>Prefetcher</td><td>Checks the type of the drive Windows is installed on (C:) first: HDD kept on, SSD left as Windows has it (Windows manages it there), unknown type left alone.</td><td>Stops you disabling it on an HDD, which would slow it down.</td></tr>
 <tr><td>Network</td><td>Sets TcpAckFrequency and TCPNoDelay on every network adapter.</td><td>v3 set these globally, where Windows ignores them. Only affects games using TCP. Microsoft advises testing before changing these.</td></tr>
 <tr><td>Old values</td><td>Removes MaxUserPort, TcpTimedWaitDelay and misplaced TCP values from v3.</td><td>None of them matter for gaming.</td></tr>
 <tr><td>Temp files</td><td>Deletes the user's temporary files.</td><td>Files in use are skipped safely.</td></tr>
@@ -509,6 +514,8 @@
 <tr><td>15 Timer resolution</td><td>Microsoft Learn - timeBeginPeriod function<br><a href="https://learn.microsoft.com/en-us/windows/win32/api/timeapi/nf-timeapi-timebeginperiod">learn.microsoft.com/en-us/windows/win32/api/timeapi/nf-timeapi-timebeginperiod</a><br><span class="small">Describes the per-process change since Windows 10 2004 and Windows 11, and the extra power use of a higher resolution.</span></td></tr>
 <tr><td>16 CPU boost</td><td>Microsoft Learn - PERFBOOSTMODE and processor power management options<br><a href="https://learn.microsoft.com/en-us/windows-hardware/customize/power-settings/options-for-perf-state-engine-perfboostmode">learn.microsoft.com/en-us/windows-hardware/customize/power-settings/options-for-perf-state-engine-perfboostmode</a><br><a href="https://learn.microsoft.com/en-us/windows-hardware/customize/power-settings/configure-processor-power-management-options">learn.microsoft.com/en-us/windows-hardware/customize/power-settings/configure-processor-power-management-options</a><br><span class="small">Boost mode 2 = Aggressive. Energy performance preference runs 0-100 %.</span></td></tr>
 <tr><td>18 Driver updates</td><td>Microsoft Learn - Policy CSP - Update (ExcludeWUDriversInQualityUpdate)<br><a href="https://learn.microsoft.com/en-us/windows/client-management/mdm/policy-csp-update">learn.microsoft.com/en-us/windows/client-management/mdm/policy-csp-update</a></td></tr>
+<tr><td>21 Windowed games</td><td>Microsoft Support - Optimizations for windowed games in Windows 11<br><a href="https://support.microsoft.com/en-us/topic/3f006843-2c7e-4ed0-9a5e-f9389e535952">support.microsoft.com/en-us/topic/3f006843-2c7e-4ed0-9a5e-f9389e535952</a><br><span class="small">Names the setting and what it does. The registry value that stores it is not documented there.</span></td></tr>
+<tr><td>22 Network adapters</td><td>Microsoft Learn - Set-NetAdapterPowerManagement<br><a href="https://learn.microsoft.com/en-us/powershell/module/netadapter/set-netadapterpowermanagement">learn.microsoft.com/en-us/powershell/module/netadapter/set-netadapterpowermanagement</a><br><span class="small">The cmdlet the helper uses (AllowComputerToTurnOffDevice).</span></td></tr>
 <tr><td>20 Quick menus</td><td>Microsoft Learn - SystemParametersInfoA (menu show delay, mouse hover time)<br><a href="https://learn.microsoft.com/en-us/windows/win32/api/winuser/nf-winuser-systemparametersinfoa">learn.microsoft.com/en-us/windows/win32/api/winuser/nf-winuser-systemparametersinfoa</a><br><span class="small">Describes the two settings; the registry value names are well known but not documented there.</span></td></tr>
 <tr><td>WinUtil</td><td>GitHub - ChrisTitusTech/winutil (README)<br><a href="https://github.com/ChrisTitusTech/winutil">github.com/ChrisTitusTech/winutil</a></td></tr>
 <tr><td>RemoveWindowsAI</td><td>GitHub - zoicware/RemoveWindowsAI (README)<br><a href="https://github.com/zoicware/RemoveWindowsAI">github.com/zoicware/RemoveWindowsAI</a></td></tr>
@@ -519,11 +526,12 @@
 <li>02 PowerThrottlingOff, EnergyEstimationEnabled: no public Microsoft documentation.</li>
 <li>15 GlobalTimerResolutionRequests: reported by the community. The Microsoft timeBeginPeriod page describes the behaviour change but not this value.</li>
 <li>19 StartupDelayInMSec: reported by the community; no Microsoft page describes it.</li>
+<li>23 Game Mode, 24 End Task and 25 background apps: the settings exist in Windows, but the registry value names come from community tools such as winutil, not from Microsoft pages.</li>
 <li>06 Control Panel\Desktop timeouts, MinAnimate: widely known, not sourced here.</li>
 <li>11 Keyboard Response flags and 12 Ndu memory leak: from user reports, not Microsoft.</li>
 <li>The defaults in reg_undo for these are typical Windows values. If you need your exact originals, use the Backup folder.</li></ul>
 Results differ between PCs and Microsoft may change how these values behave in a later Windows release. Every item can be reverted with menu 7 or the Backup folder.</div>
-<div class="foot">win11-optimizer v4.29 - github.com/Kensukeimagery/win11-optimizer - MIT License</div>
+<div class="foot">win11-optimizer v4.30 - github.com/Kensukeimagery/win11-optimizer - MIT License</div>
 </div>
 
 </body></html>

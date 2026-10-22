@@ -1,0 +1,11 @@
+Windows Registry Editor Version 5.00
+
+; 23 - Make sure Windows Game Mode is on.
+; Game Mode lets Windows favour the game in the front: it holds back Windows Update restarts and
+; driver installs while you play and gives the game CPU and GPU priority. It is on by default in
+; Windows 11; this puts it back on if a "debloat" tool, an old tweak or an OEM set it off.
+; Microsoft documents Game Mode in its list of ways to improve gaming performance.
+; Undo: menu 7, then 23 (the values are removed, which is how Windows ships).
+[HKEY_CURRENT_USER\Software\Microsoft\GameBar]
+"AllowAutoGameMode"=dword:00000001
+"AutoGameModeEnabled"=dword:00000001
