@@ -231,6 +231,7 @@ Write-Output ($res -join ' | ')
 '@
     [IO.File]::WriteAllText($nicFlowFile, $nicFlowText, (New-Object System.Text.UTF8Encoding($false)))
     $nicFlow = (& powershell.exe -NoProfile -ExecutionPolicy Bypass -File $nicFlowFile -Script (Join-Path $root 'tools\Nic_Power.ps1') 2>&1 | Out-String).Trim()
+    $nicFlow = @($nicFlow -split "`r?`n")[-1].Trim()   # the helper also writes its messages with Write-Host; the result is the last line
     Remove-Item -LiteralPath $nicFlowFile -Force -ErrorAction SilentlyContinue
     Assert ($nicFlow -eq 'apply=0 A1=False,A2=False,A4=False | again=0 | undo=0 A1=True,A2=False,A4=True key=False | none=3') ('the network adapter helper switches off only what it found on, undo switches those on again, and a PC without the setting is left alone (' + $nicFlow + ')')
 } else {
