@@ -17,7 +17,7 @@ HOW TO TEST (about 10 minutes without the long Easy Setup run, up to an hour wit
 
 FROM THE HOST, WITHOUT TOUCHING THE VM (VirtualBox)
   powershell -File tests\vm\Run_In_VM.ps1
-  It restores the snapshot "02 clean Windows, UAC prompt off", boots the VM, copies this edition into it, runs the suite elevated,
+  It restores the snapshot "03 updated Windows, UAC prompt off" (the clean Windows after its background updates were installed; with the older snapshot 02 the updates install during the run and the restore point times out), boots the VM, copies this edition into it, runs the suite elevated,
   waits for the summary and copies the reports to _reports\run_<time> here. About 15 minutes on a slow host.
   The VM account is the throwaway one from VirtualBox's unattended install (vboxuser / changeme). Take snapshots only while the VM is
   powered off: restoring the saved state of a running VM crashed the VM on the test host.

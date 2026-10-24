@@ -1,12 +1,12 @@
 # Runs the VM test suite inside a VirtualBox virtual machine from the host, and brings the report back.
-#   powershell -File tests\vm\Run_In_VM.ps1 [-Vm "test win11"] [-Snapshot "02 clean Windows, UAC prompt off"] [-Edition E:\win11-optimizer-vm-test] [-SkipEasyFull]
+#   powershell -File tests\vm\Run_In_VM.ps1 [-Vm "test win11"] [-Snapshot "03 updated Windows, UAC prompt off"] [-Edition E:\win11-optimizer-vm-test] [-SkipEasyFull]
 # What it does: restore the snapshot (cold boot), wait for Guest Additions, copy the VM test edition into the VM, start the suite
 # elevated (needs "ConsentPromptBehaviorAdmin = 0" in the VM, which the snapshot above has), wait for the summary, copy the reports to
 # <Edition>\_reports\run_<time>. The VM account is the throwaway one that VirtualBox's unattended install makes (vboxuser / changeme).
 # Take snapshots only while the VM is powered off: this host cannot restore the saved state of a running VM.
 param(
     [string]$Vm = 'test win11',
-    [string]$Snapshot = '02 clean Windows, UAC prompt off',
+    [string]$Snapshot = '03 updated Windows, UAC prompt off',   # 02 is the same Windows before its background updates: they made the restore point of the suite time out
     [string]$Edition = 'E:\win11-optimizer-vm-test',
     [string]$User = 'vboxuser',
     [string]$Password = 'changeme',
