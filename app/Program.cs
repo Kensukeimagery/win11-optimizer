@@ -69,15 +69,15 @@ namespace Win11Optimizer
         {
             Directory.CreateDirectory(dir);
             mw.Win.Show();
-            string[] pages = new string[] { "Home", "Tweaks", "Tools", "Undo", "About" };
+            string[] pages = new string[] { "Home", "Tweaks", "Tools", "Startup", "Undo", "About" };
             for (int i = 0; i < pages.Length; i++)
             {
                 mw.Navigate(pages[i]);
                 Idle(mw.Win);
                 Save(mw.Win, Path.Combine(dir, (i + 1) + "_" + pages[i] + ".png"));
             }
-            mw.PictureEasy(Path.Combine(dir, "6_Easy_dialog.png"));
-            mw.PictureAsk(Path.Combine(dir, "7_Ask_dialog.png"));
+            mw.PictureEasy(Path.Combine(dir, "7_Easy_dialog.png"));
+            mw.PictureAsk(Path.Combine(dir, "8_Ask_dialog.png"));
             mw.Win.Close();
             return 0;
         }
@@ -169,6 +169,14 @@ namespace Win11Optimizer
             foreach (KeyValuePair<string, string> kv in after) { StatusItem si = new StatusItem(); si.Id = kv.Key; si.Status = kv.Value; items.Add(si); }
             StatusReader.Count(items, out ok, out total);
             Check("the counts make sense", total >= 8 && ok <= total, ok + " of " + total);
+
+            List<string> sl = new List<string>();
+            int sc = Runner.RunWait(Runner.PowerShellExe, Runner.ScriptArgs(@"tools\Startup_Items.ps1", "-Action List"), sl, 60000);
+            bool shaped = true;
+            foreach (string l in sl) { if (l.Split('|').Length < 6) shaped = false; }
+            Check("the startup list script answers and every line has six fields", sc == 0 && shaped, sl.Count + " items");
+            Check("the tools of the page Tools are in the folder",
+                File.Exists(Runner.Path1(@"tools\Benchmark.ps1")) && File.Exists(Runner.Path1(@"tools\Free_Space.ps1")) && File.Exists(Runner.Path1(@"tools\Drift_Task.ps1")) && File.Exists(Runner.Path1(@"tools\Drift_Report.ps1")), null);
 
             report.Add(allOk ? "ALL PASSED" : "SOME FAILED");
             string text = string.Join("\r\n", report.ToArray()) + "\r\n";

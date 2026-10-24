@@ -1,4 +1,4 @@
-# PC Optimizer v4.32 - hibernation (optional tweak 27)
+# PC Optimizer v4.33 - hibernation (optional tweak 27)
 # Turns hibernation off: powercfg /hibernate off. Windows then deletes the file hiberfil.sys, which is as large as a
 # good part of your RAM (often 6 to 12 GB), and the Hibernate choice disappears from the power menu. Sleep and Shut down
 # are not affected. (Fast Startup, which is built on hibernation, is already turned off by tweak 02.)

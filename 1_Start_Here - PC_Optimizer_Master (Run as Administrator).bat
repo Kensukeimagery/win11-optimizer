@@ -1,10 +1,10 @@
 @echo off
 setlocal EnableExtensions
-title PC Optimizer - Master Control v4.32
+title PC Optimizer - Master Control v4.33
 color 0B
 
 :: =====================================================================
-::  PC OPTIMIZER - MASTER CONTROL v4.32
+::  PC OPTIMIZER - MASTER CONTROL v4.33
 ::  Safety rules used in this file - they avoid the crashes seen in v3:
 ::   - no brackets inside ECHO text that sits inside IF or FOR blocks
 ::   - flat GOTO labels instead of nested IF / ELSE blocks
@@ -24,7 +24,7 @@ set "LOGDIR=%SCRIPT_DIR%Logs"
 if not exist "%LOGDIR%" mkdir "%LOGDIR%" >nul 2>&1
 set "LOGFILE=%LOGDIR%\OptimizerLog_%TS%.txt"
 set "BACKUPDIR=%SCRIPT_DIR%Backup\%TS%"
-echo PC Optimizer v4.32 Log - %date% %time% > "%LOGFILE%"
+echo PC Optimizer v4.33 Log - %date% %time% > "%LOGFILE%"
 if exist "%TOOLDIR%\Report_Maintain.ps1" powershell -NoProfile -ExecutionPolicy Bypass -File "%TOOLDIR%\Report_Maintain.ps1" -Root "%SCRIPT_DIR%." >nul 2>&1
 
 if not exist "%REGROOT%" goto NOREG
@@ -92,7 +92,7 @@ goto MENU
 :MENU
 cls
 echo ===================================================================
-echo    PC OPTIMIZER - MASTER CONTROL v4.32
+echo    PC OPTIMIZER - MASTER CONTROL v4.33
 echo    Log: OptimizerLog_%TS%.txt
 if "%ISLAPTOP%"=="1" echo    Laptop detected - tweaks 02 and 16 are not recommended on a laptop.
 if defined UPDMSG echo    %UPDMSG%
@@ -121,6 +121,10 @@ echo   [S] PC specs - your PC on one page, in plain words
 echo   [H] PC health - crashes, drive health, screen refresh rate, RAM speed, cable speed
 echo   [B] Support bundle - one file to attach to a problem report
 echo   [L] Clean up - old reports and backups, you choose
+echo   [M] Measure - your PC at rest before and after the tweaks, side by side
+echo   [F] Free up disk space - sizes first, you choose what goes
+echo   [P] Startup programs - switch one off or on, nothing is deleted
+echo   [W] Check after Windows Update - on or off, it only reads and tells you
 echo   [0] Exit
 echo.
 set "CHOICE="
@@ -148,6 +152,10 @@ if /i "%CHOICE%"=="S" goto DOSPECS
 if /i "%CHOICE%"=="H" goto DOHEALTH
 if /i "%CHOICE%"=="B" goto DOBUNDLE
 if /i "%CHOICE%"=="L" goto DOCLEAN
+if /i "%CHOICE%"=="M" goto DOMEASURE
+if /i "%CHOICE%"=="F" goto DOSPACE
+if /i "%CHOICE%"=="P" goto DOSTARTUP
+if /i "%CHOICE%"=="W" goto DODRIFT
 if /i "%CHOICE%"=="E" goto DOEASY
 if "%CHOICE%"=="0" goto END
 goto MENU
@@ -214,6 +222,22 @@ goto MENU
 
 :DOCLEAN
 call :CLEANRUN
+goto MENU
+
+:DOMEASURE
+call :MEASURERUN
+goto MENU
+
+:DOSPACE
+call :SPACERUN
+goto MENU
+
+:DOSTARTUP
+call :STARTUPRUN
+goto MENU
+
+:DODRIFT
+call :DRIFTRUN
 goto MENU
 
 :DOEASY
@@ -961,6 +985,46 @@ pause
 goto :eof
 :CLEANMISSING
 echo [ERROR] tools\Clean_Up.ps1 was not found next to this script.
+pause
+goto :eof
+
+:MEASURERUN
+if not exist "%TOOLDIR%\Benchmark.ps1" goto MEASUREMISSING
+powershell -NoProfile -ExecutionPolicy Bypass -File "%TOOLDIR%\Benchmark.ps1" -Root "%SCRIPT_DIR%." -Action Menu
+pause
+goto :eof
+:MEASUREMISSING
+echo [ERROR] tools\Benchmark.ps1 was not found next to this script.
+pause
+goto :eof
+
+:SPACERUN
+if not exist "%TOOLDIR%\Free_Space.ps1" goto SPACEMISSING
+powershell -NoProfile -ExecutionPolicy Bypass -File "%TOOLDIR%\Free_Space.ps1" -Root "%SCRIPT_DIR%."
+pause
+goto :eof
+:SPACEMISSING
+echo [ERROR] tools\Free_Space.ps1 was not found next to this script.
+pause
+goto :eof
+
+:STARTUPRUN
+if not exist "%TOOLDIR%\Startup_Items.ps1" goto STARTUPMISSING
+powershell -NoProfile -ExecutionPolicy Bypass -File "%TOOLDIR%\Startup_Items.ps1" -Action Menu
+pause
+goto :eof
+:STARTUPMISSING
+echo [ERROR] tools\Startup_Items.ps1 was not found next to this script.
+pause
+goto :eof
+
+:DRIFTRUN
+if not exist "%TOOLDIR%\Drift_Task.ps1" goto DRIFTMISSING
+powershell -NoProfile -ExecutionPolicy Bypass -File "%TOOLDIR%\Drift_Task.ps1" -Root "%SCRIPT_DIR%." -Action Menu
+pause
+goto :eof
+:DRIFTMISSING
+echo [ERROR] tools\Drift_Task.ps1 was not found next to this script.
 pause
 goto :eof
 

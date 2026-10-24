@@ -1,5 +1,5 @@
 @echo off
-title PC Optimizer - Clean Up v4.32
+title PC Optimizer - Clean Up v4.33
 color 0B
 for %%I in ("%~dp0..") do set "ROOTDIR=%%~fI"
 

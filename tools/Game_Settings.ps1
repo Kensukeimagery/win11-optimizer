@@ -1,4 +1,4 @@
-# PC Optimizer v4.32 - windowed-games helper (optional tweak 21)
+# PC Optimizer v4.33 - windowed-games helper (optional tweak 21)
 # Turns on "Optimizations for windowed games" (Settings - System - Display - Graphics).
 # Windows then presents DirectX 10 and 11 games in windowed and borderless mode with the modern flip model:
 # lower frame latency, and variable refresh rate and Auto HDR can work there. Microsoft documents this setting.

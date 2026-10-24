@@ -31,7 +31,7 @@ namespace Win11Optimizer
         Button closeButton, copyButton;
         ProgressBar activityBar;
         RadioButton[] navButtons;
-        string[] navNames = new string[] { "Home", "Tweaks", "Tools", "Undo", "About" };
+        string[] navNames = new string[] { "Home", "Tweaks", "Tools", "Startup", "Undo", "About" };
 
         string currentPage = "Home";
         List<StatusItem> status = new List<StatusItem>();
@@ -41,6 +41,12 @@ namespace Win11Optimizer
         bool restoreOffered;
         bool buildingUi;
         readonly object statusLock = new object();
+
+        // the Startup page: the list that tools\Startup_Items.ps1 prints
+        class StartupItem { public string Id, State, Name, Command, Where; public bool Protected; }
+        List<StartupItem> startupItems = new List<StartupItem>();
+        string startupState = "idle";          // idle, loading, done, failed
+        readonly object startupLock = new object();
 
         // ------------------------------------------------------------------ shell
         const string ShellXaml = @"
@@ -278,6 +284,7 @@ namespace Win11Optimizer
             UIElement page;
             if (name == "Tweaks") page = TweaksPage();
             else if (name == "Tools") page = ToolsPage();
+            else if (name == "Startup") page = StartupPage();
             else if (name == "Undo") page = UndoPage();
             else if (name == "About") page = AboutPage();
             else page = HomePage();
@@ -470,10 +477,20 @@ namespace Win11Optimizer
             g.ColumnDefinitions.Add(new ColumnDefinition { Width = GridLength.Auto });
             g.ColumnDefinitions.Add(new ColumnDefinition { Width = GridLength.Auto });
             StackPanel text = new StackPanel();
-            text.Children.Add(Txt(t.Id + "   " + Loc.T(t.Title), 14, FontWeights.SemiBold, "Ink"));
+            StackPanel head = new StackPanel();
+            head.Orientation = Orientation.Horizontal;
+            head.Children.Add(Txt(t.Id + "   " + Loc.T(t.Title), 14, FontWeights.SemiBold, "Ink"));
+            head.Children.Add(RiskBadge(t.Risk));
+            text.Children.Add(head);
             TextBlock d = Txt(t.Desc, 13, FontWeights.Normal, "Muted");
             d.Margin = new Thickness(0, 2, 24, 0);
             text.Children.Add(d);
+            if (Catalog.HomeIgnoresPart(t.Id) && Runner.IsHomeEdition())
+            {
+                TextBlock hn = Txt("Windows 11 Home ignores the policy part of this tweak; the rest still works.", 12, FontWeights.Normal, "Warn");
+                hn.Margin = new Thickness(0, 3, 24, 0);
+                text.Children.Add(hn);
+            }
             g.Children.Add(text);
 
             string label; string brush;
@@ -500,6 +517,19 @@ namespace Win11Optimizer
             return g;
         }
 
+        static UIElement RiskBadge(string risk)
+        {
+            string brush = (risk == "Safe") ? "Good" : (risk == "Careful") ? "Warn" : "Muted";
+            Border b = new Border();
+            b.CornerRadius = new CornerRadius(4);
+            b.Padding = new Thickness(6, 1, 6, 1);
+            b.Margin = new Thickness(10, 1, 0, 0);
+            b.VerticalAlignment = VerticalAlignment.Center;
+            b.Background = Theme.Get("SurfaceAlt");
+            b.Child = Txt(risk, 11, FontWeights.SemiBold, brush);
+            return b;
+        }
+
         // ---- Tools
         class ToolDef
         {
@@ -519,6 +549,9 @@ namespace Win11Optimizer
             tools.Add(new ToolDef("Network test", "Ping, jitter, packet loss and DNS speed. You choose what to test.", false, delegate { Runner.OpenConsole("/d /s /c " + Runner.Bat(@"More Tools\4_Network_Test.bat", "")); }));
             tools.Add(new ToolDef("Drivers", "Find missing or old drivers. Installs only what you choose.", false, delegate { Runner.OpenConsole("/d /s /c " + Runner.Bat(@"More Tools\7_Driver_Check (Run as Administrator).bat", "")); }));
             tools.Add(new ToolDef("Clean up", "Old reports and backups. You choose what goes.", false, delegate { Runner.OpenConsole("/d /s /c " + Runner.Bat(@"More Tools\L_Clean_Up.bat", "")); }));
+            tools.Add(new ToolDef("Measure before and after", "Measures how busy your PC is at rest, before and after the tweaks, and says plainly when nothing changed.", false, delegate { Runner.OpenConsole(Runner.ConsoleArgs(@"tools\Benchmark.ps1", "-Action Menu -Root \"" + Runner.Root + "\"")); }));
+            tools.Add(new ToolDef("Free up space", "Shows what temporary files and caches take, kind by kind. You choose what goes.", false, delegate { Runner.OpenConsole(Runner.ConsoleArgs(@"tools\Free_Space.ps1", "-Root \"" + Runner.Root + "\"")); }));
+            tools.Add(new ToolDef("Check after Windows Update", "Turns a quiet check on or off that tells you when Windows changed your settings back. It only reads.", false, delegate { Runner.OpenConsole(Runner.ConsoleArgs(@"tools\Drift_Task.ps1", "-Action Menu -Root \"" + Runner.Root + "\"")); }));
             tools.Add(new ToolDef("Support bundle", "One file that you can attach to a problem report. Private details are replaced.", true, delegate { RunScript("Support bundle", @"tools\Support_Bundle.ps1", "-Root \"" + Runner.Root + "\""); }));
             tools.Add(new ToolDef("Classic menu", "The original text menu with every option.", false, delegate { Runner.OpenConsole("/d /s /c " + Runner.Bat(MasterBat, "")); }));
 
@@ -548,6 +581,140 @@ namespace Win11Optimizer
             }
             page.Children.Add(wp);
             return Wrap(page);
+        }
+
+        // ---- Startup
+        UIElement StartupPage()
+        {
+            StackPanel page = new StackPanel();
+            page.Children.Add(Header("Startup programs", "Programs that start when Windows starts. A switch that is off keeps the program installed, it only does not start. This is the switch of the Startup tab in Task Manager. Nothing is deleted."));
+            if (Demo && startupItems.Count == 0)
+            {
+                startupItems.Add(new StartupItem { Id = "d1", State = "on", Name = "Discord", Command = "\"C:\\Users\\you\\AppData\\Local\\Discord\\Update.exe\" --processStart Discord.exe", Where = "your account" });
+                startupItems.Add(new StartupItem { Id = "d2", State = "on", Name = "Steam", Command = "\"C:\\Program Files (x86)\\Steam\\steam.exe\" -silent", Where = "your account" });
+                startupItems.Add(new StartupItem { Id = "d3", State = "off", Name = "EpicGamesLauncher", Command = "\"C:\\Program Files (x86)\\Epic Games\\Launcher\\Portal\\Binaries\\Win64\\EpicGamesLauncher.exe\" -silent", Where = "your account" });
+                startupItems.Add(new StartupItem { Id = "d4", State = "on", Name = "RTHDVCPL", Command = "\"C:\\Program Files\\Realtek\\Audio\\HDA\\RAVCpl64.exe\" -s", Where = "all users" });
+                startupItems.Add(new StartupItem { Id = "d5", State = "on", Name = "SecurityHealth", Command = "%windir%\\system32\\SecurityHealthSystray.exe", Where = "all users", Protected = true });
+                startupState = "done";
+            }
+            if (startupState == "idle" && !Demo) RefreshStartup();
+
+            DockPanel actions = new DockPanel();
+            actions.Margin = new Thickness(0, 0, 0, 18);
+            Button refresh = Btn("Refresh", false, delegate { if (!Demo) { RefreshStartup(); Rebuild(); } });
+            DockPanel.SetDock(refresh, Dock.Right);
+            actions.Children.Add(refresh);
+            if (startupState == "done")
+            {
+                int on = 0;
+                foreach (StartupItem si in startupItems) { if (si.State == "on") on++; }
+                actions.Children.Add(Txt(String.Format(Loc.T("{0} of {1} start with Windows"), on, startupItems.Count), 14, FontWeights.SemiBold, "Ink"));
+            }
+            page.Children.Add(actions);
+
+            if (startupState == "idle" || startupState == "loading")
+            {
+                page.Children.Add(Card(Txt("Reading the list...", 14, FontWeights.Normal, "Muted"), 16));
+                return Wrap(page);
+            }
+            if (startupState == "failed" && startupItems.Count == 0)
+            {
+                page.Children.Add(Card(Txt("The list could not be read. Press Refresh.", 14, FontWeights.Normal, "Warn"), 16));
+                return Wrap(page);
+            }
+            StackPanel list = new StackPanel();
+            bool first = true;
+            foreach (StartupItem it in startupItems)
+            {
+                if (!first) list.Children.Add(new Border { Height = 1, Background = Theme.Get("Line"), Margin = new Thickness(0, 2, 0, 2) });
+                first = false;
+                list.Children.Add(StartupRow(it));
+            }
+            Border card = Card(list, 20);
+            card.Padding = new Thickness(20, 10, 20, 10);
+            page.Children.Add(card);
+            return Wrap(page);
+        }
+
+        UIElement StartupRow(StartupItem it)
+        {
+            Grid g = new Grid();
+            g.Margin = new Thickness(0, 10, 0, 10);
+            g.ColumnDefinitions.Add(new ColumnDefinition());
+            g.ColumnDefinitions.Add(new ColumnDefinition { Width = GridLength.Auto });
+            g.ColumnDefinitions.Add(new ColumnDefinition { Width = GridLength.Auto });
+            StackPanel text = new StackPanel();
+            text.Children.Add(Txt(it.Name, 14, FontWeights.SemiBold, "Ink"));
+            string cmd = it.Command;
+            if (cmd.Length > 90) cmd = cmd.Substring(0, 87) + "...";
+            TextBlock d = Txt(Loc.T(it.Where) + "   " + cmd, 12, FontWeights.Normal, "Muted");
+            d.Margin = new Thickness(0, 2, 24, 0);
+            text.Children.Add(d);
+            g.Children.Add(text);
+
+            TextBlock st = Txt(it.Protected ? "Windows item" : (it.State == "on" ? "On" : "Off"), 12, FontWeights.SemiBold, it.Protected ? "Muted" : (it.State == "on" ? "Good" : "Muted"));
+            st.VerticalAlignment = VerticalAlignment.Center;
+            st.Margin = new Thickness(0, 0, 14, 0);
+            Grid.SetColumn(st, 1);
+            g.Children.Add(st);
+
+            CheckBox sw = new CheckBox();
+            sw.Style = S("SwitchStyle");
+            sw.VerticalAlignment = VerticalAlignment.Center;
+            sw.IsChecked = (it.State == "on");
+            sw.IsEnabled = !it.Protected && !Demo;
+            sw.SetValue(System.Windows.Automation.AutomationProperties.NameProperty, it.Name);
+            StartupItem cap = it;
+            sw.Click += delegate { OnStartupSwitch(cap, sw); };
+            Grid.SetColumn(sw, 2);
+            g.Children.Add(sw);
+            return g;
+        }
+
+        void OnStartupSwitch(StartupItem it, CheckBox sw)
+        {
+            if (Demo) return;
+            bool wantOn = sw.IsChecked == true;
+            if (busy) { sw.IsChecked = !wantOn; Ask("Please wait", "Another task is still running. Try again when it is finished.", "OK"); return; }
+            if (it.Id.IndexOf('"') >= 0) { sw.IsChecked = !wantOn; return; }
+            RunInApp(Loc.T(wantOn ? "Turning on at startup" : "Turning off at startup") + " " + it.Name, Runner.PowerShellExe,
+                Runner.ScriptArgs(@"tools\Startup_Items.ps1", "-Action " + (wantOn ? "Enable" : "Disable") + " -Id \"" + it.Id + "\""),
+                delegate(int code) { RefreshStartup(); Rebuild(); });
+        }
+
+        void RefreshStartup()
+        {
+            if (Demo) return;
+            startupState = "loading";
+            List<string> lines = new List<string>();
+            try
+            {
+                Runner.RunCaptured(Runner.PowerShellExe, Runner.ScriptArgs(@"tools\Startup_Items.ps1", "-Action List"),
+                    delegate(string l) { lock (startupLock) { lines.Add(l); } },
+                    delegate(int code)
+                    {
+                        List<string> copy;
+                        lock (startupLock) { copy = new List<string>(lines); }
+                        Dispatch(delegate { ApplyStartup(copy, code); });
+                    });
+            }
+            catch { ApplyStartup(new List<string>(), -1); }
+        }
+
+        void ApplyStartup(List<string> lines, int code)
+        {
+            List<StartupItem> list = new List<StartupItem>();
+            foreach (string l in lines)
+            {
+                string[] p = l.Split('|');
+                if (p.Length < 6) continue;
+                StartupItem s = new StartupItem();
+                s.Id = p[0]; s.State = p[1]; s.Name = p[2]; s.Command = p[3]; s.Where = p[4]; s.Protected = (p[5] == "protected");
+                list.Add(s);
+            }
+            startupItems = list;
+            startupState = (code == 0) ? "done" : "failed";
+            if (currentPage == "Startup") Rebuild();
         }
 
         // ---- Undo

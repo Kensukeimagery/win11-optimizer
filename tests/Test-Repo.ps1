@@ -299,6 +299,164 @@ Assert ($mst4 -match ':HIBAPPLY' -and $mst4 -match 'Hibernate\.ps1' -and $mst4 -
 Assert (($maxBlock -match 'IMPORTNUM 26') -and ($maxBlock -match 'HIBAPPLY') -and ($maxBlock -match 'SETCHOICE 27 N') -and ($gamesBlock -notmatch 'IMPORTNUM 26') -and ($gamesBlock -notmatch 'HIBAPPLY') -and ($safeBlock -match 'SETCHOICE 26 N') -and ($safeBlock -match 'SETCHOICE 27 N') -and ($safeBlock -notmatch 'HIBAPPLY')) 'the Maximum profile applies 26 and (not on a laptop) 27; safe and games leave them off'
 Assert ($csSrc2 -match "Add-OptionalItem '27'" -and $csSrc2 -match "'hib'") 'Check Status lists 27 and can re-apply it'
 Write-Host ''
+Write-Host '== Measure, startup programs, free space and the check after Windows Update' -ForegroundColor Cyan
+function Invoke-ChildTest([string]$Body, [string[]]$ChildArgs) {
+    # runs a test script in its own PowerShell and returns its last output line (the scripts under test also print messages)
+    $f = Join-Path ([IO.Path]::GetTempPath()) ('childtest_' + [guid]::NewGuid().ToString('N') + '.ps1')
+    [IO.File]::WriteAllText($f, $Body, (New-Object System.Text.UTF8Encoding($false)))
+    $out = (& powershell.exe -NoProfile -ExecutionPolicy Bypass -File $f @ChildArgs 2>&1 | Out-String).Trim()
+    Remove-Item -LiteralPath $f -Force -ErrorAction SilentlyContinue
+    return (@($out -split "`r?`n")[-1]).Trim()
+}
+# --- Benchmark: the rules, then a real before and after run into a temporary folder (it only reads the PC)
+$bmUnit = Invoke-ChildTest @'
+param([string]$Script)
+. $Script
+$v = @((Get-ChangeVerdict 100 80 $false), (Get-ChangeVerdict 100 95 $false), (Get-ChangeVerdict 100 130 $false), (Get-ChangeVerdict 50 49 $true), (Get-ChangeVerdict 50 50 $true), (Get-ChangeVerdict 0 0 $false), (Get-ChangeVerdict $null 5 $false))
+$c = @((Get-ChangeText 100 80), (Get-ChangeText 100 100), (Get-ChangeText 0 5))
+$rows = Get-ComparisonRows @{ cpu = 10; ram = 1000; procs = 100; svcs = 100; start = 10; dpc = 100; irq = 100; ctx = 100; faults = 100 } @{ cpu = 5; ram = 1000; procs = 90; svcs = 100; start = 10; dpc = 130; irq = 100; ctx = 100; faults = $null }
+Write-Output (($v -join ',') + '|' + ($c -join ',') + '|' + (Get-Summary $rows))
+'@ @('-Script', (Join-Path $root 'tools\Benchmark.ps1'))
+Assert ($bmUnit -eq 'better,same,worse,better,same,same,n/a|-20 %,0 %,new|Of 8 measurements, 2 are lower, 5 are about the same and 1 are higher than before.') ('the measurement judges a change by its size: under 10 percent is the same, a count is exact, a missing value is n/a (' + $bmUnit + ')')
+$bmRoot = Join-Path ([IO.Path]::GetTempPath()) ('bm_' + [guid]::NewGuid().ToString('N'))
+New-Item -ItemType Directory -Force -Path $bmRoot | Out-Null
+$bmQuick = (& powershell.exe -NoProfile -ExecutionPolicy Bypass -File (Join-Path $root 'tools\Benchmark.ps1') -Action Quick -Samples 2 -IntervalSeconds 1 -Root $bmRoot 2>&1 | Out-String)
+Assert ($bmQuick -match 'Processor use at rest' -and $bmQuick -match 'Memory in use' -and $bmQuick -notmatch 'Exception|At line|Argument') ('the measurement reads the PC without an error (' + (($bmQuick -split "`r?`n" | Where-Object { $_ -match 'Processor use' }) -join '') + ')')
+$null = & powershell.exe -NoProfile -ExecutionPolicy Bypass -File (Join-Path $root 'tools\Benchmark.ps1') -Action Before -Samples 2 -IntervalSeconds 1 -Root $bmRoot 2>&1
+$bmAfter = (& powershell.exe -NoProfile -ExecutionPolicy Bypass -File (Join-Path $root 'tools\Benchmark.ps1') -Action After -Samples 2 -IntervalSeconds 1 -Root $bmRoot 2>&1 | Out-String)
+$bmFiles = @(Get-ChildItem -LiteralPath (Join-Path $bmRoot 'Logs') -File -ErrorAction SilentlyContinue | ForEach-Object { $_.Name -replace '_\d{8}_\d{6}\.txt$', '' } | Sort-Object)
+Assert (($bmFiles -join ',') -eq 'BenchmarkAfter,BenchmarkBefore,BenchmarkReport' -and $bmAfter -match 'Measurement' -and $bmAfter -match 'Of \d+ measurements' -and $bmAfter -notmatch 'Exception|At line|Argument') ('a before and an after measurement are saved and compared, and a report is written (' + ($bmFiles -join ',') + ')')
+Remove-Item -LiteralPath $bmRoot -Recurse -Force -ErrorAction SilentlyContinue
+
+# --- Startup programs: the rules, then the whole list, switch off, switch on flow against temporary keys and a temporary folder
+$suUnit = Invoke-ChildTest @'
+param([string]$Script)
+. $Script
+$st = @((ConvertTo-ApprovedState $null), (ConvertTo-ApprovedState ([byte[]](2, 0, 0, 0))), (ConvertTo-ApprovedState ([byte[]](6, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0))), (ConvertTo-ApprovedState ([byte[]](3, 0, 0, 0))), (ConvertTo-ApprovedState ([byte[]](7, 0, 0, 0))))
+$b1 = New-ApprovedBytes $true; $b0 = New-ApprovedBytes $false
+$by = @($b1.Count, $b1[0], $b0.Count, $b0[0], ([BitConverter]::ToInt64($b0, 4) -gt 0))
+$pr = @((Test-ProtectedEntry 'SecurityHealth' '%windir%\system32\SecurityHealthSystray.exe'), (Test-ProtectedEntry 'Foo' ($env:windir + '\System32\foo.exe')), (Test-ProtectedEntry 'Discord' 'C:\Users\a\Discord.exe'), (Test-ProtectedEntry 'Windows Defender notice' 'C:\x\y.exe'))
+Write-Output (($st -join ',') + '|' + ($by -join ',') + '|' + ($pr -join ','))
+'@ @('-Script', (Join-Path $root 'tools\Startup_Items.ps1'))
+Assert ($suUnit -eq 'on,on,on,off,off|12,2,12,3,True|True,True,False,True') ('the startup switch is read and written like Task Manager does, and Windows and security items are protected (' + $suUnit + ')')
+$suFlow = Invoke-ChildTest @'
+param([string]$Script)
+$k = 'HKCU:\Software\PCOptimizerTest_' + [guid]::NewGuid().ToString('N')
+New-Item -Path ($k + '\user\Run') -Force | Out-Null
+New-ItemProperty -Path ($k + '\user\Run') -Name 'AppA' -Value 'C:\Games\a.exe' | Out-Null
+New-ItemProperty -Path ($k + '\user\Run') -Name 'SecurityHealth' -Value '%windir%\system32\SecurityHealthSystray.exe' | Out-Null
+$fd = Join-Path ([IO.Path]::GetTempPath()) ('su_' + [guid]::NewGuid().ToString('N'))
+New-Item -ItemType Directory -Path $fd | Out-Null
+Set-Content -Path (Join-Path $fd 'game.lnk') -Value 'x'
+Set-Content -Path (Join-Path $fd 'desktop.ini') -Value 'x'
+function Invoke-SuTool([string[]]$a) { $o = @(& powershell.exe -NoProfile -ExecutionPolicy Bypass -File $Script -TestRoot $k -TestFolder $fd @a); return [pscustomobject]@{ Out = $o; Code = $LASTEXITCODE } }
+function StateOf([string]$id) { $l = @((Invoke-SuTool @('-Action', 'List')).Out | Where-Object { $_ -like ($id + '|*') }); if ($l.Count -eq 0) { return 'none' }; return ($l[0] -split '\|')[1] }
+$res = @()
+$res += ('items=' + @((Invoke-SuTool @('-Action', 'List')).Out).Count)
+$res += ('start=' + (StateOf 'user-run/AppA') + (StateOf 'user-folder/game.lnk'))
+$r = Invoke-SuTool @('-Action', 'Disable', '-Id', 'user-run/AppA'); $res += ('off=' + $r.Code + (StateOf 'user-run/AppA'))
+$r = Invoke-SuTool @('-Action', 'Disable', '-Id', 'user-folder/game.lnk'); $res += ('offfile=' + $r.Code + (StateOf 'user-folder/game.lnk'))
+$r = Invoke-SuTool @('-Action', 'Disable', '-Id', 'user-run/SecurityHealth'); $res += ('protected=' + $r.Code + (StateOf 'user-run/SecurityHealth'))
+$r = Invoke-SuTool @('-Action', 'Disable', '-Id', 'user-run/Nope'); $res += ('unknown=' + $r.Code)
+$r = Invoke-SuTool @('-Action', 'Enable', '-Id', 'user-run/AppA'); $res += ('on=' + $r.Code + (StateOf 'user-run/AppA'))
+$r = Invoke-SuTool @('-Action', 'Enable', '-Id', 'user-folder/game.lnk'); $res += ('onfile=' + $r.Code + (StateOf 'user-folder/game.lnk'))
+$res += ('kept=' + ((Get-ItemProperty ($k + '\user\Run')).AppA -eq 'C:\Games\a.exe') + (Test-Path (Join-Path $fd 'game.lnk')))
+Remove-Item -Path $k -Recurse -Force -ErrorAction SilentlyContinue
+Remove-Item -LiteralPath $fd -Recurse -Force -ErrorAction SilentlyContinue
+Write-Output ($res -join ' | ')
+'@ @('-Script', (Join-Path $root 'tools\Startup_Items.ps1'))
+Assert ($suFlow -eq 'items=3 | start=onon | off=0off | offfile=0off | protected=3on | unknown=1 | on=0on | onfile=0on | kept=TrueTrue') ('a startup program is switched off and on again, a Windows item is refused, an unknown id is refused, and nothing is deleted (' + $suFlow + ')')
+$suReal = (& powershell.exe -NoProfile -ExecutionPolicy Bypass -File (Join-Path $root 'tools\Startup_Items.ps1') -Action List 2>&1 | Out-String)
+Assert (@($suReal -split "`r?`n" | Where-Object { $_.Trim() -ne '' } | Where-Object { @($_ -split '\|').Count -ne 6 }).Count -eq 0 -and $suReal -notmatch 'Exception|At line') 'the real startup list has six fields on every line and no error'
+
+# --- Free up space: what is removed and what is not, and the places that are looked at
+$fsFlow = Invoke-ChildTest @'
+param([string]$Script)
+. $Script
+$base = Join-Path ([IO.Path]::GetTempPath()) ('fs_' + [guid]::NewGuid().ToString('N'))
+$root = Join-Path $base 'root'; $out = Join-Path $base 'outside'
+New-Item -ItemType Directory -Force -Path (Join-Path $root 'sub'), $out | Out-Null
+$old = (Get-Date).AddDays(-3)
+foreach ($f in 'old.tmp', 'sub\old2.tmp', 'keep.txt') { Set-Content -Path (Join-Path $root $f) -Value 'x'; (Get-Item (Join-Path $root $f)).LastWriteTime = $old }
+Set-Content -Path (Join-Path $root 'new.tmp') -Value 'x'
+Set-Content -Path (Join-Path $out 'old3.tmp') -Value 'x'; (Get-Item (Join-Path $out 'old3.tmp')).LastWriteTime = $old
+cmd.exe /c ('mklink /J "' + (Join-Path $root 'link') + '" "' + $out + '"') | Out-Null
+$place = @{ Path = $root; Filter = '*.tmp'; Recurse = $true; MinAgeHours = 24 }
+$files = @(Get-PlaceFiles $place)
+$names = (@($files | ForEach-Object { $_.Name } | Sort-Object) -join ',')
+$dry = Remove-FileList $files -DryRun
+$afterDry = (Test-Path (Join-Path $root 'old.tmp'))
+$real = Remove-FileList $files
+$left = @('old.tmp', 'sub\old2.tmp', 'new.tmp', 'keep.txt' | ForEach-Object { Test-Path (Join-Path $root $_) }) -join ','
+$outside = Test-Path (Join-Path $out 'old3.tmp')
+$none = @(Get-PlaceFiles @{ Path = (Join-Path $base 'nothere'); Filter = '*'; Recurse = $true; MinAgeHours = 0 }).Count
+cmd.exe /c ('rmdir "' + (Join-Path $root 'link') + '"') | Out-Null
+Remove-Item -LiteralPath $base -Recurse -Force -ErrorAction SilentlyContinue
+Write-Output ('found=' + $names + ' | dry=' + $dry.Removed + ',' + $afterDry + ' | real=' + $real.Removed + ' | left=' + $left + ' | outside=' + $outside + ' | missing=' + $none)
+'@ @('-Script', (Join-Path $root 'tools\Free_Space.ps1'))
+Assert ($fsFlow -eq 'found=old.tmp,old2.tmp | dry=2,True | real=2 | left=False,False,True,True | outside=True | missing=0') ('only files that are old enough and match the pattern are removed, a dry run removes nothing, a linked folder is not followed (' + $fsFlow + ')')
+$fsCats = Invoke-ChildTest @'
+param([string]$Script)
+. $Script
+$c = @(Get-Categories)
+$paths = @($c | ForEach-Object { $_.Places } | ForEach-Object { $_.Path })
+$bad = @($paths | Where-Object { $_ -match 'Downloads|Documents|Desktop|Recycle|Pictures|Steam|Games|Epic|D3DSCache|NVIDIA' })
+$under = @($paths | Where-Object { $_.StartsWith($env:TEMP, [StringComparison]::OrdinalIgnoreCase) -or $_.StartsWith($env:windir, [StringComparison]::OrdinalIgnoreCase) -or $_.StartsWith($env:LOCALAPPDATA, [StringComparison]::OrdinalIgnoreCase) -or $_.StartsWith($env:ProgramData, [StringComparison]::OrdinalIgnoreCase) })
+Write-Output (((@($c | ForEach-Object { $_.Id }) -join ',')) + '|bad=' + $bad.Count + '|outside=' + ($paths.Count - $under.Count))
+'@ @('-Script', (Join-Path $root 'tools\Free_Space.ps1'))
+Assert ($fsCats -eq 'usertemp,wintemp,wucache,thumbs,dumps|bad=0|outside=0') ('the cleanup looks only at its five kinds of places: temp, update cache, thumbnails, dumps (' + $fsCats + ')')
+$fsScan = (& powershell.exe -NoProfile -ExecutionPolicy Bypass -File (Join-Path $root 'tools\Free_Space.ps1') -Action Scan -Only thumbs 2>&1 | Out-String)
+Assert ($fsScan -match 'Picture and icon cache' -and $fsScan -match 'Together:' -and $fsScan -notmatch 'Exception|At line') 'the free space scan shows sizes and removes nothing'
+
+# --- Check after Windows Update: the rule, the task definition, and (on CI only) the real task
+$dfUnit = Invoke-ChildTest @'
+param([string]$Report, [string]$Task)
+. $Task
+$d = Get-DriftTaskDefinition 'C:\Some Folder\win11-optimizer'
+$def = @(($d.Argument -like '*-File "C:\Some Folder\win11-optimizer\tools\Drift_Report.ps1" -Root "C:\Some Folder\win11-optimizer"'), ($d.EventQuery -match 'EventID=19' -and $d.EventQuery -match 'Microsoft-Windows-WindowsUpdateClient'), ($d.LogonDelay -eq 'PT2M'), ($d.Execute -eq 'powershell.exe'))
+. $Report
+function Get-Choice([string]$Name) { if ($Name -eq '05') { return 'Y' } else { return '' } }
+$items = @([pscustomobject]@{ Id = '01'; Status = 'CHANGED' }, [pscustomobject]@{ Id = '05'; Status = 'MISSING' }, [pscustomobject]@{ Id = '09'; Status = 'MISSING' }, [pscustomobject]@{ Id = '10'; Status = 'SKIPPED' }, [pscustomobject]@{ Id = '11'; Status = 'NOT CHOSEN' }, [pscustomobject]@{ Id = '12'; Status = 'OK' })
+Write-Output (($def -join ',') + '|' + ((Get-DriftItems $items | ForEach-Object { $_.Id }) -join ','))
+'@ @('-Report', (Join-Path $root 'tools\Drift_Report.ps1'), '-Task', (Join-Path $root 'tools\Drift_Task.ps1'))
+Assert ($dfUnit -eq 'True,True,True,True|01,05') ('the check after Windows Update runs the report script of this folder after update event 19 and at sign-in, and counts a setting as changed back only when it was in place (' + $dfUnit + ')')
+$dfKey = 'HKCU:\Software\PCOptimizerTest_' + [guid]::NewGuid().ToString('N')
+$dfRun = (& powershell.exe -NoProfile -ExecutionPolicy Bypass -File (Join-Path $root 'tools\Drift_Report.ps1') -NoToast -DriftKey $dfKey 2>&1 | Out-String)
+$dfCount = ''
+try { $dfCount = [string](Get-ItemProperty -Path $dfKey -Name 'DriftCount' -ErrorAction Stop).DriftCount } catch { }
+Remove-Item -Path $dfKey -Recurse -Force -ErrorAction SilentlyContinue
+Assert ($dfRun -match 'check after Windows Update' -and $dfRun -notmatch 'Exception|At line|Argument' -and $dfCount -match '^\d+$') ('the quiet check runs, writes its report and remembers the result (' + $dfCount + ' changed back)')
+if ($env:CI -eq 'true') {
+    $dfOn = (& powershell.exe -NoProfile -ExecutionPolicy Bypass -File (Join-Path $root 'tools\Drift_Task.ps1') -Action On 2>&1 | Out-String)
+    $dfTask = $null
+    try { $dfTask = Get-ScheduledTask -TaskName 'PC_Optimizer_DriftCheck' -ErrorAction Stop } catch { }
+    $dfTriggers = $(if ($null -ne $dfTask) { @($dfTask.Triggers).Count } else { 0 })
+    $dfOff = (& powershell.exe -NoProfile -ExecutionPolicy Bypass -File (Join-Path $root 'tools\Drift_Task.ps1') -Action Off 2>&1 | Out-String)
+    $dfGone = $true
+    try { $null = Get-ScheduledTask -TaskName 'PC_Optimizer_DriftCheck' -ErrorAction Stop; $dfGone = $false } catch { }
+    Assert ($dfOn -match '\[OK\]' -and $dfTriggers -eq 2 -and $dfOff -match '\[OK\]' -and $dfGone) ('the entry of the check after Windows Update is created with two triggers and removed again (' + $dfTriggers + ' triggers)')
+} else {
+    Write-Host '  [SKIP] the real Task Scheduler entry is only created and removed on the CI machine (and in the VM suite)' -ForegroundColor DarkGray
+}
+
+# --- the menu keys, the labels, the Thai texts
+$mst5 = [IO.File]::ReadAllText((Join-Path $root '1_Start_Here - PC_Optimizer_Master (Run as Administrator).bat'))
+Assert ($mst5 -match 'if /i "%CHOICE%"=="M" goto DOMEASURE' -and $mst5 -match 'if /i "%CHOICE%"=="F" goto DOSPACE' -and $mst5 -match 'if /i "%CHOICE%"=="P" goto DOSTARTUP' -and $mst5 -match 'if /i "%CHOICE%"=="W" goto DODRIFT') 'the main menu has the keys M, F, P and W'
+foreach ($pair in @(@('MEASURERUN', 'Benchmark.ps1" -Root "%SCRIPT_DIR%." -Action Menu'), @('SPACERUN', 'Free_Space.ps1" -Root "%SCRIPT_DIR%."'), @('STARTUPRUN', 'Startup_Items.ps1" -Action Menu'), @('DRIFTRUN', 'Drift_Task.ps1" -Root "%SCRIPT_DIR%." -Action Menu'))) {
+    Assert ($mst5 -match (':' + $pair[0] + '\r?\nif not exist') -and $mst5.Contains($pair[1])) ('the menu runs its tool for ' + $pair[0])
+}
+$locText = [IO.File]::ReadAllText((Join-Path $root 'app\Loc.cs'), [Text.Encoding]::UTF8)
+$locKeys = @([regex]::Matches($locText, '(?m)^\s*\{ "((?:[^"\\]|\\.)*)", "') | ForEach-Object { $_.Groups[1].Value })
+$locDup = @($locKeys | Group-Object | Where-Object { $_.Count -gt 1 } | ForEach-Object { $_.Name })
+Assert ($locDup.Count -eq 0 -and $locKeys.Count -gt 100) ('the Thai table has no key twice (a duplicate would stop the program at start) ' + ($locDup -join ' | '))
+$newTexts = @('Startup', 'Startup programs', 'Reading the list...', '{0} of {1} start with Windows', 'Windows item', 'Turning on at startup', 'Turning off at startup', 'your account', 'all users', 'all users (32-bit)', 'your Startup folder', 'all users, Startup folder', 'Measure before and after', 'Free up space', 'Check after Windows Update', 'Safe', 'Notice', 'Careful')
+$noThai2 = @($newTexts | Where-Object { $locKeys -notcontains $_ })
+Assert ($noThai2.Count -eq 0) ('every new text of the Startup page, the tools and the labels has a Thai text ' + ($noThai2 -join ' | '))
+$coreText = [IO.File]::ReadAllText((Join-Path $root 'app\Core.cs'))
+Assert ($coreText -match 'case "13": case "16": return "Careful";' -and $coreText -match 'HomeIgnoresPart\(string id\) \{ return id == "18"; \}') 'tweaks 13 and 16 are labelled Careful and tweak 18 has its note for Windows 11 Home'
+$mainText = [IO.File]::ReadAllText((Join-Path $root 'app\MainWindow.cs'))
+Assert ($mainText -match '"Home", "Tweaks", "Tools", "Startup", "Undo", "About"' -and $mainText -match 'Startup_Items\.ps1' -and $mainText -match 'Benchmark\.ps1' -and $mainText -match 'Free_Space\.ps1' -and $mainText -match 'Drift_Task\.ps1') 'the app has the Startup page and the three new tools'
+Write-Host ''
 Write-Host '== Check Status runs (read-only dry run)' -ForegroundColor Cyan
 try {
     $csPath = Join-Path $root 'tools\Check_Status.ps1'

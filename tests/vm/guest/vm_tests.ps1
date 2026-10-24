@@ -274,6 +274,77 @@ Add-Phase 'P7' 'The Windows app: self-test (status script, apply and revert of o
     return (Result (($r.Exit -eq 0) -and -not $r.TimedOut -and $text.Contains('ALL PASSED')) ('exit ' + $r.Exit + ', ' + $r.Seconds + ' s. ' + ($failed -join ' | ')))
 }
 
+Add-Phase 'P8.1' 'Measure before and after: two short measurements are saved and compared' {
+    $r1 = Invoke-PsFile 'tools\Benchmark.ps1' '-Action Before -Samples 3 -IntervalSeconds 1' 3
+    $r2 = Invoke-PsFile 'tools\Benchmark.ps1' '-Action After -Samples 3 -IntervalSeconds 1' 3
+    Save-Output 'P8.1' $r2
+    $out = [string]$r2.Out
+    $files = @(Get-ChildItem -LiteralPath (Join-Path $script:Root 'Logs') -File -ErrorAction SilentlyContinue | Where-Object { $_.Name -like 'BenchmarkBefore_*' -or $_.Name -like 'BenchmarkAfter_*' -or $_.Name -like 'BenchmarkReport_*' })
+    $ok = ($r1.Exit -eq 0) -and ($r2.Exit -eq 0) -and ($out -match 'Measurement') -and ($out -match 'Of \d+ measurements') -and ($out -notmatch 'Exception|At line') -and ($files.Count -ge 3)
+    return (Result $ok ('exit ' + $r1.Exit + '/' + $r2.Exit + ', ' + $files.Count + ' files. ' + (Get-Tail $r2 3)))
+}
+Add-Phase 'P8.2' 'Startup programs: a test entry is listed, switched off, switched on again, a Windows item is refused' {
+    $run = 'HKCU:\Software\Microsoft\Windows\CurrentVersion\Run'
+    $approved = 'HKCU:\Software\Microsoft\Windows\CurrentVersion\Explorer\StartupApproved\Run'
+    New-ItemProperty -Path $run -Name 'PCOptTestApp' -Value 'C:\PCOptTest\none.exe' -PropertyType String -Force | Out-Null
+    $bad = @()
+    try {
+        $s1 = [string](Invoke-PsFile 'tools\Startup_Items.ps1' '-Action List' 2).Out
+        if ($s1 -notmatch 'user-run/PCOptTestApp\|on\|') { $bad += 'the test entry is not listed as on' }
+        $r2 = Invoke-PsFile 'tools\Startup_Items.ps1' '-Action Disable -Id user-run/PCOptTestApp' 2
+        if ($r2.Exit -ne 0) { $bad += ('switching off exited with ' + $r2.Exit) }
+        $s3 = [string](Invoke-PsFile 'tools\Startup_Items.ps1' '-Action List' 2).Out
+        if ($s3 -notmatch 'user-run/PCOptTestApp\|off\|') { $bad += 'the test entry is not listed as off after the switch' }
+        $r4 = Invoke-PsFile 'tools\Startup_Items.ps1' '-Action Enable -Id user-run/PCOptTestApp' 2
+        $s5 = [string](Invoke-PsFile 'tools\Startup_Items.ps1' '-Action List' 2).Out
+        if ($r4.Exit -ne 0 -or $s5 -notmatch 'user-run/PCOptTestApp\|on\|') { $bad += 'switching on again did not work' }
+        if ((Get-ItemProperty -Path $run -Name 'PCOptTestApp').PCOptTestApp -ne 'C:\PCOptTest\none.exe') { $bad += 'the Run value was changed' }
+        if ($s1 -match 'all-run/SecurityHealth\|') {
+            $r6 = Invoke-PsFile 'tools\Startup_Items.ps1' '-Action Disable -Id all-run/SecurityHealth' 2
+            if ($r6.Exit -ne 3) { $bad += ('a Windows item was not refused (exit ' + $r6.Exit + ')') }
+        }
+    } finally {
+        Remove-ItemProperty -Path $run -Name 'PCOptTestApp' -ErrorAction SilentlyContinue
+        Remove-ItemProperty -Path $approved -Name 'PCOptTestApp' -ErrorAction SilentlyContinue
+    }
+    return (Result ($bad.Count -eq 0) ($bad -join '; '))
+}
+Add-Phase 'P8.3' 'Free up space: an old and a new file in the temp folder, only the old one is removed' {
+    $old = Join-Path $env:TEMP 'pcopt_old_test.tmp'
+    $new = Join-Path $env:TEMP 'pcopt_new_test.tmp'
+    Set-Content -Path $old -Value 'x'; (Get-Item -LiteralPath $old).LastWriteTime = (Get-Date).AddDays(-3)
+    Set-Content -Path $new -Value 'x'
+    $r = Invoke-PsFile 'tools\Free_Space.ps1' '-Action Clean -Only usertemp' 5
+    Save-Output 'P8.3' $r
+    $oldGone = -not (Test-Path -LiteralPath $old)
+    $newKept = Test-Path -LiteralPath $new
+    Remove-Item -LiteralPath $new -Force -ErrorAction SilentlyContinue
+    Remove-Item -LiteralPath $old -Force -ErrorAction SilentlyContinue
+    return (Result (($r.Exit -eq 0) -and $oldGone -and $newKept) ('exit ' + $r.Exit + ', old file removed: ' + $oldGone + ', new file kept: ' + $newKept + '. ' + (Get-Tail $r 3)))
+}
+Add-Phase 'P8.4' 'Check after Windows Update: the entry is created with two triggers, runs, and is removed again' {
+    $bad = @()
+    $name = 'PC_Optimizer_DriftCheck'
+    $logs = Join-Path $script:Root 'Logs'
+    $on = Invoke-PsFile 'tools\Drift_Task.ps1' '-Action On' 2
+    $task = Get-ScheduledTask -TaskName $name -ErrorAction SilentlyContinue
+    if ($on.Exit -ne 0 -or $null -eq $task) {
+        $bad += ('the entry was not created: ' + (Get-Tail $on 3))
+    } else {
+        if (@($task.Triggers).Count -ne 2) { $bad += ('expected 2 triggers, found ' + @($task.Triggers).Count) }
+        $sub = [string](@($task.Triggers | Where-Object { $_.CimClass.CimClassName -eq 'MSFT_TaskEventTrigger' }) | Select-Object -First 1).Subscription
+        if ($sub -notmatch 'EventID=19') { $bad += 'the event trigger is not for event 19' }
+        $before = @(Get-ChildItem -LiteralPath $logs -Filter 'DriftReport_*.txt' -ErrorAction SilentlyContinue).Count
+        Start-ScheduledTask -TaskName $name
+        $after = $before
+        for ($i = 0; $i -lt 36 -and $after -le $before; $i++) { Start-Sleep 5; $after = @(Get-ChildItem -LiteralPath $logs -Filter 'DriftReport_*.txt' -ErrorAction SilentlyContinue).Count }
+        if ($after -le $before) { $bad += 'the task ran but wrote no report within 3 minutes' }
+    }
+    $off = Invoke-PsFile 'tools\Drift_Task.ps1' '-Action Off' 2
+    if ($off.Exit -ne 0 -or $null -ne (Get-ScheduledTask -TaskName $name -ErrorAction SilentlyContinue)) { $bad += 'the entry was not removed' }
+    return (Result ($bad.Count -eq 0) ($bad -join '; '))
+}
+
 # --------------------------------------------------------------------------- run
 $facts = Get-VmFacts
 Say '==================================================================' 'Cyan'

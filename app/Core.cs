@@ -72,6 +72,9 @@ namespace Win11Optimizer
         }
 
         public bool IsOn { get { return Status == "OK"; } }
+
+        // how careful to be with this tweak: Safe, Notice or Careful (see Catalog.RiskOf)
+        public string Risk { get { return Catalog.RiskOf(Id); } }
     }
 
     static class Catalog
@@ -111,6 +114,21 @@ namespace Win11Optimizer
             foreach (Tweak t in All) { if (t.Id == id) return t; }
             return null;
         }
+
+        // Safe = no side effect you would notice. Notice = something you may notice (a feel, heat, battery, a notice in Windows).
+        // Careful = lowers protection, or makes the PC hotter and louder.
+        public static string RiskOf(string id)
+        {
+            switch (id)
+            {
+                case "13": case "16": return "Careful";
+                case "02": case "05": case "08": case "09": case "10": case "12": case "14": case "15": case "18": case "22": case "26": case "27": return "Notice";
+                default: return "Safe";
+            }
+        }
+
+        // a tweak with a part that Microsoft lists for Pro, Enterprise and Education only
+        public static bool HomeIgnoresPart(string id) { return id == "18"; }
     }
 
     // Starts the tool's scripts and gives their output back line by line.
@@ -128,6 +146,26 @@ namespace Win11Optimizer
         public static string ScriptArgs(string relative, string extra)
         {
             return "-NoProfile -ExecutionPolicy Bypass -File \"" + Path1(relative) + "\" " + extra;
+        }
+
+        // Windows 11 Home (EditionID starts with "Core"), for the notes about settings that Home ignores
+        public static bool IsHomeEdition()
+        {
+            try
+            {
+                using (RegistryKey k = Registry.LocalMachine.OpenSubKey(@"SOFTWARE\Microsoft\Windows NT\CurrentVersion"))
+                {
+                    string e = (k == null) ? "" : Convert.ToString(k.GetValue("EditionID"));
+                    return e != null && e.StartsWith("Core", StringComparison.OrdinalIgnoreCase);
+                }
+            }
+            catch { return false; }
+        }
+
+        // The arguments for OpenConsole to run one of the tool scripts in its own window that stays open until a key is pressed.
+        public static string ConsoleArgs(string script, string extra)
+        {
+            return "/d /s /c \"\"" + PowerShellExe + "\" " + ScriptArgs(script, extra) + " & pause\"";
         }
 
         public static string Version()

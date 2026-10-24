@@ -1,7 +1,7 @@
 <!doctype html>
-<html lang="en"><head><meta charset="utf-8"><title>Windows 11 Optimizer - User Manual v4.32</title>
+<html lang="en"><head><meta charset="utf-8"><title>Windows 11 Optimizer - User Manual v4.33</title>
 <link rel="stylesheet" href="manual.css">
-<style>@page { @top-right { content: "User manual v4.32"; font: 8pt "Segoe UI", "Leelawadee UI", Tahoma, sans-serif; color: #465065; } }</style></head><body>
+<style>@page { @top-right { content: "User manual v4.33"; font: 8pt "Segoe UI", "Leelawadee UI", Tahoma, sans-serif; color: #465065; } }</style></head><body>
 <svg width="0" height="0" style="position:absolute" aria-hidden="true">
 <symbol id="i-info" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 11v5.2M12 7.7h.01"/></symbol>
 <symbol id="i-tip" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M8 12.6l2.7 2.7L16.2 9.6"/></symbol>
@@ -12,7 +12,7 @@
 <symbol id="i-bat" viewBox="0 0 24 24"><path d="M7 3.5h7l4 4V19a1.5 1.5 0 0 1-1.5 1.5h-9A1.5 1.5 0 0 1 6 19V5A1.5 1.5 0 0 1 7 3.5z"/><path d="M14 3.5V8h4.5M9.5 12.6l2 1.7-2 1.7M13 16.4h2.4"/></symbol>
 </svg>
 <div class="page">
-<div class="cover-hero"><h1>Windows 11 Optimizer</h1><p>Safe, reversible tuning for Windows 11 gaming PCs. One button does the job in the right order, and every change can be undone.</p><p class="ver">User manual, version v4.32</p></div>
+<div class="cover-hero"><h1>Windows 11 Optimizer</h1><p>Safe, reversible tuning for Windows 11 gaming PCs. One button does the job in the right order, and every change can be undone.</p><p class="ver">User manual, version v4.33</p></div>
 <div class="howto"><div><b>New here?</b>Open Quick start. Six steps, about 30 minutes, most of it waiting.</div><div><b>Something went wrong?</b>Open Troubleshooting. Find your symptom and follow the fix.</div><div><b>Want every detail?</b>The Reference at the back lists each tweak and each tool.</div></div>
 <h2>Contents</h2>
 <ul class="toc">
@@ -152,8 +152,9 @@
 <figure><img src="../img/app-home.png" alt="The home page of the app" style="max-width:72%"><figcaption>The home page: Easy Setup, how many settings are in place, restore point, undo and updates.</figcaption></figure>
 <table><tr><th style="width:22%">Page</th><th>What you do there</th></tr>
 <tr><td>Home</td><td>Press <b>Start Easy Setup</b>, choose how you use the PC, and it runs in its own window. Below it you see how many settings are in place, and <b>Fix them</b> if Windows changed some back.</td></tr>
-<tr><td>Tweaks</td><td>One switch per tweak (01 to 16 and 18 to 27) with its state: On, Off or Changed by Windows. A restore point is offered before the first change. <b>Turn on all recommended</b> applies tweaks 01 to 08.</td></tr>
-<tr><td>Tools</td><td>PC specs, PC health, System report and Support bundle run inside the window and show their result. Network test, Drivers, Clean up and Check status open their own window because they ask you questions.</td></tr>
+<tr><td>Tweaks</td><td>One switch per tweak (01 to 16 and 18 to 27) with its state: On, Off or Changed by Windows. A restore point is offered before the first change. <b>Turn on all recommended</b> applies tweaks 01 to 08.<br><b>Labels:</b> Safe (nothing you would notice: 01, 03, 04, 06, 07, 11, 19, 20, 21, 23, 24, 25), Notice (something you may notice, for example a different feel, more power use or a notice in Windows or Edge: 02, 05, 08, 09, 10, 12, 14, 15, 18, 22, 26, 27) and Careful (lowers protection or adds heat: 13, 16). On Windows 11 Home the app also says when a part of a tweak is ignored by that edition (18).</td></tr>
+<tr><td>Tools</td><td>PC specs, PC health, System report and Support bundle run inside the window and show their result. Network test, Drivers, Clean up, Check status, Measure before and after, Free up space and Check after Windows Update open their own window because they ask you questions.</td></tr>
+<tr><td>Startup</td><td>Every program that starts with Windows, with a switch for each. A switch that is off keeps the program installed, it only does not start (the switch of the Startup tab in Task Manager). Windows and security items are shown but cannot be switched off.</td></tr>
 <tr><td>Undo</td><td>Turn one tweak off on the Tweaks page, roll the PC back with System Restore, or open the Backup and Logs folders.</td></tr>
 <tr><td>About</td><td>Version, the manuals, GitHub and the update check.</td></tr>
 <tr><td>English / Thai</td><td>The two small buttons at the bottom of the side bar change the language of the window. The text of the tools that open in their own window stays English.</td></tr>
@@ -237,6 +238,13 @@
 <tr><td>UNKNOWN</td><td>Cannot be read, or this PC does not have the option.</td><td>Information only.</td></tr>
 </table>
 
+<h2>Measure, free space, startup programs and the check after Windows Update</h2>
+<table><tr><th style="width:22%">Tool (key)</th><th>What it does</th><th style="width:30%">What it never does</th></tr>
+<tr><td>Measure (M)</td><td>Reads how busy the PC is at rest: processor use, memory in use, the number of processes, services and startup programs, interrupts, DPCs, context switches and page faults. Measure before the tweaks and again after a restart, and it shows both side by side with the change in percent. A change smaller than 10 percent counts as "about the same", because readings at rest vary.</td><td>Changes nothing. It says plainly when nothing changed: a tweak for latency or for one game often does not show up at rest.</td></tr>
+<tr><td>Free up disk space (F)</td><td>Shows how much each kind of leftover takes: your temporary files and the Windows temporary files (older than one day), Windows Update download leftovers, the picture and icon cache of File Explorer, crash dumps and error reports. You answer Y or N for each kind.</td><td>Touches nothing else: not the Recycle Bin, Downloads, Documents, game files or shader caches. A file in use is skipped, and links are never followed.</td></tr>
+<tr><td>Startup programs (P)</td><td>Lists the programs that start with Windows and switches one off or on with the same switch as the Startup tab of Task Manager. The Windows app has a Startup page for it.</td><td>Deletes nothing. Windows and security items (for example Windows Security) are shown but cannot be switched off here.</td></tr>
+<tr><td>Check after Windows Update (W)</td><td>Adds one entry to the Task Scheduler for your account. After Windows installed an update, and two minutes after you sign in, it compares the PC with the settings of this tool, writes a short report to the Logs folder and shows one notification when Windows changed settings back.</td><td>Changes no setting by itself and needs no administrator rights. Turning it off removes the entry. The entry points at this folder: if you move the folder, turn it off and on again.</td></tr>
+</table>
 <h2>Updating</h2>
 <div class="card rep"><div class="t"><span class="n">U</span>Updating: menu U or 6_Check_For_Updates.bat</div><ul>
 <li>Looks for a newer release on GitHub, shows what is new, and installs it only if you press U. N = not now, S = skip this version, L = open the release page.</li>
@@ -351,6 +359,10 @@
 <tr><td><b>H</b></td><td>PC health: crashes, drives, refresh rate, RAM speed, cable speed</td></tr>
 <tr><td><b>B</b></td><td>Support bundle: one file to attach to a problem report</td></tr>
 <tr><td><b>L</b></td><td>Clean up old reports and backups</td></tr>
+<tr><td><b>M</b></td><td>Measure: your PC at rest before and after the tweaks, side by side</td></tr>
+<tr><td><b>F</b></td><td>Free up disk space: sizes first, you choose what goes</td></tr>
+<tr><td><b>P</b></td><td>Startup programs: switch one off or on, nothing is deleted</td></tr>
+<tr><td><b>W</b></td><td>Check after Windows Update: on or off, it only reads and tells you</td></tr>
 <tr><td><b>0</b></td><td>Exit</td></tr>
 </table>
 <figure><img src="../img/main-menu.png" alt="The main menu" style="max-width:76%"><figcaption>The main menu (1_Start_Here). E is Easy Setup. Every tool in More Tools has a key here.</figcaption></figure>
@@ -536,7 +548,7 @@
 <li>11 Keyboard Response flags and 12 Ndu memory leak: from user reports, not Microsoft.</li>
 <li>The defaults in reg_undo for these are typical Windows values. If you need your exact originals, use the Backup folder.</li></ul>
 Results differ between PCs and Microsoft may change how these values behave in a later Windows release. Every item can be reverted with menu 7 or the Backup folder.</div>
-<div class="foot">win11-optimizer v4.32 - github.com/Kensukeimagery/win11-optimizer - MIT License</div>
+<div class="foot">win11-optimizer v4.33 - github.com/Kensukeimagery/win11-optimizer - MIT License</div>
 </div>
 
 </body></html>

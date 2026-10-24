@@ -75,6 +75,7 @@
 | Apply 26 documented registry, power and network tweaks, each with an undo file | Edit game files, inject into games or add overlays |
 | Install recommended drivers from Windows Update (never a maker's graphics driver or firmware) | Install third-party programs or "driver updater" tools |
 | Show your PC specs, health and crashes in plain words | Promise FPS numbers |
+| Measure your PC at rest before and after the tweaks, list the programs that start with Windows and switch one off, show what temporary files take and remove them only when you say yes | Hide a result: the measurement says plainly when nothing changed. It never removes anything without asking |
 | Update itself after you say yes, with a SHA-256 check | Send your data anywhere. It contacts github.com for updates and Microsoft for drivers |
 
 ## How Easy Setup works
@@ -121,14 +122,23 @@ The main folder holds only three files to double-click (0, 1 and 2). Everything 
 <details>
 <summary><b>Main menu keys</b></summary>
 
-`E` Easy Setup, `1` Recommended, `2` Optional 09-13, 15, 16, 18-27 (one by one), `3` Base setup (power plan, services, SSD/HDD check, temp cleanup), `4` Power settings, `5` Everything, `6` Restore point only, `7` Revert one tweak, `8` Disk type, `9` Power Options, `C` Check status, `D` Drivers (beta), `U` Check for updates, `A` Automatic update check on or off, `N` Network test, `R` System report, `S` PC specs, `H` PC health, `B` Support bundle, `L` Clean up old reports and backups.
+`E` Easy Setup, `1` Recommended, `2` Optional 09-13, 15, 16, 18-27 (one by one), `3` Base setup (power plan, services, SSD/HDD check, temp cleanup), `4` Power settings, `5` Everything, `6` Restore point only, `7` Revert one tweak, `8` Disk type, `9` Power Options, `C` Check status, `D` Drivers (beta), `U` Check for updates, `A` Automatic update check on or off, `N` Network test, `R` System report, `S` PC specs, `H` PC health, `B` Support bundle, `L` Clean up old reports and backups, `M` Measure before and after, `F` Free up disk space, `P` Startup programs, `W` Check after Windows Update.
+
+</details>
+
+<details>
+<summary><b>Check that the download is genuine</b></summary>
+
+- Every release has a `win11-optimizer.zip.sha256` file. In PowerShell, `(Get-FileHash .\win11-optimizer.zip -Algorithm SHA256).Hash` gives the checksum of your download; it must be the same text as in that file. The updater (menu `U`) makes this check by itself before it installs anything.
+- You do not have to trust the program file. The sources are in [`app/`](app/), and `powershell -File app\build.ps1` builds `Win11 Optimizer.exe` with the compiler that ships with Windows (nothing to download). The `.bat` and `.ps1` files are plain text that you can read.
+- The program is not code-signed, so SmartScreen may warn, and some antivirus programs flag any tool that changes system settings. If yours complains, read what it says. Do not turn it off.
 
 </details>
 
 <details>
 <summary><b>Manuals and guides</b></summary>
 
-- Manual: [English](docs/Manual_EN_v4.32.pdf) | [ภาษาไทย](docs/Manual_TH_v4.32.pdf)
+- Manual: [English](docs/Manual_EN_v4.33.pdf) | [ภาษาไทย](docs/Manual_TH_v4.33.pdf)
 - NVIDIA driver settings, step by step with screenshots (driver 582.78, GTX 1070): [English](docs/GPU_Driver_Guide_EN.pdf) | [ภาษาไทย](docs/GPU_Driver_Guide_TH.pdf)
 - [Changelog](CHANGELOG.md)
 
