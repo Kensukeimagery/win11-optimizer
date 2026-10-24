@@ -155,6 +155,20 @@ Add-Phase 'P0.3' 'System Protection on, more than one restore point per day allo
     try { [void](Get-ComputerRestorePoint -ErrorAction Stop) } catch { $has = $false }
     return (Result $has $note)
 }
+Add-Phase 'P0.4' 'VM only: Windows may not restart by itself during the run' {
+    # A Windows Update that finishes installing can restart the VM in the middle of a phase and end the run. In this throw-away VM the
+    # automatic restart is switched off for the run (the policy for a signed-in user, and the Update Orchestrator task that restarts).
+    $notes = @()
+    try {
+        $key = 'HKLM:\SOFTWARE\Policies\Microsoft\Windows\WindowsUpdate\AU'
+        if (-not (Test-Path $key)) { New-Item -Path $key -Force | Out-Null }
+        New-ItemProperty -Path $key -Name 'NoAutoRebootWithLoggedOnUsers' -Value 1 -PropertyType DWord -Force | Out-Null
+        $notes += 'policy set'
+    } catch { $notes += ('policy not set: ' + $_.Exception.Message) }
+    & schtasks.exe /Change /TN '\Microsoft\Windows\UpdateOrchestrator\Reboot' /Disable *> $null
+    $notes += $(if ($LASTEXITCODE -eq 0) { 'restart task disabled' } else { 'restart task not found' })
+    return (Result $true ($notes -join ', '))
+}
 foreach ($t in @(
         @('P1.1', 'Env_Check', 'tools\Env_Check.ps1', '-Human'),
         @('P1.2', 'System_Report', 'tools\System_Report.ps1', ''),
