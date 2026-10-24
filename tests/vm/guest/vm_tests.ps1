@@ -96,7 +96,7 @@ function Get-Tail([object]$Run, [int]$Count = 6) {
 }
 
 # Reads the settings state with the same code the Check Status tool uses.
-# Map: the numbered tweaks ('01'..'25') -> status. OkTotal: every item that reads OK (tweaks, power plan, power settings, services ...), the
+# Map: the numbered tweaks ('01'..'27') -> status. OkTotal: every item that reads OK (tweaks, power plan, power settings, services ...), the
 # number that Easy Setup shows as "speed settings in place".
 function Get-SettingsState {
     $r = Invoke-PsFile 'VM_TEST\status_probe.ps1' ('-Root "' + $script:Root + '"') 3
@@ -115,8 +115,8 @@ function Get-SettingsState {
 # What each Easy Setup profile must leave behind: tweaks that must read OK and tweaks that must not be applied. Returns the problems.
 function Test-Profile([object]$State, [string]$Profile) {
     $must = @('01', '02', '03', '04', '05', '06', '07', '08', '14')
-    $not = @('09', '10', '11', '12', '13', '15', '18', '19', '20', '24', '25')   # 21, 22 and 23 are left out: a fresh Windows may already have 21 and 23 on, and a VM may have no adapter with 22
-    $extra = @{ safe = @(); games = @('10', '11', '15', '21', '23'); max = @('09', '10', '11', '12', '15', '18', '19', '20', '21', '23', '24', '25'); max13 = @('09', '10', '11', '12', '13', '15', '18', '19', '20', '21', '23', '24', '25') }[$Profile]
+    $not = @('09', '10', '11', '12', '13', '15', '18', '19', '20', '24', '25', '26')   # 21, 22 and 23 are left out: a fresh Windows may already have 21 and 23 on, and a VM may have no adapter with 22
+    $extra = @{ safe = @(); games = @('10', '11', '15', '21', '23'); max = @('09', '10', '11', '12', '15', '18', '19', '20', '21', '23', '24', '25', '26', '27'); max13 = @('09', '10', '11', '12', '13', '15', '18', '19', '20', '21', '23', '24', '25', '26', '27') }[$Profile]
     $must += $extra
     $not = @($not | Where-Object { $extra -notcontains $_ })
     $bad = @()
@@ -212,28 +212,34 @@ Add-Phase 'P5' 'Undo everything with the undo files: no numbered tweak may still
         if ($LASTEXITCODE -ne 0) { $fails++ }
     }
     $s = Get-SettingsState
-    $still = @(@($s.Map.Keys) | Where-Object { @('16', '21', '22') -notcontains $_ -and $s.Map[$_] -eq 'OK' } | Sort-Object)   # 16, 21 and 22 are done by helper scripts, not .reg files (phase P5b undoes them)
+    $still = @(@($s.Map.Keys) | Where-Object { @('16', '21', '22', '27') -notcontains $_ -and $s.Map[$_] -eq 'OK' } | Sort-Object)   # 16, 21 and 22 are done by helper scripts, not .reg files (phase P5b undoes them)
     return (Result (($fails -eq 0) -and ($still.Count -eq 0)) ('import failures ' + $fails + ', still OK after undo: ' + ($still -join ', ')))
 }
-Add-Phase 'P5b' 'Undo the helper-script tweaks (16, 21, 22) with /revert: none may still read OK, and the other graphics flags stay' {
+Add-Phase 'P5b' 'Undo the helper-script tweaks (16, 21, 22, 27) with /revert: none may still read OK, and the other graphics flags stay' {
     $gfxKey = 'HKCU:\Software\Microsoft\DirectX\UserGpuPreferences'
     # a flag of somebody else inside the same text value must survive the apply and the undo
     if (-not (Test-Path $gfxKey)) { New-Item -Path $gfxKey -Force | Out-Null }
     New-ItemProperty -Path $gfxKey -Name 'DirectXUserGlobalSettings' -Value 'AutoHDREnable=0;' -PropertyType String -Force | Out-Null
     $log = ''
-    foreach ($n in '16', '21', '22') { $r = Invoke-Bat $bat1 ('/apply ' + $n) '' 6; $log += [string]$r.Out }
+    # 27 (hibernation): start from hibernation on, so that the undo has something to put back; a VM that cannot hibernate skips 27
+    & powercfg.exe /hibernate on *> $null
+    $hib0 = (Get-ItemProperty -Path 'HKLM:\SYSTEM\CurrentControlSet\Control\Power' -Name 'HibernateEnabled' -ErrorAction SilentlyContinue).HibernateEnabled
+    $helpers = @('16', '21', '22')
+    if ($hib0 -ne 0) { $helpers += '27' }
+    foreach ($n in $helpers) { $r = Invoke-Bat $bat1 ('/apply ' + $n) '' 6; $log += [string]$r.Out }
     $mid = [string](Get-ItemProperty -Path $gfxKey -Name 'DirectXUserGlobalSettings').DirectXUserGlobalSettings
     $sMid = Get-SettingsState    # right after the apply: 21 must read OK, 22 OK (or UNKNOWN when no adapter offers the setting)
-    foreach ($n in '16', '21', '22') { $r = Invoke-Bat $bat1 ('/revert ' + $n) '' 6; $log += [string]$r.Out }
+    foreach ($n in $helpers) { $r = Invoke-Bat $bat1 ('/revert ' + $n) '' 6; $log += [string]$r.Out }
     Save-Output 'P5b' ([pscustomobject]@{ Out = $log })
     $end = [string](Get-ItemProperty -Path $gfxKey -Name 'DirectXUserGlobalSettings' -ErrorAction SilentlyContinue).DirectXUserGlobalSettings
     $s = Get-SettingsState
-    $still = @(@('16', '21', '22') | Where-Object { $s.Map[$_] -eq 'OK' })
+    $still = @($helpers | Where-Object { $s.Map[$_] -eq 'OK' })
     $bad = @()
     if ($mid -notmatch 'AutoHDREnable=0' -or $mid -notmatch 'SwapEffectUpgradeEnable=1') { $bad += ('after apply the value is "' + $mid + '"') }
     if ($end -ne 'AutoHDREnable=0;') { $bad += ('after undo the value is "' + $end + '", it was "AutoHDREnable=0;"') }
     if ($still.Count -gt 0) { $bad += ('still reads OK after /revert: ' + ($still -join ', ')) }
     if ($sMid.Map['21'] -ne 'OK') { $bad += ('21 read ' + $sMid.Map['21'] + ' right after /apply 21, expected OK') }
+    if (($helpers -contains '27') -and $sMid.Map['27'] -ne 'OK') { $bad += ('27 read ' + $sMid.Map['27'] + ' right after /apply 27, expected OK') }
     if (@('OK', 'UNKNOWN') -notcontains $sMid.Map['22']) { $bad += ('22 read ' + $sMid.Map['22'] + ' right after /apply 22, expected OK or UNKNOWN') }
     return (Result ($bad.Count -eq 0) ('after apply: 21 ' + $sMid.Map['21'] + ', 22 ' + $sMid.Map['22'] + '; after revert: 21 ' + $s.Map['21'] + ', 22 ' + $s.Map['22'] + ', 16 ' + $s.Map['16'] + '. ' + ($bad -join '; ')))
 }

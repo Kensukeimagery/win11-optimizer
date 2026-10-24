@@ -1,10 +1,10 @@
 @echo off
 setlocal EnableExtensions
-title PC Optimizer - Master Control v4.31
+title PC Optimizer - Master Control v4.32
 color 0B
 
 :: =====================================================================
-::  PC OPTIMIZER - MASTER CONTROL v4.31
+::  PC OPTIMIZER - MASTER CONTROL v4.32
 ::  Safety rules used in this file - they avoid the crashes seen in v3:
 ::   - no brackets inside ECHO text that sits inside IF or FOR blocks
 ::   - flat GOTO labels instead of nested IF / ELSE blocks
@@ -24,7 +24,7 @@ set "LOGDIR=%SCRIPT_DIR%Logs"
 if not exist "%LOGDIR%" mkdir "%LOGDIR%" >nul 2>&1
 set "LOGFILE=%LOGDIR%\OptimizerLog_%TS%.txt"
 set "BACKUPDIR=%SCRIPT_DIR%Backup\%TS%"
-echo PC Optimizer v4.31 Log - %date% %time% > "%LOGFILE%"
+echo PC Optimizer v4.32 Log - %date% %time% > "%LOGFILE%"
 if exist "%TOOLDIR%\Report_Maintain.ps1" powershell -NoProfile -ExecutionPolicy Bypass -File "%TOOLDIR%\Report_Maintain.ps1" -Root "%SCRIPT_DIR%." >nul 2>&1
 
 if not exist "%REGROOT%" goto NOREG
@@ -92,7 +92,7 @@ goto MENU
 :MENU
 cls
 echo ===================================================================
-echo    PC OPTIMIZER - MASTER CONTROL v4.31
+echo    PC OPTIMIZER - MASTER CONTROL v4.32
 echo    Log: OptimizerLog_%TS%.txt
 if "%ISLAPTOP%"=="1" echo    Laptop detected - tweaks 02 and 16 are not recommended on a laptop.
 if defined UPDMSG echo    %UPDMSG%
@@ -101,7 +101,7 @@ echo.
 echo   [E] EASY SETUP - one button for a new PC or first use (beginners start here)
 echo   -----------------------------------------------------------
 echo   [1] Recommended tweaks     - reg 01-08, safe for everyone
-echo   [2] Optional tweaks        - 09-13, 15, 16, 18-25, asks you one by one
+echo   [2] Optional tweaks        - 09-13, 15, 16, 18-27, asks you one by one
 echo   [3] Base system setup      - power plan, services, SSD check,
 echo                                network per adapter, temp cleanup
 echo   [4] Power settings         - reg 14 + auto-set CPU, USB, PCIe
@@ -423,6 +423,26 @@ if /i not "%ans%"=="Y" echo   - Skipped 25
 if /i not "%ans%"=="Y" call :SETCHOICE 25 N
 
 echo.
+echo   #26 Microsoft Edge does not start with Windows and does not keep running after you close
+echo   it, which saves some memory while you play. Edge then says that your browser is managed
+echo   by your organization and locks those two switches. It still works as before.
+set "ans="
+set /p "ans=  #26 Apply? Y/N: "
+if /i "%ans%"=="Y" call :IMPORTNUM 26
+if /i not "%ans%"=="Y" echo   - Skipped 26
+if /i not "%ans%"=="Y" call :SETCHOICE 26 N
+
+echo.
+echo   #27 Turns hibernation off and frees the disk space of hiberfil.sys, often 6 to 12 GB.
+echo   Sleep and Shut down are not affected. The Hibernate choice is gone from the power menu.
+if "%ISLAPTOP%"=="1" echo   Laptop detected: you lose Hibernate on battery. Not recommended.
+set "ans="
+set /p "ans=  #27 Apply? Y/N: "
+if /i "%ans%"=="Y" call :HIBAPPLY
+if /i not "%ans%"=="Y" echo   - Skipped 27
+if /i not "%ans%"=="Y" call :SETCHOICE 27 N
+
+echo.
 echo [Done] Optional tweaks step finished.
 pause
 goto :eof
@@ -479,6 +499,20 @@ echo     [ERROR] The network adapter setting could not be applied.
 goto :eof
 :NICMISSING
 echo     [WARN] tools\Nic_Power.ps1 was not found, 22 was skipped.
+goto :eof
+
+:HIBAPPLY
+echo   - Applying 27 Hibernation off...
+if not exist "%TOOLDIR%\Hibernate.ps1" goto HIBMISSING
+powershell -NoProfile -ExecutionPolicy Bypass -File "%TOOLDIR%\Hibernate.ps1" -Action Apply
+if errorlevel 1 goto HIBFAIL
+call :SETCHOICE 27 Y
+goto :eof
+:HIBFAIL
+echo     [ERROR] Hibernation could not be turned off.
+goto :eof
+:HIBMISSING
+echo     [WARN] tools\Hibernate.ps1 was not found, 27 was skipped.
 goto :eof
 
 :: ---------------------------------------------------------------------
@@ -697,6 +731,7 @@ echo   18  Driver updates via Windows Update  19  Startup apps start at once
 echo   20  Quick menus                 21  Windowed-games optimization
 echo   22  Network adapters stay on    23  Game Mode on
 echo   24  End task in the taskbar     25  Background apps off
+echo   26  Edge in the background      27  Hibernation off
 echo.
 echo    T  Network per-adapter tweak
 echo    S  Services - telemetry services back to the Windows defaults
@@ -719,6 +754,7 @@ if "%RN%"=="16" goto REVERTBOOST
 if "%RN%"=="17" goto REVERTDNS
 if "%RN%"=="21" goto REVERTGFX
 if "%RN%"=="22" goto REVERTNIC
+if "%RN%"=="27" goto REVERTHIB
 set "FOUNDREG="
 for /r "%UNDOROOT%" %%f in (UNDO_%RN%_*.reg) do call :UNDOONE "%%f"
 if not defined FOUNDREG echo    [WARN] No undo file matches that choice.
@@ -763,6 +799,13 @@ goto :eof
 if not exist "%TOOLDIR%\Nic_Power.ps1" echo    [WARN] tools\Nic_Power.ps1 was not found.
 if exist "%TOOLDIR%\Nic_Power.ps1" powershell -NoProfile -ExecutionPolicy Bypass -File "%TOOLDIR%\Nic_Power.ps1" -Action Undo
 call :SETCHOICE 22 N
+pause
+goto :eof
+
+:REVERTHIB
+if not exist "%TOOLDIR%\Hibernate.ps1" echo    [WARN] tools\Hibernate.ps1 was not found.
+if exist "%TOOLDIR%\Hibernate.ps1" powershell -NoProfile -ExecutionPolicy Bypass -File "%TOOLDIR%\Hibernate.ps1" -Action Undo
+call :SETCHOICE 27 N
 pause
 goto :eof
 
@@ -959,6 +1002,7 @@ if "%RN%"=="16" goto APPLYONEBOOST
 if "%RN%"=="14" goto APPLYONEPOWER
 if "%RN%"=="21" goto APPLYONEGFX
 if "%RN%"=="22" goto APPLYONENIC
+if "%RN%"=="27" goto APPLYONEHIB
 call :IMPORTNUM %RN%
 goto APPLYONEDONE
 :APPLYONEBOOST
@@ -969,6 +1013,9 @@ call :GFXAPPLY
 goto APPLYONEDONE
 :APPLYONENIC
 call :NICAPPLY
+goto APPLYONEDONE
+:APPLYONEHIB
+call :HIBAPPLY
 goto APPLYONEDONE
 :APPLYONEPOWER
 call :POWER
@@ -984,6 +1031,7 @@ echo.
 if "%RN%"=="16" goto REVERTONEBOOST
 if "%RN%"=="21" goto REVERTONEGFX
 if "%RN%"=="22" goto REVERTONENIC
+if "%RN%"=="27" goto REVERTONEHIB
 set "FOUNDREG="
 for /r "%UNDOROOT%" %%f in (UNDO_%RN%_*.reg) do call :UNDOONE "%%f"
 if not defined FOUNDREG echo   [WARN] No undo file matches that number.
@@ -1004,10 +1052,15 @@ if exist "%TOOLDIR%\Nic_Power.ps1" powershell -NoProfile -ExecutionPolicy Bypass
 call :SETCHOICE 22 N
 echo   [Done] Tweak 22 reverted.
 goto END
+:REVERTONEHIB
+if exist "%TOOLDIR%\Hibernate.ps1" powershell -NoProfile -ExecutionPolicy Bypass -File "%TOOLDIR%\Hibernate.ps1" -Action Undo
+call :SETCHOICE 27 N
+echo   [Done] Tweak 27 reverted.
+goto END
 
 ::  Easy Setup entry. tools\Easy_Setup.ps1 starts this file as:  /easy safe   /easy games   /easy max   or   /easy max13
 ::  No questions and no pauses. Recommended tweaks, base setup, power settings, and for "games" also 10, 11, 21, 23, 15, 16 and 22 (15, 16 and 22 not on laptops).
-::  "max" adds 09, 12, 18, 19, 20, 24 and 25.
+::  "max" adds 09, 12, 18, 19, 20, 24, 25, 26 and, on a desktop, 27.
 :EASYSTART
 set "EASYMODE=1"
 set "EASYPROF=%~2"
@@ -1034,6 +1087,8 @@ call :SETCHOICE 19 N
 call :SETCHOICE 20 N
 call :SETCHOICE 24 N
 call :SETCHOICE 25 N
+call :SETCHOICE 26 N
+call :SETCHOICE 27 N
 if /i "%EASYPROF%"=="games" goto EASYGAMES
 call :SETCHOICE 10 N
 call :SETCHOICE 11 N
@@ -1072,18 +1127,21 @@ call :GFXAPPLY
 call :IMPORTNUM 23
 call :IMPORTNUM 24
 call :IMPORTNUM 25
+call :IMPORTNUM 26
 if /i "%EASYPROF%"=="max13" call :IMPORTNUM 13
 if /i not "%EASYPROF%"=="max13" call :SETCHOICE 13 N
 if "%ISLAPTOP%"=="1" goto EASYMAXLAPTOP
 call :IMPORTNUM 15
 call :BOOSTAPPLY
 call :NICAPPLY
+call :HIBAPPLY
 goto :eof
 :EASYMAXLAPTOP
-echo   - Laptop: 15, 16 and 22 skipped (more heat and battery use)
+echo   - Laptop: 15, 16, 22 and 27 skipped (more heat and battery use, and no Hibernate on battery)
 call :SETCHOICE 15 N
 call :SETCHOICE 16 N
 call :SETCHOICE 22 N
+call :SETCHOICE 27 N
 goto :eof
 :END
 echo.

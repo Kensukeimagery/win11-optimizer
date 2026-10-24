@@ -1,4 +1,4 @@
-# PC Optimizer v4.31 - network card power saving (optional tweak 22)
+# PC Optimizer v4.32 - network card power saving (optional tweak 22)
 # Stops Windows from switching off your network adapters to save power: the Device Manager checkbox "Allow the computer
 # to turn off this device to save power" on the Power Management tab of the adapter. A card that goes to sleep can drop
 # the connection for a moment, which shows up as lag spikes or a lost match in online games.

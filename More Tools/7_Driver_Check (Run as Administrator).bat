@@ -1,5 +1,5 @@
 @echo off
-title PC Optimizer - Driver Check v4.31
+title PC Optimizer - Driver Check v4.32
 color 0B
 for %%I in ("%~dp0..") do set "ROOTDIR=%%~fI"
 

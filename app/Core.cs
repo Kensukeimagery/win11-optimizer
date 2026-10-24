@@ -101,6 +101,8 @@ namespace Win11Optimizer
             new Tweak("23", "Optional", "Game Mode on", "Makes sure Windows Game Mode is on, so Windows favours the game in front.", false),
             new Tweak("24", "Optional", "End task in the taskbar", "Adds End task to the taskbar right-click menu, to close a frozen game quickly. Windows 11 23H2 or newer.", false),
             new Tweak("25", "Optional", "Background apps off", "Store apps may not run in the background. Desktop programs such as Steam and Discord are not affected. The effect varies by Windows build.", false),
+            new Tweak("26", "Optional", "Edge stays out of the background", "Microsoft Edge does not start with Windows or keep running after you close it, which saves some memory. Edge then says it is managed by your organization.", false),
+            new Tweak("27", "Optional", "Hibernation off", "Frees the disk space of hiberfil.sys, often 6 to 12 GB. Sleep and Shut down are not affected. Not for laptops that you hibernate.", false),
             new Tweak("14", "Power", "CPU power options", "Unlocks hidden CPU power options and sets the plugged-in power plan. For desktops.", false)
         };
 

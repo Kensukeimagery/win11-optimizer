@@ -1,0 +1,13 @@
+Windows Registry Editor Version 5.00
+
+; 26 - Microsoft Edge does not start with Windows and does not keep running after you close it.
+; Edge normally starts a few of its processes at sign-in ("startup boost") and keeps them alive in
+; the background after the last window is closed ("background mode"), so that it opens faster.
+; That uses some memory and CPU while you play. These are two policies that Microsoft documents for
+; Edge: StartupBoostEnabled and BackgroundModeEnabled, both set to 0 (off).
+; Edge itself then shows "Your browser is managed by your organization", and the two switches in
+; edge://settings/system are locked. Edge still works as before, it only opens a little slower.
+; Undo: menu 7, then 26 (the two values are removed).
+[HKEY_LOCAL_MACHINE\SOFTWARE\Policies\Microsoft\Edge]
+"StartupBoostEnabled"=dword:00000000
+"BackgroundModeEnabled"=dword:00000000

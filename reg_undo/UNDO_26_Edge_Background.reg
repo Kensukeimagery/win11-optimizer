@@ -1,0 +1,6 @@
+Windows Registry Editor Version 5.00
+
+; UNDO 26 - remove the two values, which is how Windows ships (Edge decides by itself again).
+[HKEY_LOCAL_MACHINE\SOFTWARE\Policies\Microsoft\Edge]
+"StartupBoostEnabled"=-
+"BackgroundModeEnabled"=-

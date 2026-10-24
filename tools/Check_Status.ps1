@@ -1,4 +1,4 @@
-# PC Optimizer v4.31 - Check Status
+# PC Optimizer v4.32 - Check Status
 # Compares the current PC settings with what the optimizer applies,
 # then offers to re-apply only the items that are missing or changed.
 param([string]$Root = '')
@@ -113,7 +113,7 @@ $script:Items = New-Object System.Collections.Generic.List[object]
 
 function Add-Item($Key, $Id, $Title, $Status, $Detail, $Kind, $FixType, $FixData) {
     # Kind: 'auto' = fix together with the others, 'ask' = always ask one by one
-    # FixType: reg, plan, pwr, pref, tcp, svc, trim, gfx, nic - or $null when nothing can be fixed
+    # FixType: reg, plan, pwr, pref, tcp, svc, trim, gfx, nic, hib - or $null when nothing can be fixed
     $script:Items.Add([pscustomobject]@{ Key = $Key; Id = $Id; Title = $Title; Status = $Status; Detail = $Detail; Kind = $Kind; FixType = $FixType; FixData = $FixData })
 }
 
@@ -297,6 +297,14 @@ function Invoke-Checks([string]$RegRoot, [string]$BackupDir) {
         Add-OptionalItem '22' 'Network adapters stay on' 'off' ($nicSleep[0] + ' may be switched off by Windows' + $more) 'nic'
     }
 
+    # --- optional 27: hibernation off (Windows writes HibernateEnabled = 0 when it is off)
+    $hibValue = Get-RegValue 'HKEY_LOCAL_MACHINE\SYSTEM\CurrentControlSet\Control\Power' 'HibernateEnabled'
+    if ($hibValue -is [int] -and $hibValue -eq 0) {
+        Add-OptionalItem '27' 'Hibernation off' 'on' '' 'hib'
+    } else {
+        Add-OptionalItem '27' 'Hibernation off' 'off' 'hibernation is on (hiberfil.sys uses disk space)' 'hib'
+    }
+
     # --- prefetcher, by disk type
     # the drive Windows is installed on, not just "disk 0" (disk 0 can be a data drive of another type)
     $media = ''
@@ -456,6 +464,13 @@ function Invoke-Fix($Item, [string]$BackupDir) {
                     $ok = ($LASTEXITCODE -eq 0)
                 }
             }
+            'hib' {
+                $helper = Join-Path $PSScriptRoot 'Hibernate.ps1'
+                if (Test-Path -LiteralPath $helper) {
+                    & powershell.exe -NoProfile -ExecutionPolicy Bypass -File $helper -Action Apply *> $null
+                    $ok = ($LASTEXITCODE -eq 0)
+                }
+            }
         }
     } catch { $ok = $false }
     if ($ok) {
@@ -489,7 +504,7 @@ function Start-CheckStatus {
     $reportFile = New-ReportPath $script:RootDir 'CheckReport'
 
     Write-Log '==================================================================' 'Cyan'
-    Write-Log '   PC OPTIMIZER v4.31 - CHECK STATUS' 'Cyan'
+    Write-Log '   PC OPTIMIZER v4.32 - CHECK STATUS' 'Cyan'
     Write-Log ('   ' + (Get-Date -Format 'yyyy-MM-dd HH:mm') + '   Windows build ' + [Environment]::OSVersion.Version.ToString()) 'Cyan'
     Write-Log '==================================================================' 'Cyan'
     Write-Log ''

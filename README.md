@@ -72,7 +72,7 @@
 | It does | It does not |
 |---|---|
 | Create a restore point before it changes anything | Delete your files or games |
-| Apply 24 documented registry, power and network tweaks, each with an undo file | Edit game files, inject into games or add overlays |
+| Apply 26 documented registry, power and network tweaks, each with an undo file | Edit game files, inject into games or add overlays |
 | Install recommended drivers from Windows Update (never a maker's graphics driver or firmware) | Install third-party programs or "driver updater" tools |
 | Show your PC specs, health and crashes in plain words | Promise FPS numbers |
 | Update itself after you say yes, with a SHA-256 check | Send your data anywhere. It contacts github.com for updates and Microsoft for drivers |
@@ -111,7 +111,7 @@ The main folder holds only three files to double-click (0, 1 and 2). Everything 
 | `More Tools/9_Support_Bundle.bat` | Puts the version, reports and logs into one file for a problem report. Private details are replaced and nothing is sent (no admin needed) |
 | `More Tools/L_Clean_Up.bat` | Shows old reports and backups and removes them only when you choose (no admin needed) |
 | `Logs/` | Created when you run a tool: every log and report. The newest 3 of each kind are kept |
-| `reg/` | Tweaks: `1_Recommended` (01-08), `2_Optional` (09-13, 15, 18-20, 23-25), `3_Power` (14) |
+| `reg/` | Tweaks: `1_Recommended` (01-08), `2_Optional` (09-13, 15, 18-20, 23-26), `3_Power` (14) |
 | `reg_undo/` | One undo file per tweak (Windows defaults) |
 | `tools/` | PowerShell helpers used by the menu (keep this folder) |
 | `repair-tools/` | Deep clean, network reset, Bluetooth fix, DISM and SFC |
@@ -121,14 +121,14 @@ The main folder holds only three files to double-click (0, 1 and 2). Everything 
 <details>
 <summary><b>Main menu keys</b></summary>
 
-`E` Easy Setup, `1` Recommended, `2` Optional 09-13, 15, 16, 18-25 (one by one), `3` Base setup (power plan, services, SSD/HDD check, temp cleanup), `4` Power settings, `5` Everything, `6` Restore point only, `7` Revert one tweak, `8` Disk type, `9` Power Options, `C` Check status, `D` Drivers (beta), `U` Check for updates, `A` Automatic update check on or off, `N` Network test, `R` System report, `S` PC specs, `H` PC health, `B` Support bundle, `L` Clean up old reports and backups.
+`E` Easy Setup, `1` Recommended, `2` Optional 09-13, 15, 16, 18-27 (one by one), `3` Base setup (power plan, services, SSD/HDD check, temp cleanup), `4` Power settings, `5` Everything, `6` Restore point only, `7` Revert one tweak, `8` Disk type, `9` Power Options, `C` Check status, `D` Drivers (beta), `U` Check for updates, `A` Automatic update check on or off, `N` Network test, `R` System report, `S` PC specs, `H` PC health, `B` Support bundle, `L` Clean up old reports and backups.
 
 </details>
 
 <details>
 <summary><b>Manuals and guides</b></summary>
 
-- Manual: [English](docs/Manual_EN_v4.31.pdf) | [ภาษาไทย](docs/Manual_TH_v4.31.pdf)
+- Manual: [English](docs/Manual_EN_v4.32.pdf) | [ภาษาไทย](docs/Manual_TH_v4.32.pdf)
 - NVIDIA driver settings, step by step with screenshots (driver 582.78, GTX 1070): [English](docs/GPU_Driver_Guide_EN.pdf) | [ภาษาไทย](docs/GPU_Driver_Guide_TH.pdf)
 - [Changelog](CHANGELOG.md)
 
@@ -148,7 +148,7 @@ Windows 11 (build 22000 or newer) and administrator rights. The tool targets des
 
 **Will it raise my FPS?** Slightly, and only in some games. Treat any promise of big gains from software tweaks with suspicion. Start with your GPU driver settings and in-game settings.
 
-**What does Maximum do?** If you say you mainly play games, Easy Setup asks a second question. Maximum applies every optional tweak in one go: fullscreen exclusive (09), mouse (10), keyboard (11), Ndu fix (12), timer (15), CPU boost (16), drivers only from you (18), startup programs at once (19), quick menus (20), windowed-game optimization (21), network adapters stay on (22), Game Mode (23), End task in the taskbar (24) and background apps (25). Turning Memory Integrity off (13) needs its own typed YES because it lowers protection. On a laptop, timer, CPU boost and the network adapter setting are skipped. Main menu `5` still lets you choose each tweak yourself.
+**What does Maximum do?** If you say you mainly play games, Easy Setup asks a second question. Maximum applies every optional tweak in one go: fullscreen exclusive (09), mouse (10), keyboard (11), Ndu fix (12), timer (15), CPU boost (16), drivers only from you (18), startup programs at once (19), quick menus (20), windowed-game optimization (21), network adapters stay on (22), Game Mode (23), End task in the taskbar (24), background apps (25), Edge in the background (26) and hibernation (27). Turning Memory Integrity off (13) needs its own typed YES because it lowers protection. On a laptop, timer, CPU boost, the network adapter setting and hibernation are skipped. Main menu `5` still lets you choose each tweak yourself.
 
 **Can I undo everything?** Yes. `2_Revert_Everything` returns the whole PC to the `Before_PC_Optimizer` restore point. Menu `7` reverts one tweak. The `reg_undo` folder holds one undo file per tweak.
 

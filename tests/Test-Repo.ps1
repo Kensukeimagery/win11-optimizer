@@ -253,6 +253,51 @@ $pfssd = [regex]::Match($mst4, '(?s):PFSSD\r?\n.*?goto :eof').Value
 Assert ($pfssd -ne '' -and $pfssd -notmatch 'EnablePrefetcher') 'the menu no longer switches the Prefetcher off on an SSD (Windows manages it there)'
 $csSrc2 = [IO.File]::ReadAllText((Join-Path $root 'tools\Check_Status.ps1'))
 Assert ($csSrc2 -match "Add-OptionalItem '21'" -and $csSrc2 -match "Add-OptionalItem '22'" -and $csSrc2 -match "'gfx'" -and $csSrc2 -match "'nic'" -and $csSrc2 -match "\`$media -eq 'SSD' -and \`$cur -eq 0") 'Check Status lists 21 and 22, can re-apply them, and accepts an SSD Prefetcher of 0 without calling it wrong'
+# tweaks 26 (Edge) and 27 (hibernation)
+$r26 = Get-RegText 'reg' '26'; $u26 = Get-RegText 'reg_undo' 'UNDO_26'
+Assert ($r26 -match 'Policies\\Microsoft\\Edge\]\s+"StartupBoostEnabled"=dword:00000000\s+"BackgroundModeEnabled"=dword:00000000' -and $u26 -match '"StartupBoostEnabled"=-' -and $u26 -match '"BackgroundModeEnabled"=-') 'tweak 26 sets the two Edge policies to 0 and its undo removes exactly those two values'
+$hibText = [IO.File]::ReadAllText((Join-Path $root 'tools\Hibernate.ps1'))
+Assert ($hibText -match "ValidateSet\('Apply', 'Undo', 'Query'\)" -and $hibText -match 'Prev_HIB' -and $hibText -match 'powercfg\.exe /hibernate off' -and $hibText -match 'powercfg\.exe /hibernate on') 'the hibernation helper has Apply, Undo and Query and remembers the earlier state'
+$hibQuery = (& powershell.exe -NoProfile -ExecutionPolicy Bypass -File (Join-Path $root 'tools\Hibernate.ps1') -Action Query 2>&1 | Out-String)
+Assert ($hibQuery -match 'Hibernation: (on|off)' -and $hibQuery -notmatch 'Exception|At line|Argument') ('the hibernation helper answers a Query without an error (' + $hibQuery.Trim() + ')')
+if ($isAdminHere) {
+    $hibFlowFile = Join-Path ([IO.Path]::GetTempPath()) ('hibflow_' + [guid]::NewGuid().ToString('N') + '.ps1')
+    $hibFlowText = @'
+param([string]$Script)
+$k = 'HKCU:\Software\PCOptimizerTest_' + [guid]::NewGuid().ToString('N')
+$global:PwKey = $k + '\Power'; $st = $k + '\State'
+New-Item -Path $global:PwKey -Force | Out-Null
+$global:Calls = @()
+function powercfg.exe {
+    $global:LASTEXITCODE = 0
+    $global:Calls += ($args -join ' ')
+    if (($args -join ' ') -match 'off') { Set-ItemProperty -Path $global:PwKey -Name HibernateEnabled -Value 0 -Type DWord }
+    elseif (($args -join ' ') -match 'on') { Set-ItemProperty -Path $global:PwKey -Name HibernateEnabled -Value 1 -Type DWord }
+}
+if ((Get-Command powercfg.exe).CommandType -ne 'Function') { Remove-Item -Path $k -Recurse -Force; Write-Output 'NOMOCK'; exit }
+function Val { return [string](Get-ItemProperty -Path $global:PwKey -Name HibernateEnabled).HibernateEnabled }
+$res = @()
+Set-ItemProperty -Path $global:PwKey -Name HibernateEnabled -Value 1 -Type DWord
+& $Script -Action Apply -StateKey $st -PowerKey $global:PwKey | Out-Null; $res += ('apply=' + $LASTEXITCODE + ' v=' + (Val))
+& $Script -Action Undo -StateKey $st -PowerKey $global:PwKey | Out-Null; $res += ('undo=' + $LASTEXITCODE + ' v=' + (Val) + ' calls=' + ($global:Calls -join ',') + ' state=' + [bool](Get-ItemProperty -Path $st -Name Prev_HIB -ErrorAction SilentlyContinue))
+$global:Calls = @()
+Set-ItemProperty -Path $global:PwKey -Name HibernateEnabled -Value 0 -Type DWord
+& $Script -Action Apply -StateKey $st -PowerKey $global:PwKey | Out-Null; $res += ('already=' + $LASTEXITCODE + ' calls=' + $global:Calls.Count)
+& $Script -Action Undo -StateKey $st -PowerKey $global:PwKey | Out-Null; $res += ('stays=' + $LASTEXITCODE + ' v=' + (Val) + ' calls=' + $global:Calls.Count)
+Remove-Item -Path $k -Recurse -Force -ErrorAction SilentlyContinue
+Write-Output ($res -join ' | ')
+'@
+    [IO.File]::WriteAllText($hibFlowFile, $hibFlowText, (New-Object System.Text.UTF8Encoding($false)))
+    $hibFlow = (& powershell.exe -NoProfile -ExecutionPolicy Bypass -File $hibFlowFile -Script (Join-Path $root 'tools\Hibernate.ps1') 2>&1 | Out-String).Trim()
+    Remove-Item -LiteralPath $hibFlowFile -Force -ErrorAction SilentlyContinue
+    $hibFlow = @($hibFlow -split "`r?`n")[-1].Trim()
+    Assert ($hibFlow -eq 'apply=0 v=0 | undo=0 v=1 calls=/hibernate off,/hibernate on state=False | already=0 calls=0 | stays=0 v=0 calls=0') ('the hibernation helper turns it off, undo turns it on again only if it was on, and nothing is touched when it was already off (' + $hibFlow + ')')
+} else {
+    Write-Host '  [SKIP] the hibernation flow test needs administrator rights (it runs on the CI machine)' -ForegroundColor DarkGray
+}
+Assert ($mst4 -match ':HIBAPPLY' -and $mst4 -match 'Hibernate\.ps1' -and $mst4 -match 'if "%RN%"=="27" goto REVERTHIB' -and $mst4 -match 'if "%RN%"=="27" goto APPLYONEHIB' -and $mst4 -match 'if "%RN%"=="27" goto REVERTONEHIB') 'the main menu applies, reverts and /apply and /revert know 27'
+Assert (($maxBlock -match 'IMPORTNUM 26') -and ($maxBlock -match 'HIBAPPLY') -and ($maxBlock -match 'SETCHOICE 27 N') -and ($gamesBlock -notmatch 'IMPORTNUM 26') -and ($gamesBlock -notmatch 'HIBAPPLY') -and ($safeBlock -match 'SETCHOICE 26 N') -and ($safeBlock -match 'SETCHOICE 27 N') -and ($safeBlock -notmatch 'HIBAPPLY')) 'the Maximum profile applies 26 and (not on a laptop) 27; safe and games leave them off'
+Assert ($csSrc2 -match "Add-OptionalItem '27'" -and $csSrc2 -match "'hib'") 'Check Status lists 27 and can re-apply it'
 Write-Host ''
 Write-Host '== Check Status runs (read-only dry run)' -ForegroundColor Cyan
 try {
@@ -569,7 +614,7 @@ $appManifest = [IO.File]::ReadAllText((Join-Path $root 'app\app.manifest'))
 Assert ($appManifest.Contains('requireAdministrator')) 'the app asks for administrator rights (the tool changes system settings)'
 $appCore = [IO.File]::ReadAllText((Join-Path $root 'app\Core.cs'))
 $missingInApp = @(Get-ChildItem -LiteralPath (Join-Path $root 'reg') -Recurse -File -Filter '*.reg' | ForEach-Object { $_.Name.Substring(0, 2) } | Where-Object { -not $appCore.Contains('new Tweak("' + $_ + '"') })
-Assert ($missingInApp.Count -eq 0 -and $appCore.Contains('new Tweak("16"') -and $appCore.Contains('new Tweak("21"') -and $appCore.Contains('new Tweak("22"')) ('every tweak of the reg folder (and 16) is listed in the app ' + ($missingInApp -join ', '))
+Assert ($missingInApp.Count -eq 0 -and $appCore.Contains('new Tweak("16"') -and $appCore.Contains('new Tweak("21"') -and $appCore.Contains('new Tweak("22"') -and $appCore.Contains('new Tweak("27"')) ('every tweak of the reg folder (and 16) is listed in the app ' + ($missingInApp -join ', '))
 $masterApp = [IO.File]::ReadAllText((Join-Path $root '1_Start_Here - PC_Optimizer_Master (Run as Administrator).bat'))
 Assert ($masterApp -match 'if /i "%~1"=="/apply" goto APPLYONE' -and $masterApp -match 'if /i "%~1"=="/revert" goto REVERTONE' -and $masterApp -match ':APPLYONE' -and $masterApp -match ':REVERTONE') 'the main menu file has /apply and /revert (the app uses them)'
 Assert ([IO.File]::ReadAllText((Join-Path $root '.gitattributes')).Contains('/app export-ignore')) 'the app sources stay out of the download ZIP (the release job adds the built exe)'
@@ -599,7 +644,7 @@ param([string]$Suite)
 $ast = [System.Management.Automation.Language.Parser]::ParseFile($Suite, [ref]$null, [ref]$null)
 $funcs = @($ast.FindAll({ param($n) $n -is [System.Management.Automation.Language.FunctionDefinitionAst] -and ($n.Name -eq 'Get-SettingsState' -or $n.Name -eq 'Test-Profile') }, $true))
 $script:Root = 'X:\none'
-function Invoke-PsFile { param($a, $b, $c) [pscustomobject]@{ Out = "01|OK`r`n02|OK`r`n03|OK`r`n04|OK`r`n05|OK`r`n06|OK`r`n07|OK`r`n08|OK`r`n09|SKIPPED`r`n10|OK`r`n11|OK`r`n12|SKIPPED`r`n13|SKIPPED`r`n14|OK`r`n15|OK`r`nPLAN|OK`r`nPWR|OK`r`n16|OK`r`n18|SKIPPED`r`n19|SKIPPED`r`n20|SKIPPED`r`n21|SKIPPED`r`n22|UNKNOWN`r`n23|SKIPPED`r`n24|SKIPPED`r`n25|SKIPPED`r`nPREF|UNKNOWN" } }
+function Invoke-PsFile { param($a, $b, $c) [pscustomobject]@{ Out = "01|OK`r`n02|OK`r`n03|OK`r`n04|OK`r`n05|OK`r`n06|OK`r`n07|OK`r`n08|OK`r`n09|SKIPPED`r`n10|OK`r`n11|OK`r`n12|SKIPPED`r`n13|SKIPPED`r`n14|OK`r`n15|OK`r`nPLAN|OK`r`nPWR|OK`r`n16|OK`r`n18|SKIPPED`r`n19|SKIPPED`r`n20|SKIPPED`r`n21|SKIPPED`r`n22|UNKNOWN`r`n23|SKIPPED`r`n24|SKIPPED`r`n25|SKIPPED`r`n26|SKIPPED`r`n27|SKIPPED`r`nPREF|UNKNOWN" } }
 foreach ($f in $funcs) { . ([scriptblock]::Create($f.Extent.Text)) }
 $st = Get-SettingsState
 Write-Output ('' + $funcs.Count + ' ' + $st.OkTotal + ' ' + $st.Map.Count + ' ' + @(Test-Profile $st 'games').Count + ' ' + @(Test-Profile $st 'max').Count + ' ' + @(Test-Profile $st 'safe').Count)
@@ -607,7 +652,7 @@ Write-Output ('' + $funcs.Count + ' ' + $st.OkTotal + ' ' + $st.Map.Count + ' ' 
 [IO.File]::WriteAllText($vmUnitFile, $vmUnitText, (New-Object System.Text.UTF8Encoding($false)))
 $vmUnit = (& powershell.exe -NoProfile -ExecutionPolicy Bypass -File $vmUnitFile -Suite (Join-Path $root 'tests\vm\guest\vm_tests.ps1') 2>&1 | Out-String).Trim()
 Remove-Item -LiteralPath $vmUnitFile -Force -ErrorAction SilentlyContinue
-Assert ($vmUnit -eq '2 15 24 2 9 3') 'the VM suite reads the settings list and judges each Easy Setup profile correctly (made-up probe output)'
+Assert ($vmUnit -eq '2 15 26 2 11 3') 'the VM suite reads the settings list and judges each Easy Setup profile correctly (made-up probe output)'
 $vmDry = & powershell.exe -NoProfile -ExecutionPolicy Bypass -File (Join-Path $root 'tests\vm\guest\vm_tests.ps1') -DryRun 2>&1 | Out-String
 Assert ($LASTEXITCODE -eq 0 -and $vmDry.Contains('P2') -and $vmDry.Contains('P6') -and $vmDry -match 'Dry run') 'the VM suite lists its phases in a dry run and changes nothing'
 $vmTmp = Join-Path ([IO.Path]::GetTempPath()) ('vmedition_' + [guid]::NewGuid().ToString('N'))
