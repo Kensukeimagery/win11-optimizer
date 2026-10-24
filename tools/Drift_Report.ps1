@@ -43,7 +43,7 @@ function Show-Toast([string]$Title, [string]$Text) {
         $esc = { param($s) [Security.SecurityElement]::Escape($s) }
         $xml.LoadXml('<toast><visual><binding template="ToastGeneric"><text>' + (& $esc $Title) + '</text><text>' + (& $esc $Text) + '</text></binding></visual></toast>')
         $toast = New-Object Windows.UI.Notifications.ToastNotification $xml
-        $appId = '{1AC14E77-02E7-4E5D-B744-2EB1AE5198B7}\WindowsPowerShell\v1' + '.0\powershell.exe'   # the id of Windows PowerShell (written in two pieces: the version check of the tests reads "v1.0" as a version)
+        $appId = '{1AC14E77-02E7-4E5D-B744-2EB1AE5198B7}\WindowsPowerShell\v1' + '.0\powershell.exe'   # the id of Windows PowerShell (written in two pieces on purpose: the version test of the repository reads a v followed by digits as a version number)
         [Windows.UI.Notifications.ToastNotificationManager]::CreateToastNotifier($appId).Show($toast)
     } catch { }
 }

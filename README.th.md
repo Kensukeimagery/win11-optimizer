@@ -42,6 +42,17 @@
   </tr>
 </table>
 
+<table>
+  <tr>
+    <td width="50%"><img src="docs/img/app-startup-th.png" alt="หน้าโปรแกรมเริ่มต้น: ทุกโปรแกรมที่เริ่มพร้อม Windows พร้อมสวิตช์"></td>
+    <td width="50%"><img src="docs/img/app-tools-th.png" alt="หน้าเครื่องมือ: สเปก สุขภาพเครื่อง ทดสอบเครือข่าย ไดรเวอร์ วัดผลก่อนและหลัง คืนพื้นที่ดิสก์ และอื่นๆ"></td>
+  </tr>
+  <tr>
+    <td align="center"><sub>โปรแกรมเริ่มต้น: ปิดทีละตัว ไม่มีอะไรถูกลบ</sub></td>
+    <td align="center"><sub>เครื่องมือ: วัดผลก่อนและหลัง คืนพื้นที่ดิสก์ และอื่นๆ</sub></td>
+  </tr>
+</table>
+
 > [!NOTE]
 > โปรแกรมยังไม่ได้ลงลายเซ็นดิจิทัล SmartScreen อาจขึ้นว่า "Windows protected your PC" กด **More info** แล้ว **Run anyway** หรือใช้ไฟล์ `.bat` ซึ่งทำงานเหมือนกัน ซอร์สโค้ดอยู่ที่ [`app/`](app/) (C# ราว 1,500 บรรทัด) คำสั่ง `powershell -File app\build.ps1` คอมไพล์ด้วยคอมไพเลอร์ที่มากับ Windows จึงตรวจได้ว่า exe ตรงกับซอร์ส
 

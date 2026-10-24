@@ -42,8 +42,19 @@
   </tr>
 </table>
 
+<table>
+  <tr>
+    <td width="50%"><img src="docs/img/app-startup.png" alt="The Startup page: every program that starts with Windows, with a switch"></td>
+    <td width="50%"><img src="docs/img/app-tools.png" alt="The Tools page: PC specs, health, network test, drivers, measure before and after, free up space and more"></td>
+  </tr>
+  <tr>
+    <td align="center"><sub>Startup: switch a program off, nothing is deleted</sub></td>
+    <td align="center"><sub>Tools: measure before and after, free up space and more</sub></td>
+  </tr>
+</table>
+
 > [!NOTE]
-> The program is not code-signed, so SmartScreen may say "Windows protected your PC": click **More info**, then **Run anyway**, or use the `.bat` files, which do the same. The source is in [`app/`](app/) (about 1,500 lines of C#). `powershell -File app\build.ps1` builds it with the compiler that ships with Windows, so you can check that the exe matches.
+> The program is not code-signed, so SmartScreen may say "Windows protected your PC": click **More info**, then **Run anyway**, or use the `.bat` files, which do the same. The source is in [`app/`](app/) (about 1,800 lines of C#). `powershell -File app\build.ps1` builds it with the compiler that ships with Windows, so you can check that the exe matches.
 
 ## What it looks like
 
