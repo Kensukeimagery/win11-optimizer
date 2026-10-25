@@ -75,7 +75,7 @@ $def = Get-DriftTaskDefinition $Root
 if (-not (Test-Path -LiteralPath $def.Script)) { Write-Host ('   [FAILED] ' + $def.Script + ' was not found.'); exit 1 }
 try {
     $user = [Security.Principal.WindowsIdentity]::GetCurrent().Name
-    $action = New-ScheduledTaskAction -Execute $def.Execute -Argument $def.Argument
+    $taskAction = New-ScheduledTaskAction -Execute $def.Execute -Argument $def.Argument
     $cls = Get-CimClass -ClassName MSFT_TaskEventTrigger -Namespace 'Root/Microsoft/Windows/TaskScheduler'
     $eventTrigger = New-CimInstance -CimClass $cls -ClientOnly
     $eventTrigger.Subscription = $def.EventQuery
@@ -84,7 +84,7 @@ try {
     $logonTrigger.Delay = $def.LogonDelay
     $principal = New-ScheduledTaskPrincipal -UserId $user -LogonType Interactive -RunLevel Limited
     $settings = New-ScheduledTaskSettingsSet -AllowStartIfOnBatteries -DontStopIfGoingOnBatteries -StartWhenAvailable -ExecutionTimeLimit (New-TimeSpan -Minutes 5)
-    $task = New-ScheduledTask -Action $action -Trigger @($eventTrigger, $logonTrigger) -Principal $principal -Settings $settings -Description 'PC Optimizer: after Windows Update, check whether settings of the tool were changed back (reads only).'
+    $task = New-ScheduledTask -Action $taskAction -Trigger @($eventTrigger, $logonTrigger) -Principal $principal -Settings $settings -Description 'PC Optimizer: after Windows Update, check whether settings of the tool were changed back (reads only).'
     Register-ScheduledTask -TaskName $TaskName -InputObject $task -Force -ErrorAction Stop | Out-Null
 } catch { Write-Host ('   [FAILED] ' + $_.Exception.Message); exit 1 }
 if ($null -eq (Get-DriftTask)) { Write-Host '   [FAILED] The entry was not created.'; exit 1 }
