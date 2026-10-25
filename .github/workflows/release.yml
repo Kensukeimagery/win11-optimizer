@@ -61,4 +61,7 @@ jobs:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           $tag = $env:GITHUB_REF_NAME
-          gh release create $tag "win11-optimizer-$tag.zip" win11-optimizer.zip win11-optimizer.zip.sha256 --title $tag --notes-file notes.md --latest
+          # A file named BETA in the repository root marks a pre-release: it is not "latest", so the updater (U) keeps offering the last stable version.
+          $mark = '--latest'
+          if (Test-Path BETA) { $mark = '--prerelease' }
+          gh release create $tag "win11-optimizer-$tag.zip" win11-optimizer.zip win11-optimizer.zip.sha256 --title $tag --notes-file notes.md $mark
