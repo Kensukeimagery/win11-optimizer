@@ -1,1 +1,0 @@
-Pre-release marker. While this file exists, tagged releases are published as pre-release (not 'latest'). Delete it when the version has passed the VM test.
